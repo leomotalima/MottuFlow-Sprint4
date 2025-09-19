@@ -1,0 +1,54 @@
+using MottuFlowApi.Models;
+using MottuFlowApi.Repositories;
+
+namespace MottuFlowApi.Services
+{
+    public class MotoService
+    {
+        private readonly MotoRepository _repository;
+
+        public MotoService(MotoRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<List<Moto>> ListarTodas()
+        {
+            return await _repository.GetAllAsync();
+        }
+
+        public async Task<Moto?> ObterPorId(int id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<Moto?> ObterPorPlaca(string placa)
+        {
+            return await _repository.GetByPlacaAsync(placa);
+        }
+
+        public async Task Adicionar(Moto moto)
+        {
+            if (string.IsNullOrWhiteSpace(moto.Placa))
+                throw new Exception("Placa é obrigatória");
+
+            if (string.IsNullOrWhiteSpace(moto.Modelo))
+                throw new Exception("Modelo é obrigatório");
+
+            if (moto.Ano <= 0)
+                throw new Exception("Ano da moto inválido");
+
+            await _repository.AddAsync(moto);
+        }
+
+        public async Task Atualizar(Moto moto)
+        {
+            await _repository.UpdateAsync(moto);
+        }
+
+        public async Task Remover(int id)
+        {
+            await _repository.DeleteAsync(id);
+        }
+    }
+}
