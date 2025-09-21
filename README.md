@@ -4,41 +4,56 @@
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
 
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.x-lightgreen.svg)
+<div align="center">
+  <img src="https://github.com/leomotalima/MottuFlow/raw/main/Assets/logo.png" alt="MottuFlow" width="200"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
+</div>
+
+![.NET](https://img.shields.io/badge/.NET-8-blue.svg)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-green.svg)
+![Oracle](https://img.shields.io/badge/Oracle-19c-red.svg)
+![xUnit](https://img.shields.io/badge/xUnit-2.5-orange.svg)
 
 ---
 
 ## 👥 Integrantes
 
-- João Gabriel Boaventura RM557854 - 2TDSB2025  
-- Léo Mota Lima RM557851 - 2TDSB2025  
-- Lucas Leal das Chagas RM551124 - 2TDSB2025  
+* João Gabriel Boaventura RM557854 - 2TDSB2025
+* Léo Mota Lima RM557851 - 2TDSB2025
+* Lucas Leal das Chagas RM551124 - 2TDSB2025
 
 ---
 
 ## 📌 Justificativa da Arquitetura
 
-O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, separando responsabilidades para maior manutenção e escalabilidade:  
+O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, separando responsabilidades para maior manutenção e escalabilidade:
 
-- **Controller:** Recebe requisições e retorna respostas.  
-- **Service:** Contém regras de negócio e processamento de dados.  
-- **Repository:** Gerencia o acesso ao banco de dados.  
+* **Controller:** Recebe requisições HTTP e retorna respostas.
+* **Service:** Contém regras de negócio e processamento de dados.
+* **Repository:** Gerencia o acesso ao banco de dados.
 
-O uso de **DTOs** garante segurança, padronização e separação entre dados de entrada e saída.  
+O uso de **DTOs** garante segurança, padronização e separação entre dados de entrada e saída.
 
-O modelo de dados permite gerenciar frotas de motos, incluindo **Funcionários, Pátios, Motos, Câmeras, ArUco Tags, Localidades e Registro de Status**.
+---
+
+## 📌 Justificativa do Domínio
+
+As entidades foram definidas com base na operação da Mottu, startup de locação e logística de motos:
+
+* **Funcionário:** Responsável por organizar e monitorar motos no pátio.
+* **Moto:** Recurso principal utilizado em entregas e locação.
+* **Pátio:** Local físico de armazenamento e organização das motos.
+
+Essa modelagem garante rastreabilidade, controle da frota e operação eficiente da empresa.
 
 ---
 
 ## 🛠 Tecnologias
 
-- **Backend:** ASP.NET Core 8  
-- **Banco de Dados:** Oracle  
-- **Testes:** xUnit  
-- **Controle de Versão:** GitHub  
+* **Backend:** ASP.NET Core 8
+* **Banco de Dados:** Oracle 19c
+* **Testes:** xUnit
+* **Controle de Versão:** GitHub
 
 ---
 
@@ -85,6 +100,12 @@ dotnet run
 http://localhost:5224
 ```
 
+5. Para explorar os endpoints com Swagger (OpenAPI):
+
+```
+http://localhost:5224/swagger
+```
+
 ---
 
 ## 🖼 Exemplos de Endpoints
@@ -98,8 +119,6 @@ PUT /api/funcionarios/{id}
 DELETE /api/funcionarios/{id}
 ```
 
-![Funcionários](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/FuncionarioEndpoint.png?raw=true)
-
 ### Pátios
 
 ```
@@ -108,8 +127,6 @@ POST /api/patios
 PUT /api/patios/{id}
 DELETE /api/patios/{id}
 ```
-
-![Pátios](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/PatioEndpoint.png?raw=true)
 
 ### Motos
 
@@ -120,8 +137,6 @@ PUT /api/motos/{id}
 DELETE /api/motos/{id}
 ```
 
-![Motos](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/MotoEndpoint.png?raw=true)
-
 ### Câmeras
 
 ```
@@ -130,8 +145,6 @@ POST /api/cameras
 PUT /api/cameras/{id}
 DELETE /api/cameras/{id}
 ```
-
-![Câmeras](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/CameraEndpoint.png?raw=true)
 
 ### ArUco Tags
 
@@ -142,16 +155,12 @@ PUT /api/aruco-tags/{id}
 DELETE /api/aruco-tags/{id}
 ```
 
-![ArUco Tags](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/ArucoEndpoint.png?raw=true)
-
 ### Localidades
 
 ```
 GET /api/localidades
 POST /api/localidades
 ```
-
-![Localidades](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/LocalidadeEndpoint.png?raw=true)
 
 ### Registro de Status
 
@@ -160,11 +169,16 @@ GET /api/registro-status
 POST /api/registro-status
 ```
 
-![Registro de Status](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/RegistroStatusEndpoint.png?raw=true)
-
 ---
 
 ## 🧪 Testes Unitários
+
+Para executar todos os testes com **xUnit**:
+
+```bash
+dotnet test
+```
+
 
 Para executar todos os testes com **xUnit**:
 
