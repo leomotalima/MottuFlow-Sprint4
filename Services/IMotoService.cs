@@ -1,3 +1,6 @@
+using MottuFlowApi.Models;
+using MottuFlowApi.Helpers;
+
 namespace MottuFlowApi.Services
 {
     public interface IMotoService
