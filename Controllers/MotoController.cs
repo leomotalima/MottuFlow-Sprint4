@@ -1,132 +1,132 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MottuFlowApi.Data;
 using MottuFlowApi.Models;
-using System.Linq;
+using MottuFlowApi.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
 {
     [ApiController]
-    [Route("api/motos")]
+    [Route("api/[controller]")]
     public class MotoController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public MotoController(AppDbContext context) => _context = context;
+        private readonly IMotoService _motoService;
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetMotos(int page = 1, int pageSize = 10)
+        public MotoController(IMotoService motoService)
         {
-            var motos = await _context.Motos
-                .Include(m => m.Patio)
-                .Include(m => m.Statuses)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            _motoService = motoService;
+        }
 
-            var result = motos.Select(m => new
+        // ----------------------------
+        // GET com paginação
+        // ----------------------------
+        /// <summary>
+        /// Lista todas as motos com suporte a paginação.
+        /// </summary>
+        /// <param name="page">Número da página (mínimo = 1)</param>
+        /// <param name="size">Quantidade de registros por página</param>
+        [HttpGet]
+        [SwaggerOperation(Summary = "Lista motos", Description = "Retorna as motos com suporte a paginação e links HATEOAS.")]
+        [SwaggerResponse(200, "Lista de motos retornada com sucesso")]
+        public async Task<ActionResult> GetMotos([FromQuery] int page = 1, [FromQuery] int size = 10)
+        {
+            if (page <= 0 || size <= 0)
+                return BadRequest("Parâmetros de paginação inválidos.");
+
+            var result = await _motoService.GetPagedAsync(page, size);
+
+            var response = new
             {
-                m.IdMoto,
-                m.Placa,
-                m.Modelo,
-                Status = (m.Statuses ?? Enumerable.Empty<RegistroStatus>())
-                            .OrderByDescending(s => s.DataStatus)
-                            .FirstOrDefault()?.TipoStatus,
+                result.Page,
+                result.Size,
+                result.TotalCount,
+                Data = result.Items.Select(m => new
+                {
+                    m.Id,
+                    m.Placa,
+                    m.Marca,
+                    m.Modelo,
+                    Links = new[]
+                    {
+                        new { rel = "self", href = Url.Action(nameof(GetMotoById), new { id = m.Id }) },
+                        new { rel = "update", href = Url.Action(nameof(UpdateMoto), new { id = m.Id }) },
+                        new { rel = "delete", href = Url.Action(nameof(DeleteMoto), new { id = m.Id }) }
+                    }
+                })
+            };
+
+            return Ok(response);
+        }
+
+        // ----------------------------
+        // GET por Id
+        // ----------------------------
+        [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Busca moto por ID", Description = "Retorna uma moto específica pelo seu ID.")]
+        [SwaggerResponse(200, "Moto encontrada", typeof(Moto))]
+        [SwaggerResponse(404, "Moto não encontrada")]
+        public async Task<ActionResult<Moto>> GetMotoById(int id)
+        {
+            var moto = await _motoService.GetByIdAsync(id);
+            if (moto == null) return NotFound();
+
+            return Ok(new
+            {
+                moto.Id,
+                moto.Placa,
+                moto.Marca,
+                moto.Modelo,
                 Links = new[]
                 {
-                    new { Rel = "self", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "update", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "delete", Href = $"/api/motos/{m.IdMoto}" }
+                    new { rel = "self", href = Url.Action(nameof(GetMotoById), new { id = moto.Id }) },
+                    new { rel = "update", href = Url.Action(nameof(UpdateMoto), new { id = moto.Id }) },
+                    new { rel = "delete", href = Url.Action(nameof(DeleteMoto), new { id = moto.Id }) }
                 }
             });
-
-            return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetMoto(int id)
-        {
-            var m = await _context.Motos
-                .Include(m => m.Patio)
-                .Include(m => m.Statuses)
-                .FirstOrDefaultAsync(m => m.IdMoto == id);
-
-            if (m == null) return NotFound(new { Message = "Moto não encontrada." });
-
-            var result = new
-            {
-                m.IdMoto,
-                m.Placa,
-                m.Modelo,
-                Status = (m.Statuses ?? Enumerable.Empty<RegistroStatus>())
-                            .OrderByDescending(s => s.DataStatus)
-                            .FirstOrDefault()?.TipoStatus,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "update", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "delete", Href = $"/api/motos/{m.IdMoto}" }
-                }
-            };
-
-            return Ok(result);
-        }
-
+        // ----------------------------
+        // POST
+        // ----------------------------
         [HttpPost]
-        public async Task<ActionResult<object>> CreateMoto([FromBody] Moto m)
+        [SwaggerOperation(Summary = "Cria uma nova moto", Description = "Adiciona uma nova moto no sistema.")]
+        [SwaggerResponse(201, "Moto criada com sucesso", typeof(Moto))]
+        [SwaggerResponse(400, "Dados inválidos")]
+        public async Task<ActionResult<Moto>> CreateMoto(Moto moto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var created = await _motoService.CreateAsync(moto);
 
-            _context.Motos.Add(m);
-            await _context.SaveChangesAsync();
-
-            var result = new
-            {
-                m.IdMoto,
-                m.Placa,
-                m.Modelo,
-                Status = (m.Statuses ?? Enumerable.Empty<RegistroStatus>())
-                            .OrderByDescending(s => s.DataStatus)
-                            .FirstOrDefault()?.TipoStatus,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "update", Href = $"/api/motos/{m.IdMoto}" },
-                    new { Rel = "delete", Href = $"/api/motos/{m.IdMoto}" }
-                }
-            };
-
-            return CreatedAtAction(nameof(GetMoto), new { id = m.IdMoto }, result);
+            return CreatedAtAction(nameof(GetMotoById), new { id = created.Id }, created);
         }
 
+        // ----------------------------
+        // PUT
+        // ----------------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMoto(int id, [FromBody] Moto m)
+        [SwaggerOperation(Summary = "Atualiza moto", Description = "Atualiza os dados de uma moto existente.")]
+        [SwaggerResponse(200, "Moto atualizada com sucesso", typeof(Moto))]
+        [SwaggerResponse(404, "Moto não encontrada")]
+        public async Task<ActionResult<Moto>> UpdateMoto(int id, Moto moto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != m.IdMoto) return BadRequest(new { Message = "ID da moto inválido." });
+            if (id != moto.Id) return BadRequest("ID da URL não corresponde ao ID da moto.");
 
-            _context.Entry(m).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Motos.Any(x => x.IdMoto == id))
-                    return NotFound(new { Message = "Moto não encontrada." });
-                throw;
-            }
+            var updated = await _motoService.UpdateAsync(moto);
+            if (updated == null) return NotFound();
 
-            return NoContent();
+            return Ok(updated);
         }
 
+        // ----------------------------
+        // DELETE
+        // ----------------------------
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Exclui moto", Description = "Remove uma moto do sistema.")]
+        [SwaggerResponse(204, "Moto excluída com sucesso")]
+        [SwaggerResponse(404, "Moto não encontrada")]
         public async Task<IActionResult> DeleteMoto(int id)
         {
-            var m = await _context.Motos.FindAsync(id);
-            if (m == null) return NotFound(new { Message = "Moto não encontrada." });
+            var success = await _motoService.DeleteAsync(id);
+            if (!success) return NotFound();
 
-            _context.Motos.Remove(m);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
