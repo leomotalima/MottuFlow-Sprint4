@@ -1,14 +1,13 @@
 
 <div align="center">
-  <img src="https://github.com/leomotalima/MottuFlow/blob/main/MottuFlowNetLogo.png?raw=true" alt="MottuFlow .NET" width="200"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬 .NET</h1>
-  <p>API RESTful com ASP.NET Core</p>
-  <p>
-    <a href="https://github.com/leomotalima/MottuFlow/actions"><img src="https://img.shields.io/github/actions/workflow/status/leomotalima/MottuFlow/dotnet.yml?style=flat-square" alt="Build Status"></a>
-    <a href="https://img.shields.io/github/issues/leomotalima/MottuFlow?style=flat-square"><img src="https://img.shields.io/github/issues/leomotalima/MottuFlow?style=flat-square" alt="Issues"></a>
-    <a href="https://img.shields.io/github/workflow/status/leomotalima/MottuFlow/Tests?style=flat-square"><img src="https://img.shields.io/github/workflow/status/leomotalima/MottuFlow/Tests?style=flat-square" alt="Test Status"></a>
-  </p>
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
+
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.x-lightgreen.svg)
 
 ---
 
