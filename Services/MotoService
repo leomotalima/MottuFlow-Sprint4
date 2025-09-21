@@ -3,7 +3,7 @@ using MottuFlowApi.Repositories;
 
 namespace MottuFlowApi.Services
 {
-    public class MotoService
+    public class MotoService : IMotoService
     {
         private readonly MotoRepository _repository;
 
@@ -12,22 +12,39 @@ namespace MottuFlowApi.Services
             _repository = repository;
         }
 
-        public async Task<List<Moto>> ListarTodas()
+        // ----------------------------
+        // Retorna lista paginada de motos
+        // ----------------------------
+        public async Task<PagedResult<Moto>> GetPagedAsync(int page, int size)
         {
-            return await _repository.GetAllAsync();
+            var allMotos = await _repository.GetAllAsync();
+            var items = allMotos.Skip((page - 1) * size).Take(size).ToList();
+
+            return new PagedResult<Moto>
+            {
+                Page = page,
+                Size = size,
+                TotalCount = allMotos.Count,
+                Items = items
+            };
         }
 
-        public async Task<Moto?> ObterPorId(int id)
+        // ----------------------------
+        // Busca moto por ID
+        // ----------------------------
+        public async Task<Moto> GetByIdAsync(int id)
         {
-            return await _repository.GetByIdAsync(id);
+            var moto = await _repository.GetByIdAsync(id);
+            if (moto == null)
+                throw new Exception("Moto não encontrada");
+
+            return moto;
         }
 
-        public async Task<Moto?> ObterPorPlaca(string placa)
-        {
-            return await _repository.GetByPlacaAsync(placa);
-        }
-
-        public async Task Adicionar(Moto moto)
+        // ----------------------------
+        // Cria uma nova moto
+        // ----------------------------
+        public async Task<Moto> CreateAsync(Moto moto)
         {
             if (string.IsNullOrWhiteSpace(moto.Placa))
                 throw new Exception("Placa é obrigatória");
@@ -39,16 +56,28 @@ namespace MottuFlowApi.Services
                 throw new Exception("Ano da moto inválido");
 
             await _repository.AddAsync(moto);
+            return moto;
         }
 
-        public async Task Atualizar(Moto moto)
+        // ----------------------------
+        // Atualiza uma moto existente
+        // ----------------------------
+        public async Task<Moto> UpdateAsync(Moto moto)
         {
             await _repository.UpdateAsync(moto);
+            return moto;
         }
 
-        public async Task Remover(int id)
+        // ----------------------------
+        // Remove uma moto
+        // ----------------------------
+        public async Task<bool> DeleteAsync(int id)
         {
+            var moto = await _repository.GetByIdAsync(id);
+            if (moto == null) return false;
+
             await _repository.DeleteAsync(id);
+            return true;
         }
     }
 }

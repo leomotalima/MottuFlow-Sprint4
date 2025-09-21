@@ -95,6 +95,8 @@ namespace MottuFlowApi.Controllers
         [SwaggerRequestExample(typeof(Moto), typeof(MotoRequestExample))]
         public async Task<ActionResult<Moto>> CreateMoto([FromBody] Moto moto)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var created = await _motoService.CreateAsync(moto);
             return CreatedAtAction(nameof(GetMotoById), new { id = created.Id }, created);
         }
@@ -110,6 +112,7 @@ namespace MottuFlowApi.Controllers
         [SwaggerRequestExample(typeof(Moto), typeof(MotoRequestExample))]
         public async Task<ActionResult<Moto>> UpdateMoto(int id, [FromBody] Moto moto)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id != moto.Id) return BadRequest("ID da URL não corresponde ao ID da moto.");
 
             var updated = await _motoService.UpdateAsync(moto);
@@ -133,3 +136,37 @@ namespace MottuFlowApi.Controllers
             return NoContent();
         }
     }
+
+    // ----------------------------
+    // DTO para HATEOAS
+    // ----------------------------
+    public class LinkDto
+    {
+        public string Rel { get; set; }
+        public string Href { get; set; }
+        public string Method { get; set; }
+
+        public LinkDto(string rel, string href, string method)
+        {
+            Rel = rel;
+            Href = href;
+            Method = method;
+        }
+    }
+
+    // ----------------------------
+    // Exemplo de request para Swagger
+    // ----------------------------
+    public class MotoRequestExample : IExamplesProvider<Moto>
+    {
+        public Moto GetExamples()
+        {
+            return new Moto
+            {
+                Placa = "ABC1234",
+                Marca = "Honda",
+                Modelo = "CG 160"
+            };
+        }
+    }
+}

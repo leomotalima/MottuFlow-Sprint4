@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\leom\\Documents\\Projetos\\MottuFlow\\MottuFlow.csproj": {}
+    "C:\\Users\\leom\\MottuFlow\\MottuFlow.csproj": {}
   },
   "projects": {
-    "C:\\Users\\leom\\Documents\\Projetos\\MottuFlow\\MottuFlow.csproj": {
+    "C:\\Users\\leom\\MottuFlow\\MottuFlow.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\leom\\Documents\\Projetos\\MottuFlow\\MottuFlow.csproj",
+        "projectUniqueName": "C:\\Users\\leom\\MottuFlow\\MottuFlow.csproj",
         "projectName": "MottuFlow",
-        "projectPath": "C:\\Users\\leom\\Documents\\Projetos\\MottuFlow\\MottuFlow.csproj",
+        "projectPath": "C:\\Users\\leom\\MottuFlow\\MottuFlow.csproj",
         "packagesPath": "C:\\Users\\leom\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\leom\\Documents\\Projetos\\MottuFlow\\obj\\",
+        "outputPath": "C:\\Users\\leom\\MottuFlow\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\leom\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -68,17 +68,35 @@
               "target": "Package",
               "version": "[9.0.9, )"
             },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.14.1, )"
+            },
             "Oracle.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.23.90, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.6.1, )"
+              "version": "[6.5.0, )"
             },
             "Swashbuckle.AspNetCore.Annotations": {
               "target": "Package",
               "version": "[6.6.1, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.0, )"
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.5.0, )"
             }
           },
           "imports": [

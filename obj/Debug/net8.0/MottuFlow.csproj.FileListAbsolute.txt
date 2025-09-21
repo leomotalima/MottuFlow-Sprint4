@@ -142,3 +142,14 @@ C:\Users\leom\Documents\Projetos\MottuFlow\obj\Debug\net8.0\refint\MottuFlow.dll
 C:\Users\leom\Documents\Projetos\MottuFlow\obj\Debug\net8.0\MottuFlow.pdb
 C:\Users\leom\Documents\Projetos\MottuFlow\obj\Debug\net8.0\MottuFlow.genruntimeconfig.cache
 C:\Users\leom\Documents\Projetos\MottuFlow\obj\Debug\net8.0\ref\MottuFlow.dll
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.csproj.AssemblyReference.cache
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.AssemblyInfoInputs.cache
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.AssemblyInfo.cs
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.csproj.CoreCompileInputs.cache
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.sourcelink.json
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.dll
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\refint\MottuFlow.dll
+C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.pdb
