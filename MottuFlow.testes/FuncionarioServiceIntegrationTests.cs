@@ -1,9 +1,7 @@
-﻿using Xunit;
-using MottuFlowApi.Services;     // <- ajustado
-using MottuFlowApi.Models;
-using MottuFlowApi.Repositories;
-using MottuFlowApi.Data;         // DbContext
-using Microsoft.EntityFrameworkCore;
+﻿using MottuFlow.Services;
+using MottuFlow.Models;
+using MottuFlow.Repositories;
+using MottuFlow.Data;
 
 public class FuncionarioServiceIntegrationTests
 {
