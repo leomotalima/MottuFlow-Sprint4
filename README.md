@@ -1,230 +1,174 @@
-# MottuFlow API
 
 <div align="center">
-  <img src="https://github.com/leomotalima/MottuFlow/blob/main/Assets/logo.png?raw=true" alt="MottuFlow" width="200"/>
-  <h1>MottuFlow API</h1>
-  <p>API RESTful para gerenciamento de funcionários, motos e pátios, com boas práticas REST, HATEOAS e Swagger.</p>
+  <img src="https://github.com/leomotalima/MottuFlow/blob/main/MottuFlowNetLogo.png?raw=true" alt="MottuFlow .NET" width="200"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬 .NET</h1>
+  <p>API RESTful com ASP.NET Core</p>
+  <p>
+    <a href="https://github.com/leomotalima/MottuFlow/actions"><img src="https://img.shields.io/github/actions/workflow/status/leomotalima/MottuFlow/dotnet.yml?style=flat-square" alt="Build Status"></a>
+    <a href="https://img.shields.io/github/issues/leomotalima/MottuFlow?style=flat-square"><img src="https://img.shields.io/github/issues/leomotalima/MottuFlow?style=flat-square" alt="Issues"></a>
+    <a href="https://img.shields.io/github/workflow/status/leomotalima/MottuFlow/Tests?style=flat-square"><img src="https://img.shields.io/github/workflow/status/leomotalima/MottuFlow/Tests?style=flat-square" alt="Test Status"></a>
+  </p>
 </div>
 
 ---
 
-## Integrantes
-- João Pedro Cancian Corrêa - RM: 555341  
-- Léo Mota Lima - RM: 557851  
-- Gustavo Paz Felipe - RM: 555277  
-- Nicolas Gabriel Santos - RM: 554464  
+## 👥 Integrantes
+
+- João Gabriel Boaventura RM557854 - 2TDSB2025  
+- Léo Mota Lima RM557851 - 2TDSB2025  
+- Lucas Leal das Chagas RM551124 - 2TDSB2025  
 
 ---
 
-## Justificativa da Arquitetura
-O projeto segue a **arquitetura em camadas**, garantindo separação de responsabilidades:
+## 📌 Justificativa da Arquitetura
 
-- **Controllers** → recebem requisições HTTP e devolvem respostas REST.  
-- **Services** → contêm a lógica de negócio.  
-- **Repositories** → comunicação com o banco de dados (InMemory ou persistente).  
-- **Models/DTOs** → definem os objetos de entrada e saída da API.  
+O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, separando responsabilidades para maior manutenção e escalabilidade:  
 
-Essa arquitetura facilita **testes, manutenção e escalabilidade**, permitindo evoluir a API sem impactar outras camadas.
+- **Controller:** Recebe requisições e retorna respostas.  
+- **Service:** Contém regras de negócio e processamento de dados.  
+- **Repository:** Gerencia o acesso ao banco de dados.  
 
----
+O uso de **DTOs** garante segurança, padronização e separação entre dados de entrada e saída.  
 
-## Justificativa do Domínio
-O domínio foi definido com base na operação da Mottu, startup de locação e logística de motos:
-
-- **Funcionário** → organiza e monitora as motos.  
-- **Moto** → recurso principal, utilizado em entregas e locação.  
-- **Pátio** → local físico de armazenamento e organização das motos.  
-
-Essa modelagem reflete os processos centrais da Mottu: gestão de funcionários, organização de pátios e controle da frota de motos.
+O modelo de dados permite gerenciar frotas de motos, incluindo **Funcionários, Pátios, Motos, Câmeras, ArUco Tags, Localidades e Registro de Status**.
 
 ---
 
-## Instruções de Execução
+## 🛠 Tecnologias
+
+- **Backend:** ASP.NET Core 8  
+- **Banco de Dados:** Oracle  
+- **Testes:** xUnit  
+- **Controle de Versão:** GitHub  
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+MottuFlow/
+│
+├─ Controllers/        # Endpoints da API
+├─ Models/             # Entidades e DTOs
+├─ Repositories/       # Acesso a dados
+├─ Services/           # Regras de negócio
+├─ appsettings.json    # Configurações do projeto
+├─ Tests/              # Projetos de teste (xUnit)
+└─ Program.cs          # Configuração da aplicação
+```
+
+---
+
+## 🚀 Execução da API
 
 1. Clone o repositório:
+
 ```bash
 git clone https://github.com/leomotalima/MottuFlow.git
 ```
 
 2. Acesse a pasta do projeto:
+
 ```bash
 cd MottuFlow
 ```
 
-3. Abra no **Visual Studio 2022+** ou **VS Code**.
+3. Restaure pacotes e execute:
 
-4. Restaure os pacotes NuGet:
 ```bash
 dotnet restore
-```
-
-5. Execute a API:
-```bash
 dotnet run
 ```
 
-6. Acesse o **Swagger UI** para explorar os endpoints:
-```
-http://localhost:5000/swagger
-```
-ou conforme a porta exibida no console.
+4. Acesse a API no navegador ou Postman:
 
----
-
-## Exemplos de Endpoints
-
-### 1️⃣ Moto
-
-**Listar motos com paginação**
 ```
-GET /api/motos?page=1&size=10
-```
-Resposta:
-```json
-{
-  "page": 1,
-  "size": 10,
-  "totalCount": 35,
-  "data": [
-    {
-      "id": 1,
-      "placa": "ABC-1234",
-      "marca": "Honda",
-      "modelo": "CG 160 Titan",
-      "links": [
-        { "rel": "self", "href": "/api/motos/1" },
-        { "rel": "update", "href": "/api/motos/1" },
-        { "rel": "delete", "href": "/api/motos/1" }
-      ]
-    }
-  ]
-}
-```
-
-**Criar uma moto**
-```
-POST /api/motos
-Content-Type: application/json
-
-{
-  "placa": "XYZ-5678",
-  "marca": "Yamaha",
-  "modelo": "Factor 150"
-}
-```
-Resposta:
-```
-201 Created
-Location: /api/motos/2
-```
-
-**Atualizar uma moto**
-```
-PUT /api/motos/2
-Content-Type: application/json
-
-{
-  "id": 2,
-  "placa": "XYZ-5678",
-  "marca": "Yamaha",
-  "modelo": "Factor 150 ED"
-}
-```
-
-**Excluir uma moto**
-```
-DELETE /api/motos/2
-```
-Resposta:
-```
-204 No Content
+http://localhost:5224
 ```
 
 ---
 
-### 2️⃣ Funcionário
+## 🖼 Exemplos de Endpoints
 
-**Listar funcionários**
-```
-GET /api/funcionarios?page=1&size=10
-```
+### Funcionários
 
-**Criar um funcionário**
 ```
+GET /api/funcionarios
 POST /api/funcionarios
-Content-Type: application/json
-
-{
-  "nome": "Léo Mota Lima",
-  "cargo": "Operador de Pátio",
-  "telefone": "11 99999-8888"
-}
+PUT /api/funcionarios/{id}
+DELETE /api/funcionarios/{id}
 ```
 
-**Atualizar um funcionário**
-```
-PUT /api/funcionarios/1
-Content-Type: application/json
+![Funcionários](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/FuncionarioEndpoint.png?raw=true)
 
-{
-  "id": 1,
-  "nome": "Léo Mota Lima",
-  "cargo": "Supervisor de Pátio",
-  "telefone": "11 99999-8888"
-}
-```
+### Pátios
 
-**Excluir um funcionário**
 ```
-DELETE /api/funcionarios/1
-```
-Resposta:
-```
-204 No Content
-```
-
----
-
-### 3️⃣ Pátio
-
-**Listar pátios**
-```
-GET /api/patios?page=1&size=10
-```
-
-**Criar um pátio**
-```
+GET /api/patios
 POST /api/patios
-Content-Type: application/json
-
-{
-  "nome": "Pátio Central",
-  "endereco": "Rua A, 123"
-}
+PUT /api/patios/{id}
+DELETE /api/patios/{id}
 ```
 
-**Atualizar um pátio**
-```
-PUT /api/patios/1
-Content-Type: application/json
+![Pátios](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/PatioEndpoint.png?raw=true)
 
-{
-  "id": 1,
-  "nome": "Pátio Central",
-  "endereco": "Rua A, 456"
-}
+### Motos
+
+```
+GET /api/motos
+POST /api/motos
+PUT /api/motos/{id}
+DELETE /api/motos/{id}
 ```
 
-**Excluir um pátio**
+![Motos](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/MotoEndpoint.png?raw=true)
+
+### Câmeras
+
 ```
-DELETE /api/patios/1
+GET /api/cameras
+POST /api/cameras
+PUT /api/cameras/{id}
+DELETE /api/cameras/{id}
 ```
-Resposta:
+
+![Câmeras](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/CameraEndpoint.png?raw=true)
+
+### ArUco Tags
+
 ```
-204 No Content
+GET /api/aruco-tags
+POST /api/aruco-tags
+PUT /api/aruco-tags/{id}
+DELETE /api/aruco-tags/{id}
 ```
+
+![ArUco Tags](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/ArucoEndpoint.png?raw=true)
+
+### Localidades
+
+```
+GET /api/localidades
+POST /api/localidades
+```
+
+![Localidades](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/LocalidadeEndpoint.png?raw=true)
+
+### Registro de Status
+
+```
+GET /api/registro-status
+POST /api/registro-status
+```
+
+![Registro de Status](https://github.com/leomotalima/MottuFlow/blob/main/Screenshots/RegistroStatusEndpoint.png?raw=true)
 
 ---
 
-> ⚠️ Observação: Todos os endpoints possuem **HATEOAS**, **paginação** e retornam **status codes corretos**. Para testar e explorar, use o **Swagger UI**.
+## 🧪 Testes Unitários
 
+Para executar todos os testes com **xUnit**:
+
+```bash
+dotnet test
+```
