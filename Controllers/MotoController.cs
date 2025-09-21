@@ -1,8 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
 using MottuFlowApi.Models;
 using MottuFlowApi.Services;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+=======
+using Microsoft.EntityFrameworkCore;
+using MottuFlowApi.Data;
+using MottuFlow.Models;
+using MottuFlowApi.DTOs;
+using Swashbuckle.AspNetCore.Annotations;
+>>>>>>> bb95fe1 (Adiciona model, DTO e controller de RegistroStatus)
 
 namespace MottuFlowApi.Controllers
 {
@@ -12,6 +20,7 @@ namespace MottuFlowApi.Controllers
     {
         private readonly IMotoService _motoService;
 
+<<<<<<< HEAD
         public MotoController(IMotoService motoService)
         {
             _motoService = motoService;
@@ -117,10 +126,84 @@ namespace MottuFlowApi.Controllers
 
             var updated = await _motoService.UpdateAsync(moto);
             if (updated == null) return NotFound();
+=======
+        // GET: api/motos?page=1&pageSize=10
+        [HttpGet]
+        [SwaggerOperation(Summary = "Lista todas as motos com paginação")]
+        public async Task<ActionResult<IEnumerable<MotoOutputDTO>>> GetMotos(int page = 1, int pageSize = 10)
+        {
+            var motos = await _context.Motos
+                .Include(m => m.RegistrosStatus) // Inclui registros de status
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = motos.Select(m => MapToOutputDTO(m));
+            return Ok(result);
+        }
+
+        // GET: api/motos/5
+        [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Retorna moto por ID")]
+        public async Task<ActionResult<MotoOutputDTO>> GetMoto(int id)
+        {
+            var m = await _context.Motos
+                .Include(m => m.RegistrosStatus)
+                .FirstOrDefaultAsync(m => m.IdMoto == id);
+
+            if (m == null) return NotFound(new { Message = "Moto não encontrada." });
+
+            return Ok(MapToOutputDTO(m));
+        }
+
+        // POST: api/motos
+        [HttpPost]
+        [SwaggerOperation(Summary = "Cria uma nova moto")]
+        public async Task<ActionResult<MotoOutputDTO>> CreateMoto([FromBody] MotoInputDTO input)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var moto = new Moto
+            {
+                Placa = input.Placa,
+                Modelo = input.Modelo,
+                Fabricante = input.Fabricante,
+                Ano = input.Ano,
+                IdPatio = input.IdPatio,
+                LocalizacaoAtual = input.LocalizacaoAtual
+            };
+
+            _context.Motos.Add(moto);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetMoto), new { id = moto.IdMoto }, MapToOutputDTO(moto));
+        }
+
+        // PUT: api/motos/5
+        [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Atualiza uma moto")]
+        public async Task<IActionResult> UpdateMoto(int id, [FromBody] MotoInputDTO input)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var moto = await _context.Motos.FindAsync(id);
+            if (moto == null) return NotFound(new { Message = "Moto não encontrada." });
+
+            moto.Placa = input.Placa;
+            moto.Modelo = input.Modelo;
+            moto.Fabricante = input.Fabricante;
+            moto.Ano = input.Ano;
+            moto.IdPatio = input.IdPatio;
+            moto.LocalizacaoAtual = input.LocalizacaoAtual;
+
+            _context.Entry(moto).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+>>>>>>> bb95fe1 (Adiciona model, DTO e controller de RegistroStatus)
 
             return Ok(updated);
         }
 
+<<<<<<< HEAD
         // ----------------------------
         // DELETE
         // ----------------------------
@@ -133,7 +216,42 @@ namespace MottuFlowApi.Controllers
             var success = await _motoService.DeleteAsync(id);
             if (!success) return NotFound();
 
+=======
+        // DELETE: api/motos/5
+        [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Deleta uma moto")]
+        public async Task<IActionResult> DeleteMoto(int id)
+        {
+            var moto = await _context.Motos.FindAsync(id);
+            if (moto == null) return NotFound(new { Message = "Moto não encontrada." });
+
+            _context.Motos.Remove(moto);
+            await _context.SaveChangesAsync();
+>>>>>>> bb95fe1 (Adiciona model, DTO e controller de RegistroStatus)
             return NoContent();
+        }
+
+        // === Helpers ===
+        private MotoOutputDTO MapToOutputDTO(Moto m)
+        {
+            return new MotoOutputDTO
+            {
+                IdMoto = m.IdMoto,
+                Placa = m.Placa,
+                Modelo = m.Modelo,
+                Fabricante = m.Fabricante,
+                Ano = m.Ano,
+                IdPatio = m.IdPatio,
+                LocalizacaoAtual = m.LocalizacaoAtual,
+                Statuses = (m.RegistrosStatus?.Select(rs => new StatusDTO
+                {
+                    IdStatus = rs.IdStatus,
+                    TipoStatus = rs.TipoStatus,
+                    Descricao = rs.Descricao,
+                    DataStatus = rs.DataStatus,
+                    IdFuncionario = rs.IdFuncionario
+                }).ToList()) ?? new List<StatusDTO>()
+            };
         }
     }
 

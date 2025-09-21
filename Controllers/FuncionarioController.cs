@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
-using MottuFlowApi.Models;
-using MottuFlowApi.DTOs;  // <-- DTOs
+using MottuFlow.Models;
+using MottuFlowApi.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Cryptography;
 using System.Text;
@@ -22,23 +22,26 @@ namespace MottuFlowApi.Controllers
         public async Task<ActionResult<IEnumerable<FuncionarioOutputDTO>>> GetFuncionarios(int page = 1, int pageSize = 10)
         {
             var funcionarios = await _context.Funcionarios
+                .Include(f => f.RegistrosStatus)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var result = funcionarios.Select(f => MapToOutputDTO(f));
-            return Ok(result);
+            return Ok(funcionarios.Select(f => MapToOutputDTO(f)));
         }
 
-        // GET: api/funcionarios/5
+        // GET: api/funcionarios/{id}
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna funcionário por ID")]
         public async Task<ActionResult<FuncionarioOutputDTO>> GetFuncionario(int id)
         {
-            var f = await _context.Funcionarios.FindAsync(id);
-            if (f == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            var funcionario = await _context.Funcionarios
+                .Include(f => f.RegistrosStatus)
+                .FirstOrDefaultAsync(f => f.IdFuncionario == id);
 
-            return Ok(MapToOutputDTO(f));
+            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+
+            return Ok(MapToOutputDTO(funcionario));
         }
 
         // POST: api/funcionarios
@@ -51,21 +54,20 @@ namespace MottuFlowApi.Controllers
             var funcionario = new Funcionario
             {
                 Nome = input.Nome,
-                Cpf = input.Cpf,
+                CPF = input.Cpf,
                 Cargo = input.Cargo,
                 Telefone = input.Telefone,
                 Email = input.Email,
-                Senha = HashSenha(input.Senha) // <-- senha com hash
+                Senha = HashSenha(input.Senha)
             };
 
             _context.Funcionarios.Add(funcionario);
             await _context.SaveChangesAsync();
 
-            var output = MapToOutputDTO(funcionario);
-            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, output);
+            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, MapToOutputDTO(funcionario));
         }
 
-        // PUT: api/funcionarios/5
+        // PUT: api/funcionarios/{id}
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza um funcionário")]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
@@ -76,11 +78,11 @@ namespace MottuFlowApi.Controllers
             if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
             funcionario.Nome = input.Nome;
-            funcionario.Cpf = input.Cpf;
+            funcionario.CPF = input.Cpf;
             funcionario.Cargo = input.Cargo;
             funcionario.Telefone = input.Telefone;
             funcionario.Email = input.Email;
-            funcionario.Senha = HashSenha(input.Senha); // Atualiza hash da senha
+            funcionario.Senha = HashSenha(input.Senha);
 
             _context.Entry(funcionario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -88,7 +90,7 @@ namespace MottuFlowApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/funcionarios/5
+        // DELETE: api/funcionarios/{id}
         [HttpDelete("{id}")]
         [SwaggerOperation(Summary = "Deleta um funcionário")]
         public async Task<IActionResult> DeleteFuncionario(int id)
@@ -103,21 +105,16 @@ namespace MottuFlowApi.Controllers
 
         // === Helpers ===
 
-        // Mapeia Funcionario para FuncionarioOutputDTO
-        private FuncionarioOutputDTO MapToOutputDTO(Funcionario f)
+        private FuncionarioOutputDTO MapToOutputDTO(Funcionario f) => new FuncionarioOutputDTO
         {
-            return new FuncionarioOutputDTO
-            {
-                IdFuncionario = f.IdFuncionario,
-                Nome = f.Nome,
-                Cpf = f.Cpf,
-                Cargo = f.Cargo,
-                Telefone = f.Telefone,
-                Email = f.Email
-            };
-        }
+            IdFuncionario = f.IdFuncionario,
+            Nome = f.Nome,
+            Cpf = f.CPF,
+            Cargo = f.Cargo,
+            Telefone = f.Telefone,
+            Email = f.Email
+        };
 
-        // Gera hash da senha
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();

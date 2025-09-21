@@ -1,14 +1,32 @@
-namespace MottuFlowApi.Models
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MottuFlow.Models
 {
+    [Table("camera")]
     public class Camera
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id_camera")]
         public int IdCamera { get; set; }
-        public string StatusOperacional { get; set; } = null!;
-        public string LocalizacaoFisica { get; set; } = null!;
+
+        [Required]
+        [MaxLength(20)]
+        [Column("status_operacional")]
+        public string StatusOperacional { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(255)]
+        [Column("localizacao_fisica")]
+        public string LocalizacaoFisica { get; set; } = string.Empty;
+
+        [Required]
+        [Column("id_patio")]
         public int IdPatio { get; set; }
 
         // Navigation
         public Patio? Patio { get; set; }
-        public ICollection<Localidade>? Localidades { get; set; }
+        public List<Localidade> Localidades { get; set; } = new List<Localidade>();
     }
 }

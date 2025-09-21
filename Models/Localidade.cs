@@ -1,14 +1,35 @@
-using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MottuFlowApi.Models
+namespace MottuFlow.Models
 {
+    [Table("localidade")]
     public class Localidade
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id_localidade")]
         public int IdLocalidade { get; set; }
+
+        [Required]
+        [Column("data_hora")]
         public DateTime DataHora { get; set; } = DateTime.Now;
-        public string PontoReferencia { get; set; } = null!;
+
+        [Required]
+        [MaxLength(100)]
+        [Column("ponto_referencia")]
+        public string PontoReferencia { get; set; } = string.Empty;
+
+        [Required]
+        [Column("id_moto")]
         public int IdMoto { get; set; }
+
+        [Required]
+        [Column("id_patio")]
         public int IdPatio { get; set; }
+
+        [Required]
+        [Column("id_camera")]
         public int IdCamera { get; set; }
 
         // Navigation

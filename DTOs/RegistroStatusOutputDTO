@@ -1,0 +1,12 @@
+namespace MottuFlowApi.DTOs
+{
+    public class RegistroStatusOutputDTO
+    {
+        public int IdStatus { get; set; }
+        public string TipoStatus { get; set; } = string.Empty;
+        public string? Descricao { get; set; }
+        public DateTime DataStatus { get; set; }
+        public int IdMoto { get; set; }
+        public int IdFuncionario { get; set; }
+    }
+}
