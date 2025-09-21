@@ -1,14 +1,27 @@
 ﻿using Xunit;
-using MottuFlow.Services;
-using MottuFlow.Models;
+using MottuFlowApi.Services;
+using MottuFlowApi.Models;
+using MottuFlowApi.Repositories;
+using MottuFlowApi.Data; // DbContext
+using Microsoft.EntityFrameworkCore;
 
 public class FuncionarioServiceIntegrationTests
 {
     private readonly FuncionarioService _service;
+    private readonly AppDbContext _context;
 
     public FuncionarioServiceIntegrationTests()
     {
-        _service = new FuncionarioService(); // assume que o service conecta ao Oracle
+        // Configura DbContext InMemory para testes
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDb")
+            .Options;
+
+        _context = new AppDbContext(options);
+
+        // Cria o repositório e injeta no service
+        var repository = new FuncionarioRepository(_context);
+        _service = new FuncionarioService(repository);
     }
 
     [Fact]
@@ -26,10 +39,11 @@ public class FuncionarioServiceIntegrationTests
         };
 
         // Act
-        var criado = await _service.CreateFuncionarioAsync(funcionario);
+        await _service.Adicionar(funcionario); // método do service
 
         // Assert
+        var criado = await _context.Funcionarios.FirstOrDefaultAsync(f => f.Cpf == "12345678900");
         Assert.NotNull(criado);
-        Assert.True(criado.Id > 0); // assumindo que o Id é gerado pelo banco
+        Assert.Equal("Leo", criado!.Nome);
     }
 }
