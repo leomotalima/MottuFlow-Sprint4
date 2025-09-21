@@ -150,6 +150,3 @@ C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.csproj.CoreCompileInputs.cach
 C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.sourcelink.json
-C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.dll
-C:\Users\leom\MottuFlow\obj\Debug\net8.0\refint\MottuFlow.dll
-C:\Users\leom\MottuFlow\obj\Debug\net8.0\MottuFlow.pdb

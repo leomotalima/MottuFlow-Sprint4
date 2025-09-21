@@ -1,54 +1,28 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit;
+using MottuFlowApi.Services;
 using MottuFlowApi.Models;
 using MottuFlowApi.Repositories;
 
-namespace MottuFlowApi.Services
+namespace MottuFlow.Testes
 {
-    public class FuncionarioService
+    public class FuncionarioServiceIntegrationTests
     {
-        private readonly FuncionarioRepository _repository;
+        private readonly FuncionarioService _service;
 
-        public FuncionarioService(FuncionarioRepository repository)
+        public FuncionarioServiceIntegrationTests()
         {
-            _repository = repository;
+            var repository = new FuncionarioRepository(); // ou mock
+            _service = new FuncionarioService(repository);
         }
 
-        public async Task<List<Funcionario>> ListarTodos()
+        [Fact]
+        public async Task ListarTodos_DeveRetornarFuncionarios()
         {
-            return await _repository.GetAllAsync();
+            var funcionarios = await _service.ListarTodos();
+            Assert.NotNull(funcionarios);
         }
 
-        public async Task<Funcionario?> ObterPorId(int id)
-        {
-            return await _repository.GetByIdAsync(id);
-        }
-
-        public async Task<Funcionario?> ObterPorCpf(string cpf)
-        {
-            return await _repository.GetByCpfAsync(cpf);
-        }
-
-        public async Task Adicionar(Funcionario funcionario)
-        {
-            if (string.IsNullOrWhiteSpace(funcionario.Nome))
-                throw new Exception("Nome é obrigatório");
-
-            if (string.IsNullOrWhiteSpace(funcionario.Cpf))
-                throw new Exception("CPF é obrigatório");
-
-            await _repository.AddAsync(funcionario);
-        }
-
-        public async Task Atualizar(Funcionario funcionario)
-        {
-            await _repository.UpdateAsync(funcionario);
-        }
-
-        public async Task Remover(int id)
-        {
-            await _repository.DeleteAsync(id);
-        }
+        // outros testes...
     }
 }

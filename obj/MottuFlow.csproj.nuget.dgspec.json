@@ -90,13 +90,13 @@
             },
             "xunit": {
               "target": "Package",
-              "version": "[2.5.0, )"
+              "version": "[2.9.3, )"
             },
             "xunit.runner.visualstudio": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[2.5.0, )"
+              "version": "[3.1.4, )"
             }
           },
           "imports": [
