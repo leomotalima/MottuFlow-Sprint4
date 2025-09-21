@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MottuFlowApi.Models;
 using MottuFlowApi.Services;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace MottuFlowApi.Controllers
 {
@@ -17,7 +18,7 @@ namespace MottuFlowApi.Controllers
         }
 
         // ----------------------------
-        // GET com paginação
+        // GET com paginação + HATEOAS
         // ----------------------------
         /// <summary>
         /// Lista todas as motos com suporte a paginação.
@@ -47,9 +48,9 @@ namespace MottuFlowApi.Controllers
                     m.Modelo,
                     Links = new[]
                     {
-                        new { rel = "self", href = Url.Action(nameof(GetMotoById), new { id = m.Id }) },
-                        new { rel = "update", href = Url.Action(nameof(UpdateMoto), new { id = m.Id }) },
-                        new { rel = "delete", href = Url.Action(nameof(DeleteMoto), new { id = m.Id }) }
+                        new LinkDto("self", Url.Action(nameof(GetMotoById), new { id = m.Id }), "GET"),
+                        new LinkDto("update", Url.Action(nameof(UpdateMoto), new { id = m.Id }), "PUT"),
+                        new LinkDto("delete", Url.Action(nameof(DeleteMoto), new { id = m.Id }), "DELETE")
                     }
                 })
             };
@@ -58,13 +59,13 @@ namespace MottuFlowApi.Controllers
         }
 
         // ----------------------------
-        // GET por Id
+        // GET por ID
         // ----------------------------
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Busca moto por ID", Description = "Retorna uma moto específica pelo seu ID.")]
         [SwaggerResponse(200, "Moto encontrada", typeof(Moto))]
         [SwaggerResponse(404, "Moto não encontrada")]
-        public async Task<ActionResult<Moto>> GetMotoById(int id)
+        public async Task<ActionResult> GetMotoById(int id)
         {
             var moto = await _motoService.GetByIdAsync(id);
             if (moto == null) return NotFound();
@@ -77,24 +78,24 @@ namespace MottuFlowApi.Controllers
                 moto.Modelo,
                 Links = new[]
                 {
-                    new { rel = "self", href = Url.Action(nameof(GetMotoById), new { id = moto.Id }) },
-                    new { rel = "update", href = Url.Action(nameof(UpdateMoto), new { id = moto.Id }) },
-                    new { rel = "delete", href = Url.Action(nameof(DeleteMoto), new { id = moto.Id }) }
+                    new LinkDto("self", Url.Action(nameof(GetMotoById), new { id = moto.Id }), "GET"),
+                    new LinkDto("update", Url.Action(nameof(UpdateMoto), new { id = moto.Id }), "PUT"),
+                    new LinkDto("delete", Url.Action(nameof(DeleteMoto), new { id = moto.Id }), "DELETE")
                 }
             });
         }
 
         // ----------------------------
-        // POST
+        // POST com exemplo Swagger
         // ----------------------------
         [HttpPost]
         [SwaggerOperation(Summary = "Cria uma nova moto", Description = "Adiciona uma nova moto no sistema.")]
         [SwaggerResponse(201, "Moto criada com sucesso", typeof(Moto))]
         [SwaggerResponse(400, "Dados inválidos")]
-        public async Task<ActionResult<Moto>> CreateMoto(Moto moto)
+        [SwaggerRequestExample(typeof(Moto), typeof(MotoRequestExample))]
+        public async Task<ActionResult<Moto>> CreateMoto([FromBody] Moto moto)
         {
             var created = await _motoService.CreateAsync(moto);
-
             return CreatedAtAction(nameof(GetMotoById), new { id = created.Id }, created);
         }
 
@@ -104,8 +105,10 @@ namespace MottuFlowApi.Controllers
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza moto", Description = "Atualiza os dados de uma moto existente.")]
         [SwaggerResponse(200, "Moto atualizada com sucesso", typeof(Moto))]
+        [SwaggerResponse(400, "ID inválido ou dados inválidos")]
         [SwaggerResponse(404, "Moto não encontrada")]
-        public async Task<ActionResult<Moto>> UpdateMoto(int id, Moto moto)
+        [SwaggerRequestExample(typeof(Moto), typeof(MotoRequestExample))]
+        public async Task<ActionResult<Moto>> UpdateMoto(int id, [FromBody] Moto moto)
         {
             if (id != moto.Id) return BadRequest("ID da URL não corresponde ao ID da moto.");
 
@@ -130,4 +133,3 @@ namespace MottuFlowApi.Controllers
             return NoContent();
         }
     }
-}
