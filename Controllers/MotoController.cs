@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Filters;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlow.Models;
-using MottuFlowApi.DTOs;
+using MottuFlow.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 >>>>>>> bb95fe1 (Adiciona model, DTO e controller de RegistroStatus)
 

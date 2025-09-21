@@ -6,13 +6,28 @@ using System.Reflection;
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
+// Configurações do DbContext
+// ----------------------
+
+// Lê configuração do appsettings.json
+var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
+var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
+
+if (useInMemory)
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("MottuFlowDb"));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseOracle(oracleConnectionString));
+}
+
+// ----------------------
 // Add services to the container
 // ----------------------
 builder.Services.AddControllers();
-
-// DbContext - InMemory para testes locais
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("MottuFlowDb"));
 
 // ----------------------
 // Swagger/OpenAPI
@@ -27,13 +42,9 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API para gerenciamento do fluxo de motos e registros de status",
     });
 
-    // Habilita o uso das anotações [SwaggerOperation]
     c.EnableAnnotations();
-
-    // Garante que nomes duplicados não quebrem o Swagger
     c.CustomSchemaIds(type => type.FullName);
 
-    // Adiciona definição de segurança mínima para .NET 10 preview
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -46,12 +57,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ----------------------
-// Registrar automaticamente Services e Repositories
+// Registrar Services e Repositories automaticamente
 // ----------------------
 var assembly = Assembly.GetExecutingAssembly();
 var types = assembly.GetTypes();
 
-// Registrar Services
+// Services
 foreach (var type in types)
 {
     if (type.IsInterface && type.Name.StartsWith("I") && type.Namespace == "MottuFlowApi.Services")
@@ -62,7 +73,7 @@ foreach (var type in types)
     }
 }
 
-// Registrar Repositories
+// Repositories
 foreach (var type in types)
 {
     if (type.IsInterface && type.Name.StartsWith("I") && type.Namespace == "MottuFlowApi.Repositories")
@@ -78,7 +89,6 @@ foreach (var type in types)
 // ----------------------
 var app = builder.Build();
 
-// Enable Swagger UI sempre (não apenas em Development)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

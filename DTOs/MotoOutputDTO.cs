@@ -1,4 +1,7 @@
-namespace MottuFlowApi.DTOs
+using System;
+using System.Collections.Generic;
+
+namespace MottuFlow.DTOs
 {
     public class MotoOutputDTO
     {
@@ -9,5 +12,6 @@ namespace MottuFlowApi.DTOs
         public int Ano { get; set; }
         public int IdPatio { get; set; }
         public string LocalizacaoAtual { get; set; } = string.Empty;
+        public List<StatusDTO> Statuses { get; set; } = new List<StatusDTO>();
     }
 }

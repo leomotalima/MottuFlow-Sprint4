@@ -1,13 +1,19 @@
 // MotoInputDTO.cs
-namespace MottuFlowApi.DTOs
+using System;
+
+namespace MottuFlow.DTOs
 {
     public class MotoInputDTO
     {
-        public string Placa { get; set; } = string.Empty;
-        public string Modelo { get; set; } = string.Empty;
-        public string Fabricante { get; set; } = string.Empty;
+        public required string Placa { get; set; }
+        public required string Modelo { get; set; }
+        public required string Fabricante { get; set; }
         public int Ano { get; set; }
         public int IdPatio { get; set; }
-        public string LocalizacaoAtual { get; set; } = string.Empty;
+        public required string LocalizacaoAtual { get; set; }
     }
 }
+
+
+
+
