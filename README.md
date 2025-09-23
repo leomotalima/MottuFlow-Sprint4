@@ -1,4 +1,3 @@
-
 <div align="center">
   <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
@@ -16,6 +15,12 @@
 
 ---
 
+## 🚀 Sobre o Projeto
+
+MottuFlow é uma plataforma robusta para gerenciamento de frotas de motocicletas, desenvolvida com arquitetura em camadas para garantir escalabilidade e fácil manutenção. O sistema integra uma API REST moderna com interface web, e utiliza visão computacional para automação na identificação dos veículos, facilitando o controle de funcionários, pátios, motos, câmeras e localização em tempo real.
+
+---
+
 ## 👥 Integrantes
 
 * João Gabriel Boaventura RM557854 - 2TDSB2025
@@ -26,25 +31,25 @@
 
 ## 📌 Justificativa da Arquitetura
 
-O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, separando responsabilidades para maior manutenção e escalabilidade:
+O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, que separa responsabilidades para facilitar manutenção e escalabilidade:
 
 * **Controller:** Recebe requisições HTTP e retorna respostas.
 * **Service:** Contém regras de negócio e processamento de dados.
 * **Repository:** Gerencia o acesso ao banco de dados.
 
-O uso de **DTOs** garante segurança, padronização e separação entre dados de entrada e saída.
+O uso de **DTOs** assegura segurança, padronização e separação clara entre dados de entrada e saída.
 
 ---
 
 ## 📌 Justificativa do Domínio
 
-As entidades foram definidas com base na operação da Mottu, startup de locação e logística de motos:
+As entidades refletem a operação da Mottu, startup especializada em locação e logística de motos:
 
-* **Funcionário:** Responsável por organizar e monitorar motos no pátio.
-* **Moto:** Recurso principal utilizado em entregas e locação.
-* **Pátio:** Local físico de armazenamento e organização das motos.
+* **Funcionário:** Organiza e monitora motos no pátio.
+* **Moto:** Principal recurso para entregas e locação.
+* **Pátio:** Local físico para armazenamento e organização das motos.
 
-Essa modelagem garante rastreabilidade, controle da frota e operação eficiente da empresa.
+Essa modelagem promove rastreabilidade, controle de frota e operação eficiente.
 
 ---
 
@@ -53,6 +58,19 @@ Essa modelagem garante rastreabilidade, controle da frota e operação eficiente
 * **Backend:** ASP.NET Core 8
 * **Banco de Dados:** Oracle 19c
 * **Controle de Versão:** GitHub
+
+---
+
+## 🏢 Módulos Principais
+
+| Módulo                 | Descrição               | Funcionalidades principais                        |
+|------------------------|-------------------------|--------------------------------------------------|
+| **👥 Funcionários**     | Gestão de pessoas       | CRUD, controle de acessos, histórico              |
+| **🏪 Pátios**           | Gerenciamento de locais | Cadastro, monitoramento e capacidade               |
+| **🏍️ Motos**           | Controle da frota       | Registro, status, localização e manutenção         |
+| **📹 Câmeras**          | Monitoramento visual    | Configuração e status das câmeras                  |
+| **🏷️ ArUco Tags**      | Identificação automática| Cadastro e rastreamento via visão computacional    |
+| **📍 Status & Localização** | Rastreamento em tempo real | Monitoramento de posição, disponibilidade e alertas |
 
 ---
 
