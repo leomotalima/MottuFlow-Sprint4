@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace MottuFlowApi.Data
 {
@@ -7,10 +9,16 @@ namespace MottuFlowApi.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            // Carrega configuração do arquivo appsettings.json
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
 
-            // Connection string hardcoded para design-time
-            optionsBuilder.UseOracle("User Id=rm557851;Password=020382;Data Source=localhost:1521/ORCL;");
+            var connectionString = configuration.GetConnectionString("OracleDb");
+
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseOracle(connectionString);
 
             return new AppDbContext(optionsBuilder.Options);
         }
