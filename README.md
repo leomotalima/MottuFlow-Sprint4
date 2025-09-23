@@ -52,7 +52,6 @@ Essa modelagem garante rastreabilidade, controle da frota e operação eficiente
 
 * **Backend:** ASP.NET Core 8
 * **Banco de Dados:** Oracle 19c
-* **Testes:** xUnit
 * **Controle de Versão:** GitHub
 
 ---
@@ -62,15 +61,12 @@ Essa modelagem garante rastreabilidade, controle da frota e operação eficiente
 ```
 MottuFlow/
 │
-├─ Controllers/        # Endpoints da API
-├─ Models/             # Entidades e DTOs
-├─ Repositories/       # Acesso a dados
-├─ Services/           # Regras de negócio
-├─ appsettings.json    # Configurações do projeto
-├─ Tests/              # Projetos de teste (xUnit)
-└─ Program.cs          # Configuração da aplicação
-```
-
+├─ Controllers/ # Endpoints da API
+├─ Models/ # Entidades e DTOs
+├─ Repositories/ # Acesso a dados
+├─ Services/ # Regras de negócio
+├─ appsettings.json # Configurações do projeto
+└─ Program.cs # Configuração da aplicação
 ---
 
 ## 🚀 Execução da API
@@ -171,17 +167,4 @@ POST /api/registro-status
 
 ---
 
-## 🧪 Testes Unitários
-
-Para executar todos os testes com **xUnit**:
-
-```bash
-dotnet test
-```
-
-
-Para executar todos os testes com **xUnit**:
-
-```bash
-dotnet test
 ```
