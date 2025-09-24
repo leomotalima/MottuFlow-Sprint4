@@ -2,14 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using MottuFlow.Swagger; // <- importar o namespace do Documentacao.cs
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
 // Configurações do DbContext
 // ----------------------
-
-// Lê configuração do appsettings.json
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
 
@@ -54,6 +53,9 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "JWT Authorization header (exemplo)"
     });
+
+    // Registrando o DocumentFilter para tags customizadas
+    c.DocumentFilter<Documentacao>();
 });
 
 // ----------------------

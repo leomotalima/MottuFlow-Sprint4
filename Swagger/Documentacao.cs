@@ -1,20 +1,23 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Collections.Generic;
 
-public class Documentacao : IDocumentFilter
+namespace MottuFlow.Swagger
 {
-    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    public class Documentacao : IDocumentFilter
     {
-        swaggerDoc.Tags = new List<OpenApiTag>
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            new OpenApiTag { Name = "Funcionários", Description = "Gerencia os dados dos funcionários" },
-            new OpenApiTag { Name = "Pátios", Description = "Gerencia os pátios e suas capacidades" },
-            new OpenApiTag { Name = "Motos", Description = "Gerencia as motos cadastradas no sistema" },
-            new OpenApiTag { Name = "Câmeras", Description = "Gerencia as câmeras de monitoramento" },
-            new OpenApiTag { Name = "ArucoTags", Description = "Controle de ArUco Tags ligadas às motos" },
-            new OpenApiTag { Name = "Localidades", Description = "Registros de localização das motos" }
-            new OpenApiTag { Name = "Status", Description = "Histórico de status das motos" },
-            
-        };
+            swaggerDoc.Tags = new List<OpenApiTag>
+            {
+                new OpenApiTag { Name = "Funcionários", Description = "Gerencia os dados dos funcionários, incluindo autenticação e registros de status" },
+                new OpenApiTag { Name = "Pátios", Description = "Gerencia os pátios, suas capacidades e câmeras associadas" },
+                new OpenApiTag { Name = "Motos", Description = "Gerencia as motos cadastradas no sistema, incluindo modelo, placa e localização" },
+                new OpenApiTag { Name = "Câmeras", Description = "Gerencia as câmeras de monitoramento dentro dos pátios" },
+                new OpenApiTag { Name = "ArucoTags", Description = "Controle de ArUco Tags associadas às motos para rastreamento" },
+                new OpenApiTag { Name = "Localidades", Description = "Registra a posição das motos capturada pelas câmeras nos pátios" },
+                new OpenApiTag { Name = "Status", Description = "Histórico de status das motos, registrado por funcionários" }
+            };
+        }
     }
 }
