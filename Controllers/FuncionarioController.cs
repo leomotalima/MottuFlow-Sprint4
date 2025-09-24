@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
-using MottuFlow.Models;
 using MottuFlowApi.DTOs;
+using MottuFlow.Models;
+using MottuFlow.Hateoas;  // Importa o namespace HATEOAS
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,7 +15,49 @@ namespace MottuFlowApi.Controllers
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
+
         public FuncionarioController(AppDbContext context) => _context = context;
+
+        // === Helpers ===
+
+        private FuncionarioOutputDTO MapToOutputDTO(Funcionario f) => new FuncionarioOutputDTO
+        {
+            IdFuncionario = f.IdFuncionario,
+            Nome = f.Nome ?? "Nome Padrão",  // Garantir valor não-nulo
+            Cpf = f.CPF ?? "CPF Padrão",    // Garantir valor não-nulo
+            Cargo = f.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
+            Telefone = f.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
+            Email = f.Email ?? "Email Padrão"  // Garantir valor não-nulo
+        };
+
+        private void AddHateoasLinks(FuncionarioResource funcionarioResource, int? id)
+        {
+            if (funcionarioResource == null || id == null)
+            {
+                throw new ArgumentNullException("FuncionarioResource ou id não podem ser nulos");
+            }
+
+            funcionarioResource.AddLink(new Link
+            {
+                Href = Url.Link("GetFuncionario", new { id }),
+                Rel = "self",
+                Method = "GET"
+            });
+
+            funcionarioResource.AddLink(new Link
+            {
+                Href = Url.Link("UpdateFuncionario", new { id }),
+                Rel = "update",
+                Method = "PUT"
+            });
+
+            funcionarioResource.AddLink(new Link
+            {
+                Href = Url.Link("DeleteFuncionario", new { id }),
+                Rel = "delete",
+                Method = "DELETE"
+            });
+        }
 
         // GET: api/funcionarios?page=1&pageSize=10
         [HttpGet]
@@ -33,7 +76,7 @@ namespace MottuFlowApi.Controllers
         // GET: api/funcionarios/{id}
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna funcionário por ID")]
-        public async Task<ActionResult<FuncionarioOutputDTO>> GetFuncionario(int id)
+        public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)  // Alterado para FuncionarioResource
         {
             var funcionario = await _context.Funcionarios
                 .Include(f => f.RegistrosStatus)
@@ -41,7 +84,21 @@ namespace MottuFlowApi.Controllers
 
             if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            return Ok(MapToOutputDTO(funcionario));
+            // Criando o recurso com links HATEOAS
+            var funcionarioResource = new FuncionarioResource
+            {
+                Id = funcionario.IdFuncionario,
+                Nome = funcionario.Nome ?? "Nome Padrão",  // Garantir valor não-nulo
+                Cpf = funcionario.CPF ?? "CPF Padrão",    // Garantir valor não-nulo
+                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
+                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
+                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+            };
+
+            // Adicionando links HATEOAS
+            AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
+
+            return Ok(funcionarioResource); // Retorna o recurso com links HATEOAS
         }
 
         // POST: api/funcionarios
@@ -53,18 +110,32 @@ namespace MottuFlowApi.Controllers
 
             var funcionario = new Funcionario
             {
-                Nome = input.Nome,
-                CPF = input.Cpf,
-                Cargo = input.Cargo,
-                Telefone = input.Telefone,
-                Email = input.Email,
+                Nome = input.Nome ?? "Nome Padrão", // Garantir valor não-nulo
+                CPF = input.Cpf ?? "CPF Padrão",    // Garantir valor não-nulo
+                Cargo = input.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
+                Telefone = input.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
+                Email = input.Email ?? "Email Padrão", // Garantir valor não-nulo
                 Senha = HashSenha(input.Senha)
             };
 
             _context.Funcionarios.Add(funcionario);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, MapToOutputDTO(funcionario));
+            // Criar um recurso FuncionarioResource com links HATEOAS
+            var funcionarioResource = new FuncionarioResource
+            {
+                Id = funcionario.IdFuncionario,
+                Nome = funcionario.Nome ?? "Nome Padrão", // Garantir valor não-nulo
+                Cpf = funcionario.CPF ?? "CPF Padrão",   // Garantir valor não-nulo
+                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
+                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
+                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+            };
+
+            // Adicionando links HATEOAS
+            AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
+
+            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, funcionarioResource);
         }
 
         // PUT: api/funcionarios/{id}
@@ -77,17 +148,30 @@ namespace MottuFlowApi.Controllers
             var funcionario = await _context.Funcionarios.FindAsync(id);
             if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            funcionario.Nome = input.Nome;
-            funcionario.CPF = input.Cpf;
-            funcionario.Cargo = input.Cargo;
-            funcionario.Telefone = input.Telefone;
-            funcionario.Email = input.Email;
+            funcionario.Nome = input.Nome ?? funcionario.Nome;  // Manter o valor antigo se o novo for nulo
+            funcionario.CPF = input.Cpf ?? funcionario.CPF;    // Manter o valor antigo se o novo for nulo
+            funcionario.Cargo = input.Cargo ?? funcionario.Cargo;
+            funcionario.Telefone = input.Telefone ?? funcionario.Telefone;
+            funcionario.Email = input.Email ?? funcionario.Email;
             funcionario.Senha = HashSenha(input.Senha);
 
             _context.Entry(funcionario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var funcionarioResource = new FuncionarioResource
+            {
+                Id = funcionario.IdFuncionario,
+                Nome = funcionario.Nome ?? "Nome Padrão", // Garantir valor não-nulo
+                Cpf = funcionario.CPF ?? "CPF Padrão",   // Garantir valor não-nulo
+                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
+                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
+                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+            };
+
+            // Adicionando links HATEOAS
+            AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
+
+            return Ok(funcionarioResource); // Retorna o recurso com links HATEOAS
         }
 
         // DELETE: api/funcionarios/{id}
@@ -104,16 +188,6 @@ namespace MottuFlowApi.Controllers
         }
 
         // === Helpers ===
-
-        private FuncionarioOutputDTO MapToOutputDTO(Funcionario f) => new FuncionarioOutputDTO
-        {
-            IdFuncionario = f.IdFuncionario,
-            Nome = f.Nome,
-            Cpf = f.CPF,
-            Cargo = f.Cargo,
-            Telefone = f.Telefone,
-            Email = f.Email
-        };
 
         private string HashSenha(string senha)
         {

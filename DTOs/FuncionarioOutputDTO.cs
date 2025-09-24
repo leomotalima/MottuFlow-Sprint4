@@ -1,3 +1,4 @@
+using MottuFlowApi.DTOs;
 namespace MottuFlowApi.DTOs
 {
     public class FuncionarioOutputDTO
