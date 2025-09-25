@@ -1,13 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc; // necessário para [Tags]
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
-// Configurações do DbContext
+// Configuração do DbContext
 // ----------------------
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
@@ -24,12 +22,12 @@ else
 }
 
 // ----------------------
-// Add services to the container
+// Controllers
 // ----------------------
 builder.Services.AddControllers();
 
 // ----------------------
-// Swagger/OpenAPI
+// Swagger
 // ----------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -38,24 +36,19 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "MottuFlow API",
         Version = "v1",
-        Description = "API para gerenciamento do fluxo de motos e registros de status",
+        Description = "API para gerenciamento do fluxo de motos e registros de status"
     });
 
-    c.EnableAnnotations();
-    c.CustomSchemaIds(type => type.FullName);
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // 🔹 Garante que cada controller seja agrupado por tag
+    c.TagActionsBy(api => new[]
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header (exemplo)"
+        api.GroupName ??
+        api.ActionDescriptor.RouteValues["controller"] ??
+        "Outros"
     });
 
-    // 🔽 Ordem personalizada das seções do Swagger
-    var ordem = new List<string>
+    // 🔹 Define a ordem desejada no Swagger
+    var ordemDesejada = new[]
     {
         "Funcionario",
         "Patio",
@@ -66,70 +59,24 @@ builder.Services.AddSwaggerGen(c =>
         "RegistroStatus"
     };
 
-    // Garante que as tags sejam atribuídas corretamente
-    c.TagActionsBy(api =>
-    {
-        // Se tiver [Tags("Nome")] no controller ou método, usa isso
-        var tag = api.ActionDescriptor.EndpointMetadata
-            .OfType<TagsAttribute>()
-            .FirstOrDefault()?.Tags?.FirstOrDefault();
-
-        // Se não, tenta pegar do GroupName
-        if (string.IsNullOrEmpty(tag))
-            tag = api.GroupName;
-
-        // Se ainda não tiver, usa a primeira parte da rota (ex: "funcionarios")
-        if (string.IsNullOrEmpty(tag) && api.RelativePath != null)
-            tag = api.RelativePath.Split('/')[1];
-
-        return new[] { tag ?? "Outros" };
-    });
-
-    // Ordena os grupos de acordo com a lista "ordem"
     c.OrderActionsBy(apiDesc =>
     {
         var tag = apiDesc.GroupName ??
-                  apiDesc.RelativePath?.Split('/')[1] ??
+                  apiDesc.ActionDescriptor.RouteValues["controller"] ??
                   "Outros";
 
-        var index = ordem.IndexOf(tag);
-        return index >= 0 ? index.ToString("D2") : tag;
+        var index = Array.IndexOf(ordemDesejada, tag);
+        return index == -1 ? int.MaxValue.ToString() : index.ToString("D2");
     });
+
+    c.EnableAnnotations();
 });
 
-// ----------------------
-// Registrar Services e Repositories automaticamente
-// ----------------------
-var assembly = Assembly.GetExecutingAssembly();
-var types = assembly.GetTypes();
-
-// Services
-foreach (var type in types)
-{
-    if (type.IsInterface && type.Name.StartsWith("I") && type.Namespace == "MottuFlowApi.Services")
-    {
-        var implementation = types.FirstOrDefault(t => t.IsClass && !t.IsAbstract && type.IsAssignableFrom(t));
-        if (implementation != null)
-            builder.Services.AddScoped(type, implementation);
-    }
-}
-
-// Repositories
-foreach (var type in types)
-{
-    if (type.IsInterface && type.Name.StartsWith("I") && type.Namespace == "MottuFlowApi.Repositories")
-    {
-        var implementation = types.FirstOrDefault(t => t.IsClass && !t.IsAbstract && type.IsAssignableFrom(t));
-        if (implementation != null)
-            builder.Services.AddScoped(type, implementation);
-    }
-}
-
-// ----------------------
-// Build app
-// ----------------------
 var app = builder.Build();
 
+// ----------------------
+// Middlewares
+// ----------------------
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -140,3 +87,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
