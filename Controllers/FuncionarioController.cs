@@ -12,6 +12,7 @@ namespace MottuFlowApi.Controllers
 {
     [ApiController]
     [Route("api/funcionarios")]
+    [Tags("Funcionario")] // 🔹 Tag para ordenar no Swagger
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,19 +24,17 @@ namespace MottuFlowApi.Controllers
         private FuncionarioOutputDTO MapToOutputDTO(Funcionario f) => new FuncionarioOutputDTO
         {
             IdFuncionario = f.IdFuncionario,
-            Nome = f.Nome ?? "Nome Padrão",  // Garantir valor não-nulo
-            Cpf = f.CPF ?? "CPF Padrão",    // Garantir valor não-nulo
-            Cargo = f.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
-            Telefone = f.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
-            Email = f.Email ?? "Email Padrão"  // Garantir valor não-nulo
+            Nome = f.Nome ?? "Nome Padrão",
+            Cpf = f.CPF ?? "CPF Padrão",
+            Cargo = f.Cargo ?? "Cargo Padrão",
+            Telefone = f.Telefone ?? "Telefone Padrão",
+            Email = f.Email ?? "Email Padrão"
         };
 
         private void AddHateoasLinks(FuncionarioResource funcionarioResource, int? id)
         {
             if (funcionarioResource == null || id == null)
-            {
                 throw new ArgumentNullException("FuncionarioResource ou id não podem ser nulos");
-            }
 
             funcionarioResource.AddLink(new Link
             {
@@ -59,6 +58,8 @@ namespace MottuFlowApi.Controllers
             });
         }
 
+        // === Endpoints ===
+
         // GET: api/funcionarios?page=1&pageSize=10
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos os funcionários com paginação")]
@@ -74,82 +75,82 @@ namespace MottuFlowApi.Controllers
         }
 
         // GET: api/funcionarios/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetFuncionario")]
         [SwaggerOperation(Summary = "Retorna funcionário por ID")]
-        public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)  // Alterado para FuncionarioResource
+        public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios
                 .Include(f => f.RegistrosStatus)
                 .FirstOrDefaultAsync(f => f.IdFuncionario == id);
 
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null) 
+                return NotFound(new { Message = "Funcionário não encontrado." });
 
-            // Criando o recurso com links HATEOAS
             var funcionarioResource = new FuncionarioResource
             {
                 Id = funcionario.IdFuncionario,
-                Nome = funcionario.Nome ?? "Nome Padrão",  // Garantir valor não-nulo
-                Cpf = funcionario.CPF ?? "CPF Padrão",    // Garantir valor não-nulo
-                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
-                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
-                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+                Nome = funcionario.Nome ?? "Nome Padrão",
+                Cpf = funcionario.CPF ?? "CPF Padrão",
+                Cargo = funcionario.Cargo ?? "Cargo Padrão",
+                Telefone = funcionario.Telefone ?? "Telefone Padrão",
+                Email = funcionario.Email ?? "Email Padrão"
             };
 
-            // Adicionando links HATEOAS
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
 
-            return Ok(funcionarioResource); // Retorna o recurso com links HATEOAS
+            return Ok(funcionarioResource);
         }
 
         // POST: api/funcionarios
         [HttpPost]
         [SwaggerOperation(Summary = "Cria um novo funcionário")]
-        public async Task<ActionResult<FuncionarioOutputDTO>> CreateFuncionario([FromBody] FuncionarioInputDTO input)
+        public async Task<ActionResult<FuncionarioResource>> CreateFuncionario([FromBody] FuncionarioInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             var funcionario = new Funcionario
             {
-                Nome = input.Nome ?? "Nome Padrão", // Garantir valor não-nulo
-                CPF = input.Cpf ?? "CPF Padrão",    // Garantir valor não-nulo
-                Cargo = input.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
-                Telefone = input.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
-                Email = input.Email ?? "Email Padrão", // Garantir valor não-nulo
+                Nome = input.Nome ?? "Nome Padrão",
+                CPF = input.Cpf ?? "CPF Padrão",
+                Cargo = input.Cargo ?? "Cargo Padrão",
+                Telefone = input.Telefone ?? "Telefone Padrão",
+                Email = input.Email ?? "Email Padrão",
                 Senha = HashSenha(input.Senha)
             };
 
             _context.Funcionarios.Add(funcionario);
             await _context.SaveChangesAsync();
 
-            // Criar um recurso FuncionarioResource com links HATEOAS
             var funcionarioResource = new FuncionarioResource
             {
                 Id = funcionario.IdFuncionario,
-                Nome = funcionario.Nome ?? "Nome Padrão", // Garantir valor não-nulo
-                Cpf = funcionario.CPF ?? "CPF Padrão",   // Garantir valor não-nulo
-                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
-                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
-                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+                Nome = funcionario.Nome,
+                Cpf = funcionario.CPF,
+                Cargo = funcionario.Cargo,
+                Telefone = funcionario.Telefone,
+                Email = funcionario.Email
             };
 
-            // Adicionando links HATEOAS
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
 
             return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, funcionarioResource);
         }
 
         // PUT: api/funcionarios/{id}
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "UpdateFuncionario")]
         [SwaggerOperation(Summary = "Atualiza um funcionário")]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null) 
+                return NotFound(new { Message = "Funcionário não encontrado." });
 
-            funcionario.Nome = input.Nome ?? funcionario.Nome;  // Manter o valor antigo se o novo for nulo
-            funcionario.CPF = input.Cpf ?? funcionario.CPF;    // Manter o valor antigo se o novo for nulo
+            funcionario.Nome = input.Nome ?? funcionario.Nome;
+            funcionario.CPF = input.Cpf ?? funcionario.CPF;
             funcionario.Cargo = input.Cargo ?? funcionario.Cargo;
             funcionario.Telefone = input.Telefone ?? funcionario.Telefone;
             funcionario.Email = input.Email ?? funcionario.Email;
@@ -161,26 +162,26 @@ namespace MottuFlowApi.Controllers
             var funcionarioResource = new FuncionarioResource
             {
                 Id = funcionario.IdFuncionario,
-                Nome = funcionario.Nome ?? "Nome Padrão", // Garantir valor não-nulo
-                Cpf = funcionario.CPF ?? "CPF Padrão",   // Garantir valor não-nulo
-                Cargo = funcionario.Cargo ?? "Cargo Padrão", // Garantir valor não-nulo
-                Telefone = funcionario.Telefone ?? "Telefone Padrão", // Garantir valor não-nulo
-                Email = funcionario.Email ?? "Email Padrão"  // Garantir valor não-nulo
+                Nome = funcionario.Nome,
+                Cpf = funcionario.CPF,
+                Cargo = funcionario.Cargo,
+                Telefone = funcionario.Telefone,
+                Email = funcionario.Email
             };
 
-            // Adicionando links HATEOAS
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
 
-            return Ok(funcionarioResource); // Retorna o recurso com links HATEOAS
+            return Ok(funcionarioResource);
         }
 
         // DELETE: api/funcionarios/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteFuncionario")]
         [SwaggerOperation(Summary = "Deleta um funcionário")]
         public async Task<IActionResult> DeleteFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null) 
+                return NotFound(new { Message = "Funcionário não encontrado." });
 
             _context.Funcionarios.Remove(funcionario);
             await _context.SaveChangesAsync();
@@ -188,7 +189,6 @@ namespace MottuFlowApi.Controllers
         }
 
         // === Helpers ===
-
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();

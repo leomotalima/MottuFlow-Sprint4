@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using MottuFlow.Swagger; // <- importar o namespace do Documentacao.cs
+using Microsoft.AspNetCore.Mvc; // necessário para [Tags]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,8 +54,47 @@ builder.Services.AddSwaggerGen(c =>
         Description = "JWT Authorization header (exemplo)"
     });
 
-    // Registrando o DocumentFilter para tags customizadas
-    c.DocumentFilter<Documentacao>();
+    // 🔽 Ordem personalizada das seções do Swagger
+    var ordem = new List<string>
+    {
+        "Funcionario",
+        "Patio",
+        "Moto",
+        "Camera",
+        "ArucoTag",
+        "Localidade",
+        "RegistroStatus"
+    };
+
+    // Garante que as tags sejam atribuídas corretamente
+    c.TagActionsBy(api =>
+    {
+        // Se tiver [Tags("Nome")] no controller ou método, usa isso
+        var tag = api.ActionDescriptor.EndpointMetadata
+            .OfType<TagsAttribute>()
+            .FirstOrDefault()?.Tags?.FirstOrDefault();
+
+        // Se não, tenta pegar do GroupName
+        if (string.IsNullOrEmpty(tag))
+            tag = api.GroupName;
+
+        // Se ainda não tiver, usa a primeira parte da rota (ex: "funcionarios")
+        if (string.IsNullOrEmpty(tag) && api.RelativePath != null)
+            tag = api.RelativePath.Split('/')[1];
+
+        return new[] { tag ?? "Outros" };
+    });
+
+    // Ordena os grupos de acordo com a lista "ordem"
+    c.OrderActionsBy(apiDesc =>
+    {
+        var tag = apiDesc.GroupName ??
+                  apiDesc.RelativePath?.Split('/')[1] ??
+                  "Outros";
+
+        var index = ordem.IndexOf(tag);
+        return index >= 0 ? index.ToString("D2") : tag;
+    });
 });
 
 // ----------------------
@@ -97,7 +136,6 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API V1");
 });
 
-//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
