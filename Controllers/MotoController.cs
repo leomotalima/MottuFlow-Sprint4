@@ -42,7 +42,8 @@ namespace MottuFlowApi.Controllers
                 .Include(m => m.RegistrosStatus)
                 .FirstOrDefaultAsync(m => m.IdMoto == id);
 
-            if (m == null) return NotFound(new { Message = "Moto não encontrada." });
+            if (m == null) 
+                return NotFound(new { Message = "Moto não encontrada." });
 
             return Ok(MapToOutputDTO(m));
         }
@@ -52,16 +53,17 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Cria uma nova moto")]
         public async Task<ActionResult<MotoOutputDTO>> CreateMoto([FromBody] MotoInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             var moto = new Moto
             {
-                Placa = input.Placa,
-                Modelo = input.Modelo,
-                Fabricante = input.Fabricante,
+                Placa = input.Placa ?? "Placa padrão",
+                Modelo = input.Modelo ?? "Modelo padrão",
+                Fabricante = input.Fabricante ?? "Fabricante padrão",
                 Ano = input.Ano,
                 IdPatio = input.IdPatio,
-                LocalizacaoAtual = input.LocalizacaoAtual
+                LocalizacaoAtual = input.LocalizacaoAtual ?? "Localização padrão"
             };
 
             _context.Motos.Add(moto);
@@ -75,17 +77,19 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Atualiza uma moto")]
         public async Task<IActionResult> UpdateMoto(int id, [FromBody] MotoInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             var moto = await _context.Motos.FindAsync(id);
-            if (moto == null) return NotFound(new { Message = "Moto não encontrada." });
+            if (moto == null) 
+                return NotFound(new { Message = "Moto não encontrada." });
 
-            moto.Placa = input.Placa;
-            moto.Modelo = input.Modelo;
-            moto.Fabricante = input.Fabricante;
+            moto.Placa = input.Placa ?? moto.Placa;
+            moto.Modelo = input.Modelo ?? moto.Modelo;
+            moto.Fabricante = input.Fabricante ?? moto.Fabricante;
             moto.Ano = input.Ano;
             moto.IdPatio = input.IdPatio;
-            moto.LocalizacaoAtual = input.LocalizacaoAtual;
+            moto.LocalizacaoAtual = input.LocalizacaoAtual ?? moto.LocalizacaoAtual;
 
             _context.Entry(moto).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -99,7 +103,8 @@ namespace MottuFlowApi.Controllers
         public async Task<IActionResult> DeleteMoto(int id)
         {
             var moto = await _context.Motos.FindAsync(id);
-            if (moto == null) return NotFound(new { Message = "Moto não encontrada." });
+            if (moto == null) 
+                return NotFound(new { Message = "Moto não encontrada." });
 
             _context.Motos.Remove(moto);
             await _context.SaveChangesAsync();
@@ -113,17 +118,17 @@ namespace MottuFlowApi.Controllers
             return new MotoOutputDTO
             {
                 IdMoto = m.IdMoto,
-                Placa = m.Placa,
-                Modelo = m.Modelo,
-                Fabricante = m.Fabricante,
+                Placa = m.Placa ?? "Placa padrão",
+                Modelo = m.Modelo ?? "Modelo padrão",
+                Fabricante = m.Fabricante ?? "Fabricante padrão",
                 Ano = m.Ano,
                 IdPatio = m.IdPatio,
-                LocalizacaoAtual = m.LocalizacaoAtual,
+                LocalizacaoAtual = m.LocalizacaoAtual ?? "Localização padrão",
                 Statuses = (m.RegistrosStatus?.Select(rs => new StatusDTO
                 {
                     IdStatus = rs.IdStatus,
-                    TipoStatus = rs.TipoStatus,
-                    Descricao = rs.Descricao,
+                    TipoStatus = rs.TipoStatus ?? "Tipo padrão",
+                    Descricao = rs.Descricao ?? "Descrição padrão",
                     DataStatus = rs.DataStatus,
                     IdFuncionario = rs.IdFuncionario
                 }).ToList()) ?? new List<StatusDTO>()

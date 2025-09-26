@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlowApi.DTOs;
 using MottuFlow.Models;
-using MottuFlow.Hateoas;  // Importa o namespace HATEOAS
+using MottuFlow.Hateoas;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,7 +12,7 @@ namespace MottuFlowApi.Controllers
 {
     [ApiController]
     [Route("api/funcionarios")]
-    [Tags("Funcionario")] // 🔹 Tag para ordenar no Swagger
+    [Tags("Funcionario")]
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -20,22 +20,18 @@ namespace MottuFlowApi.Controllers
         public FuncionarioController(AppDbContext context) => _context = context;
 
         // === Helpers ===
-
         private FuncionarioOutputDTO MapToOutputDTO(Funcionario f) => new FuncionarioOutputDTO
         {
             IdFuncionario = f.IdFuncionario,
-            Nome = f.Nome ?? "Nome Padrão",
-            Cpf = f.CPF ?? "CPF Padrão",
-            Cargo = f.Cargo ?? "Cargo Padrão",
-            Telefone = f.Telefone ?? "Telefone Padrão",
-            Email = f.Email ?? "Email Padrão"
+            Nome = f.Nome!,
+            Cpf = f.CPF!,
+            Cargo = f.Cargo!,
+            Telefone = f.Telefone!,
+            Email = f.Email!
         };
 
-        private void AddHateoasLinks(FuncionarioResource funcionarioResource, int? id)
+        private void AddHateoasLinks(FuncionarioResource funcionarioResource, int id)
         {
-            if (funcionarioResource == null || id == null)
-                throw new ArgumentNullException("FuncionarioResource ou id não podem ser nulos");
-
             funcionarioResource.AddLink(new Link
             {
                 Href = Url.Link("GetFuncionario", new { id }),
@@ -60,7 +56,6 @@ namespace MottuFlowApi.Controllers
 
         // === Endpoints ===
 
-        // GET: api/funcionarios?page=1&pageSize=10
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos os funcionários com paginação")]
         public async Task<ActionResult<IEnumerable<FuncionarioOutputDTO>>> GetFuncionarios(int page = 1, int pageSize = 10)
@@ -74,48 +69,47 @@ namespace MottuFlowApi.Controllers
             return Ok(funcionarios.Select(f => MapToOutputDTO(f)));
         }
 
-        // GET: api/funcionarios/{id}
         [HttpGet("{id}", Name = "GetFuncionario")]
         [SwaggerOperation(Summary = "Retorna funcionário por ID")]
         public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios
                 .Include(f => f.RegistrosStatus)
-                .FirstOrDefaultAsync(f => f.IdFuncionario == id);
-
-            if (funcionario == null) 
-                return NotFound(new { Message = "Funcionário não encontrado." });
+                .FirstOrDefaultAsync(f => f.IdFuncionario == id)
+                ?? throw new KeyNotFoundException("Funcionário não encontrado.");
 
             var funcionarioResource = new FuncionarioResource
             {
                 Id = funcionario.IdFuncionario,
-                Nome = funcionario.Nome ?? "Nome Padrão",
-                Cpf = funcionario.CPF ?? "CPF Padrão",
-                Cargo = funcionario.Cargo ?? "Cargo Padrão",
-                Telefone = funcionario.Telefone ?? "Telefone Padrão",
-                Email = funcionario.Email ?? "Email Padrão"
+                Nome = funcionario.Nome!,
+                Cpf = funcionario.CPF!,
+                Cargo = funcionario.Cargo!,
+                Telefone = funcionario.Telefone!,
+                Email = funcionario.Email!
             };
 
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
-
             return Ok(funcionarioResource);
         }
 
-        // POST: api/funcionarios
         [HttpPost]
         [SwaggerOperation(Summary = "Cria um novo funcionário")]
         public async Task<ActionResult<FuncionarioResource>> CreateFuncionario([FromBody] FuncionarioInputDTO input)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            // Campos obrigatórios devem ser preenchidos
+            if (input.Nome is null || input.Cpf is null || input.Cargo is null || input.Telefone is null || input.Email is null || input.Senha is null)
+                return BadRequest("Todos os campos são obrigatórios.");
 
             var funcionario = new Funcionario
             {
-                Nome = input.Nome ?? "Nome Padrão",
-                CPF = input.Cpf ?? "CPF Padrão",
-                Cargo = input.Cargo ?? "Cargo Padrão",
-                Telefone = input.Telefone ?? "Telefone Padrão",
-                Email = input.Email ?? "Email Padrão",
+                Nome = input.Nome,
+                CPF = input.Cpf,
+                Cargo = input.Cargo,
+                Telefone = input.Telefone,
+                Email = input.Email,
                 Senha = HashSenha(input.Senha)
             };
 
@@ -133,20 +127,18 @@ namespace MottuFlowApi.Controllers
             };
 
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
-
             return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, funcionarioResource);
         }
 
-        // PUT: api/funcionarios/{id}
         [HttpPut("{id}", Name = "UpdateFuncionario")]
         [SwaggerOperation(Summary = "Atualiza um funcionário")]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) 
+            if (funcionario == null)
                 return NotFound(new { Message = "Funcionário não encontrado." });
 
             funcionario.Nome = input.Nome ?? funcionario.Nome;
@@ -154,7 +146,9 @@ namespace MottuFlowApi.Controllers
             funcionario.Cargo = input.Cargo ?? funcionario.Cargo;
             funcionario.Telefone = input.Telefone ?? funcionario.Telefone;
             funcionario.Email = input.Email ?? funcionario.Email;
-            funcionario.Senha = HashSenha(input.Senha);
+
+            if (input.Senha != null)
+                funcionario.Senha = HashSenha(input.Senha);
 
             _context.Entry(funcionario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -170,17 +164,15 @@ namespace MottuFlowApi.Controllers
             };
 
             AddHateoasLinks(funcionarioResource, funcionario.IdFuncionario);
-
             return Ok(funcionarioResource);
         }
 
-        // DELETE: api/funcionarios/{id}
         [HttpDelete("{id}", Name = "DeleteFuncionario")]
         [SwaggerOperation(Summary = "Deleta um funcionário")]
         public async Task<IActionResult> DeleteFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) 
+            if (funcionario == null)
                 return NotFound(new { Message = "Funcionário não encontrado." });
 
             _context.Funcionarios.Remove(funcionario);
