@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
+using MottuFlowApi.DTOs;
 using MottuFlow.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,110 +14,101 @@ namespace MottuFlowApi.Controllers
         private readonly AppDbContext _context;
         public PatioController(AppDbContext context) => _context = context;
 
+        // GET /api/patios?page=1&pageSize=10
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos os pátios com paginação")]
-        public async Task<ActionResult<IEnumerable<object>>> GetPatios(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<PatioOutputDTO>>> GetPatios(int page = 1, int pageSize = 10)
         {
             var patios = await _context.Patios
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var result = patios.Select(p => new
+            var result = patios.Select(p => new PatioOutputDTO
             {
-                p.IdPatio,
-                p.Nome,
-                p.Endereco, // corrigido
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "update", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "delete", Href = $"/api/patios/{p.IdPatio}" }
-                }
+                IdPatio = p.IdPatio,
+                Nome = p.Nome,
+                Endereco = p.Endereco,
+                CapacidadeMaxima = p.CapacidadeMaxima
             });
 
             return Ok(result);
         }
 
+        // GET /api/patios/{id}
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna pátio por ID")]
-        public async Task<ActionResult<object>> GetPatio(int id)
+        public async Task<ActionResult<PatioOutputDTO>> GetPatio(int id)
         {
             var p = await _context.Patios.FindAsync(id);
             if (p == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            var result = new
+            var result = new PatioOutputDTO
             {
-                p.IdPatio,
-                p.Nome,
-                p.Endereco, // corrigido
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "update", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "delete", Href = $"/api/patios/{p.IdPatio}" }
-                }
+                IdPatio = p.IdPatio,
+                Nome = p.Nome,
+                Endereco = p.Endereco,
+                CapacidadeMaxima = p.CapacidadeMaxima
             };
 
             return Ok(result);
         }
 
+        // POST /api/patios
         [HttpPost]
         [SwaggerOperation(Summary = "Cria um novo pátio")]
-        public async Task<ActionResult<object>> CreatePatio([FromBody] Patio p)
+        public async Task<ActionResult<PatioOutputDTO>> CreatePatio([FromBody] PatioInputDTO patioInput)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.Patios.Add(p);
-            await _context.SaveChangesAsync();
-
-            var result = new
+            var patio = new Patio
             {
-                p.IdPatio,
-                p.Nome,
-                p.Endereco, // corrigido
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "update", Href = $"/api/patios/{p.IdPatio}" },
-                    new { Rel = "delete", Href = $"/api/patios/{p.IdPatio}" }
-                }
+                Nome = patioInput.Nome,
+                Endereco = patioInput.Endereco,
+                CapacidadeMaxima = patioInput.CapacidadeMaxima
             };
 
-            return CreatedAtAction(nameof(GetPatio), new { id = p.IdPatio }, result);
+            _context.Patios.Add(patio);
+            await _context.SaveChangesAsync();
+
+            var result = new PatioOutputDTO
+            {
+                IdPatio = patio.IdPatio,
+                Nome = patio.Nome,
+                Endereco = patio.Endereco,
+                CapacidadeMaxima = patio.CapacidadeMaxima
+            };
+
+            return CreatedAtAction(nameof(GetPatio), new { id = patio.IdPatio }, result);
         }
 
+        // PUT /api/patios/{id}
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza um pátio")]
-        public async Task<IActionResult> UpdatePatio(int id, [FromBody] Patio p)
+        public async Task<IActionResult> UpdatePatio(int id, [FromBody] PatioInputDTO patioInput)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != p.IdPatio) return BadRequest(new { Message = "ID inválido." });
+            var patio = await _context.Patios.FindAsync(id);
+            if (patio == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            _context.Entry(p).State = EntityState.Modified;
+            patio.Nome = patioInput.Nome;
+            patio.Endereco = patioInput.Endereco;
+            patio.CapacidadeMaxima = patioInput.CapacidadeMaxima;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Patios.Any(x => x.IdPatio == id))
-                    return NotFound(new { Message = "Pátio não encontrado." });
-                throw;
-            }
+            _context.Entry(patio).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        // DELETE /api/patios/{id}
         [HttpDelete("{id}")]
         [SwaggerOperation(Summary = "Deleta um pátio")]
         public async Task<IActionResult> DeletePatio(int id)
         {
-            var p = await _context.Patios.FindAsync(id);
-            if (p == null) return NotFound(new { Message = "Pátio não encontrado." });
+            var patio = await _context.Patios.FindAsync(id);
+            if (patio == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            _context.Patios.Remove(p);
+            _context.Patios.Remove(patio);
             await _context.SaveChangesAsync();
             return NoContent();
         }
