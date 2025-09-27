@@ -1,9 +1,4 @@
 <div align="center">
-  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
-</div>
-
-<div align="center">
   <img src="https://github.com/leomotalima/MottuFlow/raw/main/Assets/logo.png" alt="MottuFlow" width="200"/>
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
