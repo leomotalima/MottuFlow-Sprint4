@@ -1,26 +1,29 @@
 <div align="center">
-  <img src="https://github.com/leomotalima/MottuFlow/raw/main/Assets/logo.png" alt="MottuFlow" width="200"/>
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
 
-![.NET](https://img.shields.io/badge/.NET-8-blue.svg)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-green.svg)
-![Oracle](https://img.shields.io/badge/Oracle-19c-red.svg)
-![xUnit](https://img.shields.io/badge/xUnit-2.5-orange.svg)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.x-lightgreen.svg)
 
----
+
 
 ## 🚀 Sobre o Projeto
 
-MottuFlow é uma plataforma robusta para **gerenciamento de frotas de motocicletas**, desenvolvida com **arquitetura em camadas** para garantir **escalabilidade** e **facilidade de manutenção**.  
+**MottuFlow** é uma solução completa para gerenciamento de frotas de motocicletas, desenvolvida com arquitetura híbrida que combina **API REST** moderna com interface web intuitiva. O sistema utiliza **visão computacional** e **ArUco Tags** para identificação automática de veículos, oferecendo controle total sobre funcionários, pátios, motos, câmeras e localização de ativos.
+
+--- 
 
 O sistema integra uma **API REST moderna** com interface web e utiliza **visão computacional** para automação na identificação dos veículos, facilitando o controle de:
 
 - Funcionários  
 - Pátios  
 - Motos  
-- Câmeras  
-- Localização em tempo real
+- Câmeras
+- ArUco Tags
+- Status e Localização em tempo real
 
 ---
 
