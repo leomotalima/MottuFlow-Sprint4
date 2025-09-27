@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,12 +73,9 @@ builder.Services.AddSwaggerGen(c =>
     // Ativa anotações [SwaggerOperation]
     c.EnableAnnotations();
 
-    // Ativa exemplos de request/response
-    c.ExampleFilters();
+    
 });
 
-// Registra exemplos de DTOs
-builder.Services.AddSwaggerExamplesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
 // ----------------------
 // Build da aplicação
