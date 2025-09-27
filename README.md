@@ -1,4 +1,9 @@
 <div align="center">
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
+</div>
+
+<div align="center">
   <img src="https://github.com/leomotalima/MottuFlow/raw/main/Assets/logo.png" alt="MottuFlow" width="200"/>
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
@@ -12,40 +17,27 @@
 
 ## 🚀 Sobre o Projeto
 
-MottuFlow é uma plataforma robusta para **gerenciamento de frotas de motocicletas**, desenvolvida com **arquitetura em camadas** para garantir **escalabilidade** e **facilidade de manutenção**.
-
-O sistema integra uma **API REST moderna** com interface web e utiliza **visão computacional** para automação na identificação dos veículos, facilitando o controle de:
-
-* Funcionários
-* Pátios
-* Motos
-* Câmeras
-* Localização em tempo real
+MottuFlow é uma plataforma robusta para gerenciamento de frotas de motocicletas, desenvolvida com arquitetura em camadas para garantir escalabilidade e fácil manutenção. O sistema integra uma API REST moderna com interface web, e utiliza visão computacional para automação na identificação dos veículos, facilitando o controle de funcionários, pátios, motos, câmeras e localização em tempo real.
 
 ---
 
 ## 👥 Integrantes
 
-| Nome                    | RM     | Turma     |
-| ----------------------- | ------ | --------- |
-| João Gabriel Boaventura | 557854 | 2TDSB2025 |
-| Léo Mota Lima           | 557851 | 2TDSB2025 |
-| Lucas Leal das Chagas   | 551124 | 2TDSB2025 |
+* João Gabriel Boaventura RM557854 - 2TDSB2025
+* Léo Mota Lima RM557851 - 2TDSB2025
+* Lucas Leal das Chagas RM551124 - 2TDSB2025
 
 ---
 
 ## 📌 Justificativa da Arquitetura
 
-O MottuFlow .NET segue **arquitetura em camadas**, separando responsabilidades para facilitar **manutenção**, **escalabilidade** e **testes unitários**:
+O MottuFlow .NET foi desenvolvido com **arquitetura em camadas**, que separa responsabilidades para facilitar manutenção e escalabilidade:
 
-| Camada             | Função                                            |
-| ------------------ | ------------------------------------------------- |
-| **Controller**     | Recebe requisições HTTP e retorna respostas       |
-| **Service**        | Contém regras de negócio e processamento de dados |
-| **Repository**     | Gerencia o acesso ao banco de dados               |
-| **Data/DbContext** | Conecta e gerencia operações no banco de dados    |
+* **Controller:** Recebe requisições HTTP e retorna respostas.
+* **Service:** Contém regras de negócio e processamento de dados.
+* **Repository:** Gerencia o acesso ao banco de dados.
 
-**DTOs (Data Transfer Objects)** são usados para padronizar dados entre camadas, garantindo que apenas informações necessárias sejam expostas ou recebidas pela API.
+O uso de **DTOs** assegura segurança, padronização e separação clara entre dados de entrada e saída.
 
 ---
 
@@ -53,11 +45,11 @@ O MottuFlow .NET segue **arquitetura em camadas**, separando responsabilidades p
 
 As entidades refletem a operação da Mottu, startup especializada em locação e logística de motos:
 
-| Entidade        | Função                                                  |
-| --------------- | ------------------------------------------------------- |
-| **Funcionário** | Organiza e monitora motos no pátio                      |
-| **Moto**        | Principal recurso para entregas e locação               |
-| **Pátio**       | Local físico para armazenamento e organização das motos |
+* **Funcionário:** Organiza e monitora motos no pátio.
+* **Moto:** Principal recurso para entregas e locação.
+* **Pátio:** Local físico para armazenamento e organização das motos.
+
+Essa modelagem promove rastreabilidade, controle de frota e operação eficiente.
 
 ---
 
@@ -71,13 +63,13 @@ As entidades refletem a operação da Mottu, startup especializada em locação 
 
 ## 🏢 Módulos Principais
 
-| Módulo                      | Descrição                  | Funcionalidades                                     |
-| --------------------------- | -------------------------- | --------------------------------------------------- |
-| **👥 Funcionários**         | Gestão de pessoas          | CRUD, controle de acessos, histórico                |
-| **🏪 Pátios**               | Gerenciamento de locais    | Cadastro, monitoramento e capacidade                |
-| **🏍️ Motos**               | Controle da frota          | Registro, status, localização e manutenção          |
-| **📹 Câmeras**              | Monitoramento visual       | Configuração e status das câmeras                   |
-| **🏷️ ArUco Tags**          | Identificação automática   | Cadastro e rastreamento via visão computacional     |
+| Módulo                 | Descrição               | Funcionalidades principais                        |
+|------------------------|-------------------------|--------------------------------------------------|
+| **👥 Funcionários**     | Gestão de pessoas       | CRUD, controle de acessos, histórico              |
+| **🏪 Pátios**           | Gerenciamento de locais | Cadastro, monitoramento e capacidade               |
+| **🏍️ Motos**           | Controle da frota       | Registro, status, localização e manutenção         |
+| **📹 Câmeras**          | Monitoramento visual    | Configuração e status das câmeras                  |
+| **🏷️ ArUco Tags**      | Identificação automática| Cadastro e rastreamento via visão computacional    |
 | **📍 Status & Localização** | Rastreamento em tempo real | Monitoramento de posição, disponibilidade e alertas |
 
 ---
@@ -86,50 +78,47 @@ As entidades refletem a operação da Mottu, startup especializada em locação 
 
 ```
 MottuFlow/
-├── .idea/                       # Configurações do IDE (opcional)
-├── Controllers/                 # Endpoints da API
-├── DTOs/                        # Data Transfer Objects
-├── Data/                        # DbContext e configuração do banco
-├── Hateoas/                      # Classes HATEOAS
-├── Helpers/                      # Serviços auxiliares, interfaces e utilitários
-├── Migrations/                   # Scripts de migração do banco de dados
-├── Models/                       # Entidades e classes de domínio
-├── Properties/                   # Propriedades do projeto (AssemblyInfo)
-├── Repositories/                 # Acesso a dados
-├── Services/                     # Regras de negócio
-├── .gitignore                     # Ignorar arquivos do Git
-├── AppDbContextFactory.cs         # Factory para contexto do banco
-├── MottuFlow.csproj               # Projeto .NET
-├── MottuFlow.http                 # Coleção HTTP para testes
-├── Program.cs                     # Configuração e inicialização da aplicação
-├── README.md                      # Documentação do projeto
-├── appsettings.Development.json   # Configurações de desenvolvimento
-├── appsettings.json               # Configurações gerais
-└── post.txt                       # Arquivo auxiliar/teste
-```
-
+│
+├─ Controllers/ # Endpoints da API
+├─ Models/ # Entidades e DTOs
+├─ Repositories/ # Acesso a dados
+├─ Services/ # Regras de negócio
+├─ appsettings.json # Configurações do projeto
+└─ Program.cs # Configuração da aplicação
 ---
 
 ## 🚀 Execução da API
 
-1. **Clone o repositório:**
+1. Clone o repositório:
 
 ```bash
 git clone https://github.com/leomotalima/MottuFlow.git
+```
+
+2. Acesse a pasta do projeto:
+
+```bash
 cd MottuFlow
 ```
 
-2. **Restaure pacotes e execute:**
+3. Restaure pacotes e execute:
 
 ```bash
 dotnet restore
 dotnet run
 ```
 
-3. **Acesse a API:**
+4. Acesse a API no navegador ou Postman:
 
-* Navegador ou Postman: [http://localhost:5224](http://localhost:5224)
-* Swagger (OpenAPI): [http://localhost:5224/swagger](http://localhost:5224/swagger)
+```
+http://localhost:5224
+```
+
+5. Para explorar os endpoints com Swagger (OpenAPI):
+
+```
+http://localhost:5224/swagger
+```
 
 ---
 
@@ -137,7 +126,7 @@ dotnet run
 
 ### Funcionários
 
-```bash
+```
 GET /api/funcionarios
 POST /api/funcionarios
 PUT /api/funcionarios/{id}
@@ -146,7 +135,7 @@ DELETE /api/funcionarios/{id}
 
 ### Pátios
 
-```bash
+```
 GET /api/patios
 POST /api/patios
 PUT /api/patios/{id}
@@ -155,7 +144,7 @@ DELETE /api/patios/{id}
 
 ### Motos
 
-```bash
+```
 GET /api/motos
 POST /api/motos
 PUT /api/motos/{id}
@@ -164,7 +153,7 @@ DELETE /api/motos/{id}
 
 ### Câmeras
 
-```bash
+```
 GET /api/cameras
 POST /api/cameras
 PUT /api/cameras/{id}
@@ -173,7 +162,7 @@ DELETE /api/cameras/{id}
 
 ### ArUco Tags
 
-```bash
+```
 GET /api/aruco-tags
 POST /api/aruco-tags
 PUT /api/aruco-tags/{id}
@@ -182,14 +171,18 @@ DELETE /api/aruco-tags/{id}
 
 ### Localidades
 
-```bash
+```
 GET /api/localidades
 POST /api/localidades
 ```
 
 ### Registro de Status
 
-```bash
+```
 GET /api/registro-status
 POST /api/registro-status
+```
+
+---
+
 ```
