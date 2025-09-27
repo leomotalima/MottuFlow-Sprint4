@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,12 @@ else
 // ----------------------
 // Controllers
 // ----------------------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Evita problemas de referência circular no Swagger
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 // ----------------------
 // Swagger
@@ -39,15 +46,13 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API para gerenciamento do fluxo de motos e registros de status"
     });
 
-    // 🔹 Garante que cada controller seja agrupado por tag
+    // Agrupamento por controller
     c.TagActionsBy(api => new[]
     {
-        api.GroupName ??
-        api.ActionDescriptor.RouteValues["controller"] ??
-        "Outros"
+        api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] ?? "Outros"
     });
 
-    // 🔹 Define a ordem desejada no Swagger
+    // Ordem customizada
     var ordemDesejada = new[]
     {
         "Funcionario",
@@ -61,21 +66,41 @@ builder.Services.AddSwaggerGen(c =>
 
     c.OrderActionsBy(apiDesc =>
     {
-        var tag = apiDesc.GroupName ??
-                  apiDesc.ActionDescriptor.RouteValues["controller"] ??
-                  "Outros";
-
+        var tag = apiDesc.GroupName ?? apiDesc.ActionDescriptor.RouteValues["controller"] ?? "Outros";
         var index = Array.IndexOf(ordemDesejada, tag);
         return index == -1 ? int.MaxValue.ToString() : index.ToString("D2");
     });
 
+    // Ativa anotações [SwaggerOperation]
     c.EnableAnnotations();
+
+    // Ativa exemplos de request/response
+    c.ExampleFilters();
 });
 
+// Registra exemplos de DTOs
+builder.Services.AddSwaggerExamplesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+// ----------------------
+// Build da aplicação
+// ----------------------
 var app = builder.Build();
 
 // ----------------------
-// Middlewares
+// Porta fixa
+// ----------------------
+app.Urls.Clear();
+app.Urls.Add("http://localhost:5224");
+
+// ----------------------
+// Middleware de exceção detalhada (somente DEV)
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// ----------------------
+// Middlewares Swagger
 // ----------------------
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -83,9 +108,13 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API V1");
 });
 
+// ----------------------
+// Middlewares adicionais
+// ----------------------
 app.UseAuthorization();
 app.MapControllers();
 
+// ----------------------
+// Executa aplicação
+// ----------------------
 app.Run();
-
-
