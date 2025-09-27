@@ -3,11 +3,10 @@
   <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
 </div>
 
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.x-lightgreen.svg)
-
+![.NET](https://img.shields.io/badge/.NET-8-blue.svg)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-green.svg)
+![Oracle](https://img.shields.io/badge/Oracle-19c-red.svg)
+![xUnit](https://img.shields.io/badge/xUnit-2.5-orange.svg)
 
 
 ## 🚀 Sobre o Projeto
