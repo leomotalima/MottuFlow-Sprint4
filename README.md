@@ -7,7 +7,6 @@
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-green.svg)
 ![Oracle](https://img.shields.io/badge/Oracle-19c-red.svg)
 ![xUnit](https://img.shields.io/badge/xUnit-2.5-orange.svg)
-
 ---
 
 ## 🚀 Sobre o Projeto
