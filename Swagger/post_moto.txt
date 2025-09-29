@@ -1,0 +1,8 @@
+{
+  "placa": "ABC-1234",
+  "modelo": "Honda CG 160",
+  "fabricante": "Honda",
+  "ano": 2023,
+  "id_patio": 1,
+  "localizacao_atual": "Entrada Principal"
+}

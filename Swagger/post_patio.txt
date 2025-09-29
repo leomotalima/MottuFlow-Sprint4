@@ -1,0 +1,5 @@
+{
+  "nome": "Patio Central",
+  "endereco": "Rua das Flores, 123",
+  "capacidade_maxima": 50
+}
