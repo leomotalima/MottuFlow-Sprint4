@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlow.Models;
-using MottuFlow.Hateoas;
 using MottuFlowApi.DTOs;
+using MottuFlow.Hateoas;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
@@ -16,108 +16,94 @@ namespace MottuFlowApi.Controllers
         private readonly AppDbContext _context;
         public PatioController(AppDbContext context) => _context = context;
 
-        private void AddHateoasLinks(PatioResource patioResource, int id)
+        private void AddHateoasLinks(PatioResource resource, int id)
         {
-            patioResource.AddLink(new Link { Href = Url.Link(nameof(GetPatio), new { id }), Rel = "self", Method = "GET" });
-            patioResource.AddLink(new Link { Href = Url.Link(nameof(UpdatePatio), new { id }), Rel = "update", Method = "PUT" });
-            patioResource.AddLink(new Link { Href = Url.Link(nameof(DeletePatio), new { id }), Rel = "delete", Method = "DELETE" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(GetPatio), new { id })!, Rel = "self", Method = "GET" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(UpdatePatio), new { id })!, Rel = "update", Method = "PUT" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(DeletePatio), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
         [HttpGet(Name = "GetPatios")]
-        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e HATEOAS")]
-        public async Task<IActionResult> GetPatios(int page = 1, int pageSize = 10)
+        [SwaggerOperation(Summary = "Lista todos os pátios")]
+        public async Task<IActionResult> GetPatios()
         {
-            page = page < 1 ? 1 : page;
-            pageSize = pageSize < 1 ? 10 : pageSize;
-
-            var totalItems = await _context.Patios.CountAsync();
-
             var patios = await _context.Patios
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var data = patios.Select(p =>
-            {
-                var resource = new PatioResource
+                .Select(p => new PatioResource
                 {
                     Id = p.IdPatio,
-                    Nome = p.Nome ?? string.Empty,
-                    Endereco = p.Endereco ?? string.Empty,
+                    Nome = p.Nome!,
+                    Endereco = p.Endereco!,
                     CapacidadeMaxima = p.CapacidadeMaxima
-                };
-                AddHateoasLinks(resource, p.IdPatio);
-                return resource;
-            }).ToList();
+                })
+                .ToListAsync();
 
-            var meta = new
-            {
-                totalItems,
-                page,
-                pageSize,
-                totalPages = Math.Ceiling((double)totalItems / pageSize)
-            };
-
-            return Ok(new { meta, data });
+            patios.ForEach(p => AddHateoasLinks(p, p.Id));
+            return Ok(patios);
         }
 
         [HttpGet("{id}", Name = "GetPatio")]
-        [SwaggerOperation(Summary = "Retorna pátio por ID")]
+        [SwaggerOperation(Summary = "Retorna um pátio por ID")]
         public async Task<ActionResult<PatioResource>> GetPatio(int id)
         {
-            var p = await _context.Patios.FindAsync(id);
-            if (p == null) return NotFound(new { Message = "Pátio não encontrado." });
+            var patio = await _context.Patios
+                .Where(p => p.IdPatio == id)
+                .Select(p => new PatioResource
+                {
+                    Id = p.IdPatio,
+                    Nome = p.Nome!,
+                    Endereco = p.Endereco!,
+                    CapacidadeMaxima = p.CapacidadeMaxima
+                })
+                .FirstOrDefaultAsync();
 
-            var resource = new PatioResource
-            {
-                Id = p.IdPatio,
-                Nome = p.Nome ?? string.Empty,
-                Endereco = p.Endereco ?? string.Empty,
-                CapacidadeMaxima = p.CapacidadeMaxima
-            };
-            AddHateoasLinks(resource, p.IdPatio);
+            if (patio == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            return Ok(resource);
+            AddHateoasLinks(patio, patio.Id);
+            return Ok(patio);
         }
 
         [HttpPost(Name = "CreatePatio")]
         [SwaggerOperation(Summary = "Cria um novo pátio")]
         public async Task<ActionResult<PatioResource>> CreatePatio([FromBody] PatioInputDTO input)
         {
-            var p = new Patio
+            if (input == null) return BadRequest("Input não pode ser nulo.");
+
+            var patio = new Patio
             {
                 Nome = input.Nome,
                 Endereco = input.Endereco,
                 CapacidadeMaxima = input.CapacidadeMaxima
             };
 
-            _context.Patios.Add(p);
+            _context.Patios.Add(patio);
             await _context.SaveChangesAsync();
 
             var resource = new PatioResource
             {
-                Id = p.IdPatio,
-                Nome = p.Nome,
-                Endereco = p.Endereco,
-                CapacidadeMaxima = p.CapacidadeMaxima
+                Id = patio.IdPatio,
+                Nome = patio.Nome,
+                Endereco = patio.Endereco,
+                CapacidadeMaxima = patio.CapacidadeMaxima
             };
-            AddHateoasLinks(resource, p.IdPatio);
+            AddHateoasLinks(resource, patio.IdPatio);
 
-            return CreatedAtAction(nameof(GetPatio), new { id = p.IdPatio }, resource);
+            return CreatedAtAction(nameof(GetPatio), new { id = patio.IdPatio }, resource);
         }
 
         [HttpPut("{id}", Name = "UpdatePatio")]
         [SwaggerOperation(Summary = "Atualiza um pátio")]
         public async Task<IActionResult> UpdatePatio(int id, [FromBody] PatioInputDTO input)
         {
-            var p = await _context.Patios.FindAsync(id);
-            if (p == null) return NotFound(new { Message = "Pátio não encontrado." });
+            if (input == null) return BadRequest("Input não pode ser nulo.");
 
-            p.Nome = input.Nome ?? p.Nome;
-            p.Endereco = input.Endereco ?? p.Endereco;
-            p.CapacidadeMaxima = input.CapacidadeMaxima;
+            var patio = await _context.Patios.FindAsync(id);
+            if (patio == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            _context.Entry(p).State = EntityState.Modified;
+            patio.Nome = input.Nome;
+            patio.Endereco = input.Endereco;
+            patio.CapacidadeMaxima = input.CapacidadeMaxima;
+
+            _context.Entry(patio).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -127,10 +113,10 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Deleta um pátio")]
         public async Task<IActionResult> DeletePatio(int id)
         {
-            var p = await _context.Patios.FindAsync(id);
-            if (p == null) return NotFound(new { Message = "Pátio não encontrado." });
+            var patio = await _context.Patios.FindAsync(id);
+            if (patio == null) return NotFound(new { Message = "Pátio não encontrado." });
 
-            _context.Patios.Remove(p);
+            _context.Patios.Remove(patio);
             await _context.SaveChangesAsync();
 
             return NoContent();

@@ -31,9 +31,9 @@ namespace MottuFlowApi.Controllers
         // Adiciona links HATEOAS
         private void AddHateoasLinks(FuncionarioResource resource, int id)
         {
-            resource.AddLink(new Link { Href = Url.Link(nameof(GetFuncionario), new { id }), Rel = "self", Method = "GET" });
-            resource.AddLink(new Link { Href = Url.Link(nameof(UpdateFuncionario), new { id }), Rel = "update", Method = "PUT" });
-            resource.AddLink(new Link { Href = Url.Link(nameof(DeleteFuncionario), new { id }), Rel = "delete", Method = "DELETE" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(GetFuncionario), new { id })!, Rel = "self", Method = "GET" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(UpdateFuncionario), new { id })!, Rel = "update", Method = "PUT" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(DeleteFuncionario), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
         [HttpGet(Name = "GetFuncionarios")]
@@ -45,18 +45,17 @@ namespace MottuFlowApi.Controllers
 
             var totalItems = await _context.Funcionarios.CountAsync();
 
-            // Projeção segura para Swagger evitando loop de navegação
             var funcionarios = await _context.Funcionarios
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(f => new FuncionarioResource
                 {
                     Id = f.IdFuncionario,
-                    Nome = f.Nome ?? string.Empty,
-                    Cpf = f.CPF ?? string.Empty,
-                    Cargo = f.Cargo ?? string.Empty,
-                    Telefone = f.Telefone ?? string.Empty,
-                    Email = f.Email ?? string.Empty
+                    Nome = f.Nome!,
+                    Cpf = f.CPF!,
+                    Cargo = f.Cargo!,
+                    Telefone = f.Telefone!,
+                    Email = f.Email!
                 })
                 .ToListAsync();
 
@@ -82,11 +81,11 @@ namespace MottuFlowApi.Controllers
                 .Select(f => new FuncionarioResource
                 {
                     Id = f.IdFuncionario,
-                    Nome = f.Nome ?? string.Empty,
-                    Cpf = f.CPF ?? string.Empty,
-                    Cargo = f.Cargo ?? string.Empty,
-                    Telefone = f.Telefone ?? string.Empty,
-                    Email = f.Email ?? string.Empty
+                    Nome = f.Nome!,
+                    Cpf = f.CPF!,
+                    Cargo = f.Cargo!,
+                    Telefone = f.Telefone!,
+                    Email = f.Email!
                 })
                 .FirstOrDefaultAsync();
 
@@ -100,18 +99,15 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Cria um novo funcionário")]
         public async Task<ActionResult<FuncionarioResource>> CreateFuncionario([FromBody] FuncionarioInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            if (input.Nome is null || input.Cpf is null || input.Cargo is null || input.Telefone is null || input.Email is null || input.Senha is null)
-                return BadRequest("Todos os campos são obrigatórios.");
+            if (input == null) return BadRequest("Input não pode ser nulo.");
 
             var funcionario = new Funcionario
             {
-                Nome = input.Nome ?? string.Empty,
-                CPF = input.Cpf ?? string.Empty,
-                Cargo = input.Cargo ?? string.Empty,
-                Telefone = input.Telefone ?? string.Empty,
-                Email = input.Email ?? string.Empty,
+                Nome = input.Nome,
+                CPF = input.Cpf,
+                Cargo = input.Cargo,
+                Telefone = input.Telefone,
+                Email = input.Email,
                 Senha = HashSenha(input.Senha)
             };
 
@@ -136,15 +132,17 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Atualiza um funcionário")]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
         {
+            if (input == null) return BadRequest("Input não pode ser nulo.");
+
             var f = await _context.Funcionarios.FindAsync(id);
             if (f == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            f.Nome = input.Nome ?? f.Nome;
-            f.CPF = input.Cpf ?? f.CPF;
-            f.Cargo = input.Cargo ?? f.Cargo;
-            f.Telefone = input.Telefone ?? f.Telefone;
-            f.Email = input.Email ?? f.Email;
-            if (input.Senha != null)
+            f.Nome = input.Nome;
+            f.CPF = input.Cpf;
+            f.Cargo = input.Cargo;
+            f.Telefone = input.Telefone;
+            f.Email = input.Email;
+            if (!string.IsNullOrEmpty(input.Senha))
                 f.Senha = HashSenha(input.Senha);
 
             _context.Entry(f).State = EntityState.Modified;
