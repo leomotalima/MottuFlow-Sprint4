@@ -24,10 +24,17 @@ namespace MottuFlowApi.Controllers
         }
 
         [HttpGet(Name = "GetMotos")]
-        [SwaggerOperation(Summary = "Lista todas as motos")]
-        public async Task<IActionResult> GetMotos()
+        [SwaggerOperation(Summary = "Lista todas as motos com paginação e HATEOAS")]
+        public async Task<IActionResult> GetMotos(int page = 1, int pageSize = 10)
         {
+            page = Math.Max(page, 1);
+            pageSize = Math.Max(pageSize, 1);
+
+            var totalItems = await _context.Motos.CountAsync();
+
             var motos = await _context.Motos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(m => new MotoResource
                 {
                     Id = m.IdMoto,
@@ -41,7 +48,16 @@ namespace MottuFlowApi.Controllers
                 .ToListAsync();
 
             motos.ForEach(m => AddHateoasLinks(m, m.Id));
-            return Ok(motos);
+
+            var meta = new
+            {
+                totalItems,
+                page,
+                pageSize,
+                totalPages = Math.Ceiling((double)totalItems / pageSize)
+            };
+
+            return Ok(new { meta, data = motos });
         }
 
         [HttpGet("{id}", Name = "GetMoto")]

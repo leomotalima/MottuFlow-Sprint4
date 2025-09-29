@@ -6,7 +6,7 @@ public class OrdenarTagsDocumentFilter : IDocumentFilter
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         // Ordem desejada das tags
-        string[] ordemTags = { "Funcionario", "Patio", "Moto", "Camera", "Aruco_tag", "Localidade", "Registro_status" };
+        string[] ordemTags = { "Funcionario", "Patio", "Moto", "Camera", "Arucotag", "Localidade", "Registro_status" };
 
         // Reordena as tags
         swaggerDoc.Tags = swaggerDoc.Tags?

@@ -24,10 +24,17 @@ namespace MottuFlowApi.Controllers
         }
 
         [HttpGet(Name = "GetPatios")]
-        [SwaggerOperation(Summary = "Lista todos os pátios")]
-        public async Task<IActionResult> GetPatios()
+        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e HATEOAS")]
+        public async Task<IActionResult> GetPatios(int page = 1, int pageSize = 10)
         {
+            page = Math.Max(page, 1);
+            pageSize = Math.Max(pageSize, 1);
+
+            var totalItems = await _context.Patios.CountAsync();
+
             var patios = await _context.Patios
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(p => new PatioResource
                 {
                     Id = p.IdPatio,
@@ -38,7 +45,16 @@ namespace MottuFlowApi.Controllers
                 .ToListAsync();
 
             patios.ForEach(p => AddHateoasLinks(p, p.Id));
-            return Ok(patios);
+
+            var meta = new
+            {
+                totalItems,
+                page,
+                pageSize,
+                totalPages = Math.Ceiling((double)totalItems / pageSize)
+            };
+
+            return Ok(new { meta, data = patios });
         }
 
         [HttpGet("{id}", Name = "GetPatio")]

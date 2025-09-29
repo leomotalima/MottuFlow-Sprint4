@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlow.Models;
-using MottuFlow.DTOs;
 using MottuFlowApi.DTOs;
 using MottuFlow.Hateoas;
 using Swashbuckle.AspNetCore.Annotations;
@@ -19,7 +18,7 @@ namespace MottuFlowApi.Controllers
         private readonly AppDbContext _context;
         public FuncionarioController(AppDbContext context) => _context = context;
 
-        // Hash de senha
+        // Método para criar hash da senha
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();
@@ -73,10 +72,10 @@ namespace MottuFlowApi.Controllers
         }
 
         [HttpGet("{id}", Name = "GetFuncionario")]
-        [SwaggerOperation(Summary = "Retorna funcionário por ID")]
+        [SwaggerOperation(Summary = "Retorna um funcionário por ID")]
         public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)
         {
-            var f = await _context.Funcionarios
+            var funcionario = await _context.Funcionarios
                 .Where(f => f.IdFuncionario == id)
                 .Select(f => new FuncionarioResource
                 {
@@ -89,10 +88,10 @@ namespace MottuFlowApi.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (f == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            AddHateoasLinks(f, f.Id);
-            return Ok(f);
+            AddHateoasLinks(funcionario, funcionario.Id);
+            return Ok(funcionario);
         }
 
         [HttpPost(Name = "CreateFuncionario")]
@@ -123,6 +122,7 @@ namespace MottuFlowApi.Controllers
                 Telefone = funcionario.Telefone,
                 Email = funcionario.Email
             };
+
             AddHateoasLinks(resource, funcionario.IdFuncionario);
 
             return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, resource);
@@ -134,18 +134,19 @@ namespace MottuFlowApi.Controllers
         {
             if (input == null) return BadRequest("Input não pode ser nulo.");
 
-            var f = await _context.Funcionarios.FindAsync(id);
-            if (f == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            var funcionario = await _context.Funcionarios.FindAsync(id);
+            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            f.Nome = input.Nome;
-            f.CPF = input.Cpf;
-            f.Cargo = input.Cargo;
-            f.Telefone = input.Telefone;
-            f.Email = input.Email;
+            funcionario.Nome = input.Nome;
+            funcionario.CPF = input.Cpf;
+            funcionario.Cargo = input.Cargo;
+            funcionario.Telefone = input.Telefone;
+            funcionario.Email = input.Email;
+
             if (!string.IsNullOrEmpty(input.Senha))
-                f.Senha = HashSenha(input.Senha);
+                funcionario.Senha = HashSenha(input.Senha);
 
-            _context.Entry(f).State = EntityState.Modified;
+            _context.Entry(funcionario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -155,10 +156,10 @@ namespace MottuFlowApi.Controllers
         [SwaggerOperation(Summary = "Deleta um funcionário")]
         public async Task<IActionResult> DeleteFuncionario(int id)
         {
-            var f = await _context.Funcionarios.FindAsync(id);
-            if (f == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            var funcionario = await _context.Funcionarios.FindAsync(id);
+            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
 
-            _context.Funcionarios.Remove(f);
+            _context.Funcionarios.Remove(funcionario);
             await _context.SaveChangesAsync();
 
             return NoContent();
