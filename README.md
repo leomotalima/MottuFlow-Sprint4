@@ -65,10 +65,10 @@ As entidades refletem a operação da Mottu, startup especializada em locação 
 
 ## 🛠 Tecnologias
 
-- **Backend:** ASP.NET Core 8  
-- **Banco de Dados:** Oracle 19c  
-- **Controle de Versão:** GitHub  
-
+- **Backend:** ASP.NET Core 8 – Framework para criar a API RESTful.
+- **Banco de Dados:** Oracle 19c – Sistema gerenciador de banco de dados.
+- **Controle de Versão:** GitHub – Repositório e versionamento do projeto.
+- **Swagger (Swashbuckle):** Documentação e testes de endpoints da API.
 ---
 
 ## 🏢 Módulos Principais
@@ -88,26 +88,27 @@ As entidades refletem a operação da Mottu, startup especializada em locação 
 
 ```
 MottuFlow/
-├── .idea/                       # Configurações do IDE (opcional)
-├── Controllers/                 # Endpoints da API
-├── DTOs/                        # Data Transfer Objects
-├── Data/                        # DbContext e configuração do banco
-├── Hateoas/                      # Classes HATEOAS
-├── Helpers/                      # Serviços auxiliares, interfaces e utilitários
-├── Migrations/                   # Scripts de migração do banco de dados
-├── Models/                       # Entidades e classes de domínio
-├── Properties/                   # Propriedades do projeto (AssemblyInfo)
-├── Repositories/                 # Acesso a dados
-├── Services/                     # Regras de negócio
-├── .gitignore                     # Ignorar arquivos do Git
-├── AppDbContextFactory.cs         # Factory para contexto do banco
-├── MottuFlow.csproj               # Projeto .NET
-├── MottuFlow.http                 # Coleção HTTP para testes
-├── Program.cs                     # Configuração e inicialização da aplicação
-├── README.md                      # Documentação do projeto
-├── appsettings.Development.json   # Configurações de desenvolvimento
-├── appsettings.json               # Configurações gerais
-└── post.txt                       # Arquivo auxiliar/teste
+├── .idea/ # Configurações do IDE (opcional)
+├── Controllers/ # Classes que definem os endpoints da API
+├── DTOs/ # Objetos de transferência de dados entre camadas (entrada/saída)
+├── Data/ # Configuração do DbContext e inicialização do banco de dados
+├── Hateoas/ # Classes que implementam links HATEOAS para APIs RESTful
+├── Helpers/ # Classes auxiliares, serviços utilitários e interfaces comuns
+├── Migrations/ # Scripts de migração do banco de dados (Entity Framework)
+├── Models/ # Classes de domínio representando entidades da aplicação
+├── Properties/ # Propriedades do projeto (AssemblyInfo)
+├── Repositories/ # Implementação do acesso a dados e consultas ao banco
+├── Services/ # Regras de negócio e operações complexas
+├── Static/ # Arquivos estáticos e recursos da aplicação
+├── Swagger/ # Pasta para arquivos de teste e exemplos de requisição
+├── .gitignore # Arquivos e pastas a serem ignorados pelo Git
+├── AppDbContextFactory.cs # Factory para criação do contexto do banco de dados
+├── MottuFlow.csproj # Arquivo de projeto .NET
+├── MottuFlow.http # Coleção HTTP para testes de endpoints
+├── Program.cs # Ponto de entrada da aplicação e configuração geral
+├── README.md # Documentação do projeto (este arquivo)
+├── appsettings.Development.json # Configurações específicas para ambiente de desenvolvimento
+├── appsettings.json # Configurações gerais da aplicação
 ```
 
 ---
