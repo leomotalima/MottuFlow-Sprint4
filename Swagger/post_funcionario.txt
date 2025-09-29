@@ -1,6 +1,6 @@
 {
   "nome": "Leonardo Mota",
-  "cpf": "123.456.789-00",
+  "cpf": "12345678900",
   "cargo": "Desenvolvedor",
   "telefone": "(11) 98765-4321",
   "email": "leonardo@email.com",
