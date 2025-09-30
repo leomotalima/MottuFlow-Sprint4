@@ -197,9 +197,46 @@ POST /api/registro-status -H "Content-Type: application/json" -d '{
 }'
 ```
 
-## ✅ Testes da API
+## ✅ Testes rápidos com URL
+
+Use os comandos abaixo para confirmar que a API está ativa:
+
+### 🔹 1. Verificar se o Swagger está de pé
 ```bash
-curl http://localhost:5224/api/teste/ids
-curl http://localhost:5224/api/teste/nomes
+curl -i http://localhost:5224/swagger/index.html
 ```
-Confirma que a API está ativa e responde corretamente.
+
+### 🔹 2. Listar Funcionários (GET)
+```bash
+curl -i http://localhost:5224/api/funcionarios
+```
+
+### 🔹 3. Criar Funcionário (POST)
+```bash
+curl -X POST http://localhost:5224/api/funcionarios -H "Content-Type: application/json" -d '{
+  "nome": "Teste API",
+  "cpf": "12345678901",
+  "cargo": "Dev",
+  "telefone": "(11) 99999-9999",
+  "email": "teste@api.com",
+  "senha": "Senha123!"
+}'
+```
+
+### 🔹 4. Health Check (Ping)
+Se quiser, crie um endpoint de teste:
+```csharp
+[HttpGet("ping")]
+public IActionResult Ping()
+{
+    return Ok(new { status = "API rodando 🚀" });
+}
+```
+
+E teste com:
+```bash
+curl -i http://localhost:5224/api/ping
+```
+Resposta esperada:
+```json
+{ "status": "API rodando 🚀" }
