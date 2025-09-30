@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MottuFlowApi.Data;
+using MottuFlow.DTOs;
 using MottuFlow.Models;
+using MottuFlowApi.Data;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
@@ -13,117 +14,95 @@ namespace MottuFlowApi.Controllers
         private readonly AppDbContext _context;
         public RegistroStatusController(AppDbContext context) => _context = context;
 
+        // GET com paginação
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos os registros de status com paginação")]
-        public async Task<ActionResult<IEnumerable<object>>> GetRegistroStatus(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<StatusDTO>>> GetRegistroStatus(int page = 1, int pageSize = 10)
         {
             var registros = await _context.RegistroStatuses
-                .Include(r => r.Moto)
-                .Include(r => r.Funcionario)
+                .OrderBy(r => r.DataStatus)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var result = registros.Select(r => new
+            var registrosDTO = registros.Select(r => new StatusDTO
             {
-                r.IdStatus,
-                r.TipoStatus,
-                r.Descricao,
-                r.DataStatus,
-                Moto = r.Moto != null ? new { r.Moto.IdMoto, r.Moto.Placa } : null,
-                Funcionario = r.Funcionario != null ? new { r.Funcionario.IdFuncionario, r.Funcionario.Nome } : null,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "update", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "delete", Href = $"/api/registro-status/{r.IdStatus}" }
-                }
-            });
+                TipoStatus = r.TipoStatus,
+                Descricao = r.Descricao ?? string.Empty,
+                DataStatus = r.DataStatus,
+                IdMoto = r.IdMoto,
+                IdFuncionario = r.IdFuncionario
+            }).ToList();
 
-            return Ok(result);
+            return Ok(registrosDTO);
         }
 
+        // GET por ID
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna um registro de status pelo ID")]
-        public async Task<ActionResult<object>> GetRegistroStatus(int id)
+        public async Task<ActionResult<StatusDTO>> GetRegistroStatus(int id)
         {
-            var r = await _context.RegistroStatuses
-                .Include(rs => rs.Moto)
-                .Include(rs => rs.Funcionario)
-                .FirstOrDefaultAsync(rs => rs.IdStatus == id);
-
+            var r = await _context.RegistroStatuses.FindAsync(id);
             if (r == null) return NotFound(new { Message = "Registro não encontrado." });
 
-            var result = new
+            var dto = new StatusDTO
             {
-                r.IdStatus,
-                r.TipoStatus,
-                r.Descricao,
-                r.DataStatus,
-                Moto = r.Moto != null ? new { r.Moto.IdMoto, r.Moto.Placa } : null,
-                Funcionario = r.Funcionario != null ? new { r.Funcionario.IdFuncionario, r.Funcionario.Nome } : null,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "update", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "delete", Href = $"/api/registro-status/{r.IdStatus}" }
-                }
+                TipoStatus = r.TipoStatus,
+                Descricao = r.Descricao ?? string.Empty,
+                DataStatus = r.DataStatus,
+                IdMoto = r.IdMoto,
+                IdFuncionario = r.IdFuncionario
             };
 
-            return Ok(result);
+            return Ok(dto);
         }
 
+        // POST
         [HttpPost]
         [SwaggerOperation(Summary = "Cria um novo registro de status")]
-        public async Task<ActionResult<object>> CreateRegistroStatus([FromBody] RegistroStatus r)
+        public async Task<ActionResult<StatusDTO>> CreateRegistroStatus([FromBody] StatusDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var r = new RegistroStatus
+            {
+                TipoStatus = dto.TipoStatus,
+                Descricao = dto.Descricao,
+                DataStatus = dto.DataStatus,
+                IdMoto = dto.IdMoto,
+                IdFuncionario = dto.IdFuncionario
+            };
 
             _context.RegistroStatuses.Add(r);
             await _context.SaveChangesAsync();
 
-            var result = new
-            {
-                r.IdStatus,
-                r.TipoStatus,
-                r.Descricao,
-                r.DataStatus,
-                Moto = r.Moto != null ? new { r.Moto.IdMoto, r.Moto.Placa } : null,
-                Funcionario = r.Funcionario != null ? new { r.Funcionario.IdFuncionario, r.Funcionario.Nome } : null,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "update", Href = $"/api/registro-status/{r.IdStatus}" },
-                    new { Rel = "delete", Href = $"/api/registro-status/{r.IdStatus}" }
-                }
-            };
-
-            return CreatedAtAction(nameof(GetRegistroStatus), new { id = r.IdStatus }, result);
+            // Retorna o DTO minimalista
+            return CreatedAtAction(nameof(GetRegistroStatus), new { id = r.IdStatus }, dto);
         }
 
+        // PUT
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza um registro de status")]
-        public async Task<IActionResult> UpdateRegistroStatus(int id, [FromBody] RegistroStatus r)
+        public async Task<IActionResult> UpdateRegistroStatus(int id, [FromBody] StatusDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != r.IdStatus) return BadRequest(new { Message = "ID inválido." });
+
+            var r = await _context.RegistroStatuses.FindAsync(id);
+            if (r == null) return NotFound(new { Message = "Registro não encontrado." });
+
+            r.TipoStatus = dto.TipoStatus;
+            r.Descricao = dto.Descricao;
+            r.DataStatus = dto.DataStatus;
+            r.IdMoto = dto.IdMoto;
+            r.IdFuncionario = dto.IdFuncionario;
 
             _context.Entry(r).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.RegistroStatuses.Any(x => x.IdStatus == id))
-                    return NotFound(new { Message = "Registro não encontrado." });
-                throw;
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        // DELETE
         [HttpDelete("{id}")]
         [SwaggerOperation(Summary = "Deleta um registro de status")]
         public async Task<IActionResult> DeleteRegistroStatus(int id)
@@ -133,6 +112,7 @@ namespace MottuFlowApi.Controllers
 
             _context.RegistroStatuses.Remove(r);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
