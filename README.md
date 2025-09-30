@@ -197,7 +197,7 @@ POST /api/registro-status -H "Content-Type: application/json" -d '{
 }'
 ```
 
-## ✅ Testes rápidos com URL
+## ✅ Testes rápidos com cURL
 
 Use os comandos abaixo para confirmar que a API está ativa:
 
@@ -235,7 +235,7 @@ public IActionResult Ping()
 
 E teste com:
 ```bash
-curl -i http://localhost:5224/api/ping
+curl -i http://localhost:5224/api/health/ping
 ```
 Resposta esperada:
 ```json
