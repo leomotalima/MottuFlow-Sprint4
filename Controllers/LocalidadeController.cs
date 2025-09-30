@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlow.Models;
+using MottuFlowApi.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
@@ -14,28 +15,19 @@ namespace MottuFlowApi.Controllers
         public LocalidadeController(AppDbContext context) => _context = context;
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Lista todas as localidades com paginação")]
-        public async Task<ActionResult<IEnumerable<object>>> GetLocalidades(int page = 1, int pageSize = 10)
+        [SwaggerOperation(Summary = "Lista todas as localidades")]
+        public async Task<ActionResult<IEnumerable<LocalidadeOutputDTO>>> GetLocalidades()
         {
-            var locais = await _context.Localidades
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var localidades = await _context.Localidades.ToListAsync();
 
-            var result = locais.Select(l => new
+            var result = localidades.Select(l => new LocalidadeOutputDTO
             {
-                l.IdLocalidade,
-                l.DataHora,
-                l.PontoReferencia,
-                l.IdMoto,
-                l.IdPatio,
-                l.IdCamera,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "update", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "delete", Href = $"/api/localidades/{l.IdLocalidade}" }
-                }
+                IdLocalidade = l.IdLocalidade,
+                DataHora = l.DataHora,
+                PontoReferencia = l.PontoReferencia,
+                IdMoto = l.IdMoto,
+                IdPatio = l.IdPatio,
+                IdCamera = l.IdCamera
             });
 
             return Ok(result);
@@ -43,25 +35,19 @@ namespace MottuFlowApi.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna uma localidade pelo ID")]
-        public async Task<ActionResult<object>> GetLocalidade(int id)
+        public async Task<ActionResult<LocalidadeOutputDTO>> GetLocalidade(int id)
         {
             var l = await _context.Localidades.FindAsync(id);
             if (l == null) return NotFound(new { Message = "Localidade não encontrada." });
 
-            var result = new
+            var result = new LocalidadeOutputDTO
             {
-                l.IdLocalidade,
-                l.DataHora,
-                l.PontoReferencia,
-                l.IdMoto,
-                l.IdPatio,
-                l.IdCamera,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "update", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "delete", Href = $"/api/localidades/{l.IdLocalidade}" }
-                }
+                IdLocalidade = l.IdLocalidade,
+                DataHora = l.DataHora,
+                PontoReferencia = l.PontoReferencia,
+                IdMoto = l.IdMoto,
+                IdPatio = l.IdPatio,
+                IdCamera = l.IdCamera
             };
 
             return Ok(result);
@@ -69,51 +55,52 @@ namespace MottuFlowApi.Controllers
 
         [HttpPost]
         [SwaggerOperation(Summary = "Cria uma nova localidade")]
-        public async Task<ActionResult<object>> CreateLocalidade([FromBody] Localidade l)
+        public async Task<ActionResult<LocalidadeOutputDTO>> CreateLocalidade([FromBody] LocalidadeInputDTO input)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.Localidades.Add(l);
-            await _context.SaveChangesAsync();
-
-            var result = new
+            var localidade = new Localidade
             {
-                l.IdLocalidade,
-                l.DataHora,
-                l.PontoReferencia,
-                l.IdMoto,
-                l.IdPatio,
-                l.IdCamera,
-                Links = new[]
-                {
-                    new { Rel = "self", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "update", Href = $"/api/localidades/{l.IdLocalidade}" },
-                    new { Rel = "delete", Href = $"/api/localidades/{l.IdLocalidade}" }
-                }
+                DataHora = input.DataHora,
+                PontoReferencia = input.PontoReferencia,
+                IdMoto = input.IdMoto,
+                IdPatio = input.IdPatio,
+                IdCamera = input.IdCamera
             };
 
-            return CreatedAtAction(nameof(GetLocalidade), new { id = l.IdLocalidade }, result);
+            _context.Localidades.Add(localidade);
+            await _context.SaveChangesAsync();
+
+            var result = new LocalidadeOutputDTO
+            {
+                IdLocalidade = localidade.IdLocalidade,
+                DataHora = localidade.DataHora,
+                PontoReferencia = localidade.PontoReferencia,
+                IdMoto = localidade.IdMoto,
+                IdPatio = localidade.IdPatio,
+                IdCamera = localidade.IdCamera
+            };
+
+            return CreatedAtAction(nameof(GetLocalidade), new { id = localidade.IdLocalidade }, result);
         }
 
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza uma localidade")]
-        public async Task<IActionResult> UpdateLocalidade(int id, [FromBody] Localidade l)
+        public async Task<IActionResult> UpdateLocalidade(int id, [FromBody] LocalidadeInputDTO input)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != l.IdLocalidade) return BadRequest(new { Message = "ID inválido." });
 
-            _context.Entry(l).State = EntityState.Modified;
+            var localidade = await _context.Localidades.FindAsync(id);
+            if (localidade == null) return NotFound(new { Message = "Localidade não encontrada." });
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Localidades.Any(x => x.IdLocalidade == id))
-                    return NotFound(new { Message = "Localidade não encontrada." });
-                throw;
-            }
+            localidade.DataHora = input.DataHora;
+            localidade.PontoReferencia = input.PontoReferencia;
+            localidade.IdMoto = input.IdMoto;
+            localidade.IdPatio = input.IdPatio;
+            localidade.IdCamera = input.IdCamera;
+
+            _context.Entry(localidade).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

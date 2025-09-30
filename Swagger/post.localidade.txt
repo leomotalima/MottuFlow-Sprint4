@@ -1,7 +1,7 @@
 {
-  "data_hora": "2025-09-29T15:00:00",
-  "ponto_referencia": "Portão Principal",
-  "id_moto": 1,
-  "id_patio": 1,
-  "id_camera": 1
+  "dataHora": "2025-09-30T12:00:00",
+  "pontoReferencia": "Entrada Principal",
+  "idMoto": 1,
+  "idPatio": 1,
+  "idCamera": 1
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlow.Models;
+using MottuFlowApi.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
@@ -15,24 +16,19 @@ namespace MottuFlowApi.Controllers
 
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todas as câmeras com paginação")]
-        public async Task<ActionResult<IEnumerable<object>>> GetCameras(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<CameraOutputDTO>>> GetCameras(int page = 1, int pageSize = 10)
         {
             var cameras = await _context.Cameras
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var result = cameras.Select(c => new
+            var result = cameras.Select(c => new CameraOutputDTO
             {
-                c.IdCamera,
-                c.StatusOperacional,
-                c.LocalizacaoFisica,
-                Links = new object[]
-                {
-                    new { Rel = "self", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "update", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "delete", Href = $"/api/cameras/{c.IdCamera}" }
-                }
+                IdCamera = c.IdCamera,
+                StatusOperacional = c.StatusOperacional,
+                LocalizacaoFisica = c.LocalizacaoFisica,
+                IdPatio = c.IdPatio
             });
 
             return Ok(result);
@@ -40,22 +36,17 @@ namespace MottuFlowApi.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retorna uma câmera pelo ID")]
-        public async Task<ActionResult<object>> GetCamera(int id)
+        public async Task<ActionResult<CameraOutputDTO>> GetCamera(int id)
         {
             var c = await _context.Cameras.FindAsync(id);
             if (c == null) return NotFound(new { Message = "Câmera não encontrada." });
 
-            var result = new
+            var result = new CameraOutputDTO
             {
-                c.IdCamera,
-                c.StatusOperacional,
-                c.LocalizacaoFisica,
-                Links = new object[]
-                {
-                    new { Rel = "self", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "update", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "delete", Href = $"/api/cameras/{c.IdCamera}" }
-                }
+                IdCamera = c.IdCamera,
+                StatusOperacional = c.StatusOperacional,
+                LocalizacaoFisica = c.LocalizacaoFisica,
+                IdPatio = c.IdPatio
             };
 
             return Ok(result);
@@ -63,48 +54,46 @@ namespace MottuFlowApi.Controllers
 
         [HttpPost]
         [SwaggerOperation(Summary = "Cria uma nova câmera")]
-        public async Task<ActionResult<object>> CreateCamera([FromBody] Camera c)
+        public async Task<ActionResult<CameraOutputDTO>> CreateCamera([FromBody] CameraInputDTO input)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.Cameras.Add(c);
-            await _context.SaveChangesAsync();
-
-            var result = new
+            var camera = new Camera
             {
-                c.IdCamera,
-                c.StatusOperacional,
-                c.LocalizacaoFisica,
-                Links = new object[]
-                {
-                    new { Rel = "self", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "update", Href = $"/api/cameras/{c.IdCamera}" },
-                    new { Rel = "delete", Href = $"/api/cameras/{c.IdCamera}" }
-                }
+                StatusOperacional = input.StatusOperacional,
+                LocalizacaoFisica = input.LocalizacaoFisica,
+                IdPatio = input.IdPatio
             };
 
-            return CreatedAtAction(nameof(GetCamera), new { id = c.IdCamera }, result);
+            _context.Cameras.Add(camera);
+            await _context.SaveChangesAsync();
+
+            var result = new CameraOutputDTO
+            {
+                IdCamera = camera.IdCamera,
+                StatusOperacional = camera.StatusOperacional,
+                LocalizacaoFisica = camera.LocalizacaoFisica,
+                IdPatio = camera.IdPatio
+            };
+
+            return CreatedAtAction(nameof(GetCamera), new { id = camera.IdCamera }, result);
         }
 
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza uma câmera")]
-        public async Task<IActionResult> UpdateCamera(int id, [FromBody] Camera c)
+        public async Task<IActionResult> UpdateCamera(int id, [FromBody] CameraInputDTO input)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != c.IdCamera) return BadRequest(new { Message = "ID inválido." });
 
-            _context.Entry(c).State = EntityState.Modified;
+            var camera = await _context.Cameras.FindAsync(id);
+            if (camera == null) return NotFound(new { Message = "Câmera não encontrada." });
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Cameras.Any(x => x.IdCamera == id))
-                    return NotFound(new { Message = "Câmera não encontrada." });
-                throw;
-            }
+            camera.StatusOperacional = input.StatusOperacional;
+            camera.LocalizacaoFisica = input.LocalizacaoFisica;
+            camera.IdPatio = input.IdPatio;
+
+            _context.Entry(camera).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

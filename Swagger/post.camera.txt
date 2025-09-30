@@ -1,5 +1,6 @@
 {
-  "status_operacional": "Ativa",
-  "localizacao_fisica": "Entrada Principal",
-  "id_patio": 1
+  "StatusOperacional": "Ativa",
+  "LocalizacaoFisica": "Entrada Principal",
+  "IdPatio": 1
 }
+
