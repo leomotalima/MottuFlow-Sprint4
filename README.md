@@ -109,7 +109,7 @@ POST /api/funcionarios -H "Content-Type: application/json" -d '{
   "senha": "Senha123!"
 }'
 PUT /api/funcionarios/{id} -H "Content-Type: application/json" -d '{
-  "nome": "Leonardo Silva"
+  "nome": "Leonardo Mota"
 }'
 DELETE /api/funcionarios/{id}
 ```
@@ -140,7 +140,7 @@ POST /api/patios -H "Content-Type: application/json" -d '{
   "CapacidadeMaxima": 50
 }'
 PUT /api/patios/{id} -H "Content-Type: application/json" -d '{
-  "Nome": "Patio Principal"
+  "Nome": "Patio Central"
 }'
 DELETE /api/patios/{id}
 ```
@@ -168,7 +168,7 @@ POST /api/aruco-tags -H "Content-Type: application/json" -d '{
   "id_moto": 1
 }'
 PUT /api/aruco-tags/{id} -H "Content-Type: application/json" -d '{
-  "codigo": "TAG-002"
+  "codigo": "TAG-001"
 }'
 DELETE /api/aruco-tags/{id}
 ```
