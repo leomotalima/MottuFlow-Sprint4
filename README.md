@@ -1,242 +1,185 @@
 <div align="center">
-  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow Logo" width="180"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬 - Sprint 4 (FIAP)</h1>
+  <p>API RESTful desenvolvida em .NET 8 para gerenciamento inteligente de frotas de motocicletas.</p>
 </div>
 
-![.NET](https://img.shields.io/badge/.NET-8-blue.svg)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-green.svg)
-![Oracle](https://img.shields.io/badge/Oracle-19c-red.svg)
-![xUnit](https://img.shields.io/badge/xUnit-2.5-orange.svg)
+---
 
-## 🚀 Sobre o Projeto
+## 🏷️ Etiquetas
+[![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
+[![C#](https://img.shields.io/badge/C%23-ASP.NET_Core-green.svg)](https://learn.microsoft.com/aspnet/core)
+[![Entity Framework](https://img.shields.io/badge/ORM-Entity%20Framework%20Core-purple.svg)](https://learn.microsoft.com/ef/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![FIAP](https://img.shields.io/badge/FIAP-2TDSB-red.svg)](https://www.fiap.com.br/)
 
-**MottuFlow** é uma solução completa para gerenciamento de frotas de motocicletas, com **API REST** e interface web. Utiliza **visão computacional** e **ArUco Tags** para identificação automática de veículos.
+---
 
-Entidades principais: **Funcionários**, **Motos**, **Pátios**, **Câmeras**, **ArUco Tags**, **Localidades**, **Registro de Status**.
+## 🎯 Visão Geral
 
-## 👥 Integrantes
+O **MottuFlow** é uma API RESTful desenvolvida para otimizar o **gerenciamento de frotas de motocicletas** da empresa **Mottu**.  
+A solução permite o controle completo de **funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades**.
 
-| Nome | RM | Turma |
-|------|----|-------|
-| João Gabriel Boaventura | 557854 | 2TDSB2025 |
-| Léo Mota Lima | 557851 | 2TDSB2025 |
-| Lucas Leal das Chagas | 551124 | 2TDSB2025 |
+O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários com xUnit**.
 
-## 📌 Justificativa da Arquitetura
+---
 
-Arquitetura em camadas:
+## 🧠 Arquitetura do Sistema
 
-| Camada | Função |
-|--------|--------|
-| **Controller** | Recebe requisições HTTP e retorna respostas |
-| **Service** | Contém regras de negócio e processamento |
-| **Repository** | Gerencia acesso ao banco de dados |
-| **Data/DbContext** | Conecta e gerencia operações no banco de dados |
+O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
-**DTOs**: Padronizam dados entre camadas, garantindo segurança e consistência.
+### 🧩 Diagrama C4 (Alto Nível)
 
-## 📌 Justificativa do Domínio
-
-As entidades refletem a operação da startup Mottu:
-
-| Entidade | Função |
-|----------|-------|
-| **Funcionário** | Organiza e monitora motos no pátio |
-| **Moto** | Principal recurso para entregas e locação |
-| **Pátio** | Local físico para armazenamento e organização das motos |
-
-## 🛠 Tecnologias
-
-- **Backend:** ASP.NET Core 8  
-- **Banco de Dados:** Oracle 19c  
-- **Controle de Versão:** GitHub  
-- **Swagger (Swashbuckle):** Documentação e testes de endpoints
-
-## 📂 Estrutura do Projeto
-
-```
-MottuFlow/
-├── Controllers/
-├── DTOs/
-├── Data/
-├── Hateoas/
-├── Helpers/
-├── Migrations/
-├── Models/
-├── Properties/
-├── Repositories/
-├── Services/
-├── Static/
-├── Swagger/
-├── AppDbContextFactory.cs
-├── MottuFlow.csproj
-├── MottuFlow.http
-├── Program.cs
-├── README.md
-├── appsettings.Development.json
-├── appsettings.json
+```mermaid
+graph TD
+    A[Cliente/Front-End] -->|HTTP Requests| B[API .NET - MottuFlow]
+    B --> C[Camada Controller]
+    C --> D[Camada Service]
+    D --> E[Camada Repository]
+    E --> F[(Banco de Dados Oracle/H2)]
+    B --> G[Swagger UI - Documentação]
+    B --> H[JWT Security / Health Checks]
 ```
 
-## 🚀 Execução da API
+---
 
-1. **Clone o repositório:**
-```bash
-git clone https://github.com/leomotalima/MottuFlow.git
-cd MottuFlow
+## ⚙️ Funcionalidades Principais
+
+- ✅ CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
+- 🔗 **HATEOAS** integrado em todas as respostas
+- 🔒 **Autenticação via JWT Token**
+- ❤️ **Health Check Endpoint**
+- 🧩 **Versionamento de API** (v1, v2)
+- 📊 **Swagger/OpenAPI** com descrições detalhadas
+- 🧠 **Integração ML.NET** (classificação de status de motos)
+- 🧪 **Testes com xUnit** e **WebApplicationFactory**
+
+---
+
+## 🧰 Tecnologias Utilizadas
+
+- **.NET 8 / ASP.NET Core Web API**
+- **Entity Framework Core**
+- **Swagger / Swashbuckle**
+- **ML.NET**
+- **xUnit**
+- **HATEOAS**
+- **JWT Authentication**
+- **Oracle / H2 Database**
+
+---
+
+## 🧩 Documentação da API
+
+### 🔹 Health Check
+```http
+GET /api/health/ping
 ```
-
-2. **Restaure pacotes e execute:**
-```bash
-dotnet restore
-dotnet run
-```
-
-3. **Acesse a API:**
-- Navegador/Postman: [http://localhost:5224](http://localhost:5224)  
-- Swagger: [http://localhost:5224/swagger](http://localhost:5224/swagger)
-
-## 🖼 Endpoints e Exemplos (curl)
-
-### Funcionários
-```bash
-GET /api/funcionarios
-POST /api/funcionarios -H "Content-Type: application/json" -d '{
-  "nome": "Leonardo Mota",
-  "cpf": "12345678900",
-  "cargo": "Desenvolvedor",
-  "telefone": "(11) 98765-4321",
-  "email": "leonardo@email.com",
-  "senha": "Senha123!"
-}'
-PUT /api/funcionarios/{id} -H "Content-Type: application/json" -d '{
-  "nome": "Leonardo Mota"
-}'
-DELETE /api/funcionarios/{id}
-```
-
-### Motos
-```bash
-GET /api/motos
-POST /api/motos -H "Content-Type: application/json" -d '{
-  "Placa": "ABC-1234",
-  "Modelo": "Honda CG 160",
-  "Fabricante": "Honda",
-  "Ano": 2023,
-  "IdPatio": 1,
-  "LocalizacaoAtual": "Entrada Principal"
-}'
-PUT /api/motos/{id} -H "Content-Type: application/json" -d '{
-  "Modelo": "Honda CG 160"
-}'
-DELETE /api/motos/{id}
-```
-
-### Pátios
-```bash
-GET /api/patios
-POST /api/patios -H "Content-Type: application/json" -d '{
-  "Nome": "Patio Central",
-  "Endereco": "Rua das Flores, 123",
-  "CapacidadeMaxima": 50
-}'
-PUT /api/patios/{id} -H "Content-Type: application/json" -d '{
-  "Nome": "Patio Central"
-}'
-DELETE /api/patios/{id}
-```
-
-### Câmeras
-```bash
-GET /api/cameras
-POST /api/cameras -H "Content-Type: application/json" -d '{
-  "StatusOperacional": "Ativa",
-  "LocalizacaoFisica": "Entrada Principal",
-  "IdPatio": 1
-}'
-PUT /api/cameras/{id} -H "Content-Type: application/json" -d '{
-  "StatusOperacional": "Ativa"
-}'
-DELETE /api/cameras/{id}
-```
-
-### ArUco Tags
-```bash
-GET /api/aruco-tags
-POST /api/aruco-tags -H "Content-Type: application/json" -d '{
-  "codigo": "TAG-001",
-  "status": "Ativo",
-  "id_moto": 1
-}'
-PUT /api/aruco-tags/{id} -H "Content-Type: application/json" -d '{
-  "codigo": "TAG-001"
-}'
-DELETE /api/aruco-tags/{id}
-```
-
-### Localidades
-```bash
-GET /api/localidades
-POST /api/localidades -H "Content-Type: application/json" -d '{
-  "dataHora": "2025-09-30T12:00:00",
-  "pontoReferencia": "Entrada Principal",
-  "idMoto": 1,
-  "idPatio": 1,
-  "idCamera": 1
-}'
-```
-
-### Registro de Status
-```bash
-GET /api/registro-status
-POST /api/registro-status -H "Content-Type: application/json" -d '{
-  "tipo_status": "Entrada",
-  "descricao": "Moto entrou no pátio",
-  "data_status": "2025-09-29T15:00:00",
-  "id_moto": 1,
-  "id_funcionario": 1
-}'
-```
-
-## ✅ Testes rápidos com cURL
-
-Use os comandos abaixo para confirmar que a API está ativa:
-
-### 🔹 1. Verificar se o Swagger está de pé
-```bash
-curl -i http://localhost:5224/swagger/index.html
-```
-
-### 🔹 2. Listar Funcionários (GET)
-```bash
-curl -i http://localhost:5224/api/funcionarios
-```
-
-### 🔹 3. Criar Funcionário (POST)
-```bash
-curl -X POST http://localhost:5224/api/funcionarios -H "Content-Type: application/json" -d '{
-  "nome": "Teste API",
-  "cpf": "12345678901",
-  "cargo": "Dev",
-  "telefone": "(11) 99999-9999",
-  "email": "teste@api.com",
-  "senha": "Senha123!"
-}'
-```
-
-### 🔹 4. Health Check (Ping)
-Se quiser, crie um endpoint de teste:
-```csharp
-[HttpGet("ping")]
-public IActionResult Ping()
+**Resposta:**
+```json
 {
-    return Ok(new { status = "API rodando 🚀" });
+  "status": "API rodando 🚀"
 }
 ```
 
-E teste com:
-```bash
-curl -i http://localhost:5224/api/health/ping
-```
-Resposta esperada:
+---
+
+### 🔹 Funcionários
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/funcionarios` | Lista todos os funcionários |
+| `GET` | `/api/funcionarios/{id}` | Retorna um funcionário específico |
+| `POST` | `/api/funcionarios` | Cria um novo funcionário |
+| `PUT` | `/api/funcionarios/{id}` | Atualiza dados de um funcionário |
+| `DELETE` | `/api/funcionarios/{id}` | Remove um funcionário |
+
+**Exemplo de resposta com HATEOAS:**
 ```json
-{ "status": "API rodando 🚀" }
+{
+  "id": 1,
+  "nome": "João Silva",
+  "cpf": "123.456.789-00",
+  "links": [
+    { "rel": "self", "href": "/api/funcionarios/1", "method": "GET" },
+    { "rel": "update", "href": "/api/funcionarios/1", "method": "PUT" },
+    { "rel": "delete", "href": "/api/funcionarios/1", "method": "DELETE" }
+  ]
+}
+```
+
+---
+
+## 🧪 Testes Automatizados
+
+### Rodando os testes com **xUnit**
+```bash
+dotnet test
+```
+
+Os testes cobrem:
+- Lógica de negócio dos services;
+- Integração básica via `WebApplicationFactory`;
+- Validação de endpoints e códigos HTTP.
+
+---
+
+## 💻 Execução Local
+
+### Clonar o projeto
+```bash
+git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
+```
+
+### Entrar no diretório
+```bash
+cd MottuFlow-Sprint4
+```
+
+### Restaurar dependências
+```bash
+dotnet restore
+```
+
+### Rodar a aplicação
+```bash
+dotnet run
+```
+
+Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
+
+---
+
+## 🧠 Aprendizados
+
+Durante o desenvolvimento, foram aplicadas práticas avançadas de:
+- Arquitetura em camadas e injeção de dependência;
+- Versionamento e documentação de APIs;
+- Segurança com JWT e boas práticas REST;
+- Testes automatizados e integração contínua.
+
+---
+
+## 📜 Licença
+
+Distribuído sob a licença **MIT**.  
+Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
+
+---
+
+## 👥 Autores
+
+| Nome | RM | Responsabilidade |
+|------|----|------------------|
+| **Léo Mota Lima** | 557851 | API REST, Controllers, DTOs, Swagger, HATEOAS, Testes |
+| **João Gabriel Boaventura** | 557854 | Lógica de negócio e integração ML.NET |
+| **Lucas Leal das Chagas** | 551124 | Documentação, banco de dados e versionamento |
+
+---
+
+## 🔗 Referências
+
+- [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
+- [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
+- [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
+- [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
