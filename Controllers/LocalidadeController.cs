@@ -8,19 +8,23 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace MottuFlowApi.Controllers
 {
     [ApiController]
-    [Route("api/localidades")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/localidades")]
+    [Tags("Localidades")]
     public class LocalidadeController : ControllerBase
     {
         private readonly AppDbContext _context;
         public LocalidadeController(AppDbContext context) => _context = context;
 
-        [HttpGet]
-        [SwaggerOperation(Summary = "Lista todas as localidades")]
-        public async Task<ActionResult<IEnumerable<LocalidadeOutputDTO>>> GetLocalidades()
+        // 🧩 GET - Lista todas as localidades
+        [HttpGet(Name = "GetLocalidades")]
+        [SwaggerOperation(Summary = "Lista todas as localidades registradas no sistema")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetLocalidades()
         {
             var localidades = await _context.Localidades.ToListAsync();
 
-            var result = localidades.Select(l => new LocalidadeOutputDTO
+            var data = localidades.Select(l => new LocalidadeOutputDTO
             {
                 IdLocalidade = l.IdLocalidade,
                 DataHora = l.DataHora,
@@ -30,15 +34,19 @@ namespace MottuFlowApi.Controllers
                 IdCamera = l.IdCamera
             });
 
-            return Ok(result);
+            return Ok(new { success = true, data });
         }
 
-        [HttpGet("{id}")]
+        // 🧩 GET - Localidade por ID
+        [HttpGet("{id}", Name = "GetLocalidade")]
         [SwaggerOperation(Summary = "Retorna uma localidade pelo ID")]
-        public async Task<ActionResult<LocalidadeOutputDTO>> GetLocalidade(int id)
+        [ProducesResponseType(typeof(LocalidadeOutputDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetLocalidade(int id)
         {
             var l = await _context.Localidades.FindAsync(id);
-            if (l == null) return NotFound(new { Message = "Localidade não encontrada." });
+            if (l == null)
+                return NotFound(new { success = false, message = "Localidade não encontrada." });
 
             var result = new LocalidadeOutputDTO
             {
@@ -50,14 +58,18 @@ namespace MottuFlowApi.Controllers
                 IdCamera = l.IdCamera
             };
 
-            return Ok(result);
+            return Ok(new { success = true, data = result });
         }
 
-        [HttpPost]
+        // 🧩 POST - Cria uma nova localidade
+        [HttpPost(Name = "CreateLocalidade")]
         [SwaggerOperation(Summary = "Cria uma nova localidade")]
-        public async Task<ActionResult<LocalidadeOutputDTO>> CreateLocalidade([FromBody] LocalidadeInputDTO input)
+        [ProducesResponseType(typeof(LocalidadeOutputDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateLocalidade([FromBody] LocalidadeInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new { success = false, message = "Dados inválidos.", errors = ModelState });
 
             var localidade = new Localidade
             {
@@ -81,17 +93,23 @@ namespace MottuFlowApi.Controllers
                 IdCamera = localidade.IdCamera
             };
 
-            return CreatedAtAction(nameof(GetLocalidade), new { id = localidade.IdLocalidade }, result);
+            return CreatedAtAction(nameof(GetLocalidade), new { id = localidade.IdLocalidade }, new { success = true, data = result });
         }
 
-        [HttpPut("{id}")]
-        [SwaggerOperation(Summary = "Atualiza uma localidade")]
+        // 🧩 PUT - Atualiza uma localidade existente
+        [HttpPut("{id}", Name = "UpdateLocalidade")]
+        [SwaggerOperation(Summary = "Atualiza uma localidade existente")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateLocalidade(int id, [FromBody] LocalidadeInputDTO input)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new { success = false, message = "Dados inválidos.", errors = ModelState });
 
             var localidade = await _context.Localidades.FindAsync(id);
-            if (localidade == null) return NotFound(new { Message = "Localidade não encontrada." });
+            if (localidade == null)
+                return NotFound(new { success = false, message = "Localidade não encontrada." });
 
             localidade.DataHora = input.DataHora;
             localidade.PontoReferencia = input.PontoReferencia;
@@ -105,15 +123,20 @@ namespace MottuFlowApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        [SwaggerOperation(Summary = "Deleta uma localidade")]
+        // 🧩 DELETE - Remove uma localidade
+        [HttpDelete("{id}", Name = "DeleteLocalidade")]
+        [SwaggerOperation(Summary = "Remove uma localidade pelo ID")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteLocalidade(int id)
         {
             var l = await _context.Localidades.FindAsync(id);
-            if (l == null) return NotFound(new { Message = "Localidade não encontrada." });
+            if (l == null)
+                return NotFound(new { success = false, message = "Localidade não encontrada." });
 
             _context.Localidades.Remove(l);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }

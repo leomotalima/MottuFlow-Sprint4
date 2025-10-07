@@ -11,14 +11,15 @@ using System.Text;
 namespace MottuFlowApi.Controllers
 {
     [ApiController]
-    [Route("api/funcionarios")]
-    [Tags("Funcionario")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/funcionarios")]
+    [Tags("Funcionários")]
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
         public FuncionarioController(AppDbContext context) => _context = context;
 
-        // Método para criar hash da senha
+        // 🔒 Criação do hash da senha
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();
@@ -27,7 +28,7 @@ namespace MottuFlowApi.Controllers
             return Convert.ToBase64String(hash);
         }
 
-        // Adiciona links HATEOAS
+        // 🔗 Adiciona links HATEOAS
         private void AddHateoasLinks(FuncionarioResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetFuncionario), new { id })!, Rel = "self", Method = "GET" });
@@ -35,8 +36,10 @@ namespace MottuFlowApi.Controllers
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteFuncionario), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
+        // 🧩 GET (todos)
         [HttpGet(Name = "GetFuncionarios")]
         [SwaggerOperation(Summary = "Lista todos os funcionários com paginação e HATEOAS")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFuncionarios(int page = 1, int pageSize = 10)
         {
             page = Math.Max(page, 1);
@@ -68,12 +71,15 @@ namespace MottuFlowApi.Controllers
                 totalPages = Math.Ceiling((double)totalItems / pageSize)
             };
 
-            return Ok(new { meta, data = funcionarios });
+            return Ok(new { success = true, meta, data = funcionarios });
         }
 
+        // 🧩 GET (por ID)
         [HttpGet("{id}", Name = "GetFuncionario")]
         [SwaggerOperation(Summary = "Retorna um funcionário por ID")]
-        public async Task<ActionResult<FuncionarioResource>> GetFuncionario(int id)
+        [ProducesResponseType(typeof(FuncionarioResource), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios
                 .Where(f => f.IdFuncionario == id)
@@ -88,17 +94,22 @@ namespace MottuFlowApi.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null)
+                return NotFound(new { success = false, message = "Funcionário não encontrado." });
 
             AddHateoasLinks(funcionario, funcionario.Id);
-            return Ok(funcionario);
+            return Ok(new { success = true, data = funcionario });
         }
 
+        // 🧩 POST
         [HttpPost(Name = "CreateFuncionario")]
         [SwaggerOperation(Summary = "Cria um novo funcionário")]
-        public async Task<ActionResult<FuncionarioResource>> CreateFuncionario([FromBody] FuncionarioInputDTO input)
+        [ProducesResponseType(typeof(FuncionarioResource), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioInputDTO input)
         {
-            if (input == null) return BadRequest("Input não pode ser nulo.");
+            if (input == null)
+                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
 
             var funcionario = new Funcionario
             {
@@ -125,17 +136,23 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(resource, funcionario.IdFuncionario);
 
-            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, resource);
+            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, new { success = true, data = resource });
         }
 
+        // 🧩 PUT
         [HttpPut("{id}", Name = "UpdateFuncionario")]
-        [SwaggerOperation(Summary = "Atualiza um funcionário")]
+        [SwaggerOperation(Summary = "Atualiza um funcionário existente")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
         {
-            if (input == null) return BadRequest("Input não pode ser nulo.");
+            if (input == null)
+                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
 
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null)
+                return NotFound(new { success = false, message = "Funcionário não encontrado." });
 
             funcionario.Nome = input.Nome;
             funcionario.CPF = input.Cpf;
@@ -152,12 +169,16 @@ namespace MottuFlowApi.Controllers
             return NoContent();
         }
 
+        // 🧩 DELETE
         [HttpDelete("{id}", Name = "DeleteFuncionario")]
-        [SwaggerOperation(Summary = "Deleta um funcionário")]
+        [SwaggerOperation(Summary = "Remove um funcionário pelo ID")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
-            if (funcionario == null) return NotFound(new { Message = "Funcionário não encontrado." });
+            if (funcionario == null)
+                return NotFound(new { success = false, message = "Funcionário não encontrado." });
 
             _context.Funcionarios.Remove(funcionario);
             await _context.SaveChangesAsync();
