@@ -146,7 +146,62 @@ dotnet restore
 dotnet run
 ```
 
-Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
+Acesse: [http://localhost:5224/swagger]
+
+---
+
+## ⚙️ Configuração do Banco de Dados
+
+O projeto suporta **dois tipos de banco**: **H2 em memória** (para desenvolvimento/testes) e **Oracle Database** (recomendado para produção).  
+
+### 1️⃣ H2 Database (em memória)  
+- Não requer configuração adicional.  
+- Ideal para testes rápidos e desenvolvimento local.  
+- Para usar H2, configure no `appsettings.json`:
+
+```json
+{
+  "UseInMemoryDatabase": true
+}
+```
+
+### 2️⃣ Oracle Database (recomendado)  
+- Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
+
+```json
+{
+  "UseInMemoryDatabase": false,
+  "ConnectionStrings": {
+    "OracleDb": "User Id=SEU_USUARIO;Password=SUA_SENHA;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SEU_HOST)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=SEU_SERVICO)))"
+  }
+}
+```
+
+- Certifique-se de que o **banco Oracle esteja rodando**.  
+- Caso existam **migrations**, execute:
+
+```bash
+dotnet ef database update
+```
+
+### 🔹 Alternando via Variáveis de Ambiente (opcional)
+
+Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
+
+- **Windows (PowerShell):**
+```powershell
+$env:UseInMemoryDatabase="false"
+dotnet run
+```
+
+- **Linux / MacOS (bash/zsh):**
+```bash
+export UseInMemoryDatabase=false
+dotnet run
+```
+
+> 💡 Dica: é **recomendado utilizar Oracle** para validar todas as funcionalidades da API, pois ele representa o ambiente de produção.  
+> 🔹 O uso de variáveis de ambiente facilita alternar entre H2 e Oracle em diferentes ambientes (desenvolvimento, testes e produção).
 
 ---
 
@@ -183,3 +238,4 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 - [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
 - [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
 - [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
+
