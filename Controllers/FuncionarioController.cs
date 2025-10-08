@@ -14,6 +14,7 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/funcionarios")]
     [Tags("Funcionários")]
+    [Produces("application/json")] // ✅ Força exibição JSON no Swagger
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -38,7 +39,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET (todos)
         [HttpGet(Name = "GetFuncionarios")]
-        [SwaggerOperation(Summary = "Lista todos os funcionários com paginação e HATEOAS")]
+        [SwaggerOperation(Summary = "Lista todos os funcionários com paginação e links HATEOAS")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFuncionarios(int page = 1, int pageSize = 10)
         {
@@ -61,6 +62,9 @@ namespace MottuFlowApi.Controllers
                 })
                 .ToListAsync();
 
+            if (!funcionarios.Any())
+                return Ok(new { success = true, message = "Nenhum funcionário encontrado.", data = new List<FuncionarioResource>() });
+
             funcionarios.ForEach(f => AddHateoasLinks(f, f.Id));
 
             var meta = new
@@ -76,7 +80,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET (por ID)
         [HttpGet("{id}", Name = "GetFuncionario")]
-        [SwaggerOperation(Summary = "Retorna um funcionário por ID")]
+        [SwaggerOperation(Summary = "Retorna um funcionário específico pelo ID")]
         [ProducesResponseType(typeof(FuncionarioResource), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetFuncionario(int id)
@@ -103,7 +107,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST
         [HttpPost(Name = "CreateFuncionario")]
-        [SwaggerOperation(Summary = "Cria um novo funcionário")]
+        [SwaggerOperation(Summary = "Cria um novo funcionário no sistema")]
         [ProducesResponseType(typeof(FuncionarioResource), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioInputDTO input)
@@ -136,13 +140,14 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(resource, funcionario.IdFuncionario);
 
-            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, new { success = true, data = resource });
+            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario },
+                new { success = true, message = "Funcionário criado com sucesso.", data = resource });
         }
 
         // 🧩 PUT
         [HttpPut("{id}", Name = "UpdateFuncionario")]
-        [SwaggerOperation(Summary = "Atualiza um funcionário existente")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [SwaggerOperation(Summary = "Atualiza os dados de um funcionário existente")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
@@ -166,12 +171,24 @@ namespace MottuFlowApi.Controllers
             _context.Entry(funcionario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var updated = new FuncionarioResource
+            {
+                Id = funcionario.IdFuncionario,
+                Nome = funcionario.Nome,
+                Cpf = funcionario.CPF,
+                Cargo = funcionario.Cargo,
+                Telefone = funcionario.Telefone,
+                Email = funcionario.Email
+            };
+
+            AddHateoasLinks(updated, funcionario.IdFuncionario);
+
+            return Ok(new { success = true, message = "Funcionário atualizado com sucesso.", data = updated });
         }
 
         // 🧩 DELETE
         [HttpDelete("{id}", Name = "DeleteFuncionario")]
-        [SwaggerOperation(Summary = "Remove um funcionário pelo ID")]
+        [SwaggerOperation(Summary = "Remove um funcionário do sistema pelo ID")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFuncionario(int id)

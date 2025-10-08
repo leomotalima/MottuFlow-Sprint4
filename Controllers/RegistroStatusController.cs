@@ -11,6 +11,7 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/registro-status")]
     [Tags("Registros de Status")]
+    [Produces("application/json")] // ✅ Força resposta JSON no Swagger
     public class RegistroStatusController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -28,10 +29,13 @@ namespace MottuFlowApi.Controllers
             var totalItems = await _context.RegistroStatuses.CountAsync();
 
             var registros = await _context.RegistroStatuses
-                .OrderBy(r => r.DataStatus)
+                .OrderByDescending(r => r.DataStatus)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
+            if (!registros.Any())
+                return Ok(new { success = true, message = "Nenhum registro de status encontrado.", data = new List<StatusDTO>() });
 
             var data = registros.Select(r => new StatusDTO
             {
@@ -55,14 +59,14 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET - Por ID
         [HttpGet("{id}", Name = "GetRegistroStatusById")]
-        [SwaggerOperation(Summary = "Retorna um registro de status pelo ID")]
+        [SwaggerOperation(Summary = "Retorna os dados de um registro de status específico pelo ID")]
         [ProducesResponseType(typeof(StatusDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetRegistroStatusById(int id)
         {
             var r = await _context.RegistroStatuses.FindAsync(id);
             if (r == null)
-                return NotFound(new { success = false, message = "Registro não encontrado." });
+                return NotFound(new { success = false, message = "Registro de status não encontrado." });
 
             var dto = new StatusDTO
             {
@@ -78,7 +82,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST - Criar novo registro
         [HttpPost(Name = "CreateRegistroStatus")]
-        [SwaggerOperation(Summary = "Cria um novo registro de status")]
+        [SwaggerOperation(Summary = "Cria um novo registro de status no sistema")]
         [ProducesResponseType(typeof(StatusDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateRegistroStatus([FromBody] StatusDTO dto)
@@ -107,13 +111,14 @@ namespace MottuFlowApi.Controllers
                 IdFuncionario = r.IdFuncionario
             };
 
-            return CreatedAtAction(nameof(GetRegistroStatusById), new { id = r.IdStatus }, new { success = true, data = result });
+            return CreatedAtAction(nameof(GetRegistroStatusById), new { id = r.IdStatus },
+                new { success = true, message = "Registro de status criado com sucesso.", data = result });
         }
 
-        // 🧩 PUT - Atualizar registro
+        // 🧩 PUT - Atualizar registro existente
         [HttpPut("{id}", Name = "UpdateRegistroStatus")]
-        [SwaggerOperation(Summary = "Atualiza um registro de status existente")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [SwaggerOperation(Summary = "Atualiza um registro de status existente pelo ID")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateRegistroStatus(int id, [FromBody] StatusDTO dto)
@@ -123,7 +128,7 @@ namespace MottuFlowApi.Controllers
 
             var r = await _context.RegistroStatuses.FindAsync(id);
             if (r == null)
-                return NotFound(new { success = false, message = "Registro não encontrado." });
+                return NotFound(new { success = false, message = "Registro de status não encontrado." });
 
             r.TipoStatus = dto.TipoStatus;
             r.Descricao = dto.Descricao;
@@ -134,19 +139,28 @@ namespace MottuFlowApi.Controllers
             _context.Entry(r).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var updated = new StatusDTO
+            {
+                TipoStatus = r.TipoStatus,
+                Descricao = r.Descricao,
+                DataStatus = r.DataStatus,
+                IdMoto = r.IdMoto,
+                IdFuncionario = r.IdFuncionario
+            };
+
+            return Ok(new { success = true, message = "Registro de status atualizado com sucesso.", data = updated });
         }
 
         // 🧩 DELETE - Remover registro
         [HttpDelete("{id}", Name = "DeleteRegistroStatus")]
-        [SwaggerOperation(Summary = "Remove um registro de status pelo ID")]
+        [SwaggerOperation(Summary = "Remove um registro de status existente pelo ID")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRegistroStatus(int id)
         {
             var r = await _context.RegistroStatuses.FindAsync(id);
             if (r == null)
-                return NotFound(new { success = false, message = "Registro não encontrado." });
+                return NotFound(new { success = false, message = "Registro de status não encontrado." });
 
             _context.RegistroStatuses.Remove(r);
             await _context.SaveChangesAsync();

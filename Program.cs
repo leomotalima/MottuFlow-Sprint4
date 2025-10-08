@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MottuFlowApi.Services;
+using MottuFlowApi.Swagger; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +77,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API RESTful para gerenciamento de frotas de motocicletas - MottuFlow Sprint 4"
     });
 
-    // 🔐 Adiciona suporte a autenticação JWT no Swagger
+    // 🔐 Autenticação JWT no Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -102,8 +103,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Aplica filtro para ordenar tags
-    c.DocumentFilter<OrdenarTagsDocumentFilter>();
+    // 📘 Aplica filtros de documentação da pasta Swagger
+    c.DocumentFilter<Documentacao>();                // ✅ inclui o arquivo documentacao.cs
+    c.DocumentFilter<OrdenarTagsDocumentFilter>();   // ✅ mantém a ordenação das tags
+
+    // ✍️ Habilita uso das anotações nos Controllers ([SwaggerOperation], [SwaggerResponse], etc.)
+    c.EnableAnnotations();
 });
 
 // ----------------------
@@ -129,7 +134,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
-        c.RoutePrefix = string.Empty;
+        c.RoutePrefix = string.Empty; // abre o Swagger na raiz
     });
 }
 

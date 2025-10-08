@@ -12,6 +12,7 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/patios")]
     [Tags("Pátios")]
+    [Produces("application/json")] // ✅ Garante que o Swagger exiba JSON
     public class PatioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -27,7 +28,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET - Todos os pátios
         [HttpGet(Name = "GetPatios")]
-        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e HATEOAS")]
+        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e links HATEOAS")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPatios(int page = 1, int pageSize = 10)
         {
@@ -48,6 +49,9 @@ namespace MottuFlowApi.Controllers
                 })
                 .ToListAsync();
 
+            if (!patios.Any())
+                return Ok(new { success = true, message = "Nenhum pátio encontrado.", data = new List<PatioResource>() });
+
             patios.ForEach(p => AddHateoasLinks(p, p.Id));
 
             var meta = new
@@ -63,7 +67,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET - Por ID
         [HttpGet("{id}", Name = "GetPatio")]
-        [SwaggerOperation(Summary = "Retorna um pátio por ID")]
+        [SwaggerOperation(Summary = "Retorna os dados de um pátio específico pelo ID")]
         [ProducesResponseType(typeof(PatioResource), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPatio(int id)
@@ -88,7 +92,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST - Criar novo pátio
         [HttpPost(Name = "CreatePatio")]
-        [SwaggerOperation(Summary = "Cria um novo pátio")]
+        [SwaggerOperation(Summary = "Cria um novo pátio no sistema")]
         [ProducesResponseType(typeof(PatioResource), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreatePatio([FromBody] PatioInputDTO input)
@@ -116,13 +120,14 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(resource, patio.IdPatio);
 
-            return CreatedAtAction(nameof(GetPatio), new { id = patio.IdPatio }, new { success = true, data = resource });
+            return CreatedAtAction(nameof(GetPatio), new { id = patio.IdPatio },
+                new { success = true, message = "Pátio criado com sucesso.", data = resource });
         }
 
         // 🧩 PUT - Atualizar pátio
         [HttpPut("{id}", Name = "UpdatePatio")]
         [SwaggerOperation(Summary = "Atualiza um pátio existente")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdatePatio(int id, [FromBody] PatioInputDTO input)
@@ -141,12 +146,22 @@ namespace MottuFlowApi.Controllers
             _context.Entry(patio).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var updated = new PatioResource
+            {
+                Id = patio.IdPatio,
+                Nome = patio.Nome,
+                Endereco = patio.Endereco,
+                CapacidadeMaxima = patio.CapacidadeMaxima
+            };
+
+            AddHateoasLinks(updated, patio.IdPatio);
+
+            return Ok(new { success = true, message = "Pátio atualizado com sucesso.", data = updated });
         }
 
         // 🧩 DELETE - Remover pátio
         [HttpDelete("{id}", Name = "DeletePatio")]
-        [SwaggerOperation(Summary = "Remove um pátio pelo ID")]
+        [SwaggerOperation(Summary = "Remove um pátio do sistema pelo ID")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePatio(int id)

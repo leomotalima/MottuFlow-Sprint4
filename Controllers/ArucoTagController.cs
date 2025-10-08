@@ -12,11 +12,13 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/arucotags")]
     [Tags("ArucoTags")]
+    [Produces("application/json")] // ✅ Garante saída JSON no Swagger
     public class ArucoTagController : ControllerBase
     {
         private readonly AppDbContext _context;
         public ArucoTagController(AppDbContext context) => _context = context;
 
+        // 🔗 Adiciona links HATEOAS
         private void AddHateoasLinks(ArucoTagResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetArucoTag), new { id })!, Rel = "self", Method = "GET" });
@@ -26,7 +28,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 GET - Lista todas as ArucoTags
         [HttpGet(Name = "GetArucoTags")]
-        [SwaggerOperation(Summary = "Lista todas as ArucoTags registradas")]
+        [SwaggerOperation(Summary = "Lista todas as ArucoTags registradas no sistema")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetArucoTags()
         {
@@ -39,6 +41,9 @@ namespace MottuFlowApi.Controllers
                     IdMoto = t.IdMoto
                 })
                 .ToListAsync();
+
+            if (!tags.Any())
+                return Ok(new { success = true, message = "Nenhuma ArucoTag cadastrada.", data = new List<ArucoTagResource>() });
 
             tags.ForEach(t => AddHateoasLinks(t, t.Id));
 
@@ -72,7 +77,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST - Cria uma nova ArucoTag
         [HttpPost(Name = "CreateArucoTag")]
-        [SwaggerOperation(Summary = "Cria uma nova ArucoTag")]
+        [SwaggerOperation(Summary = "Cria uma nova ArucoTag no sistema")]
         [ProducesResponseType(typeof(ArucoTagResource), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateArucoTag([FromBody] ArucoTagInputDTO input)
@@ -100,13 +105,14 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(resource, tag.IdTag);
 
-            return CreatedAtAction(nameof(GetArucoTag), new { id = tag.IdTag }, new { success = true, data = resource });
+            return CreatedAtAction(nameof(GetArucoTag), new { id = tag.IdTag },
+                new { success = true, message = "ArucoTag criada com sucesso.", data = resource });
         }
 
-        // 🧩 PUT - Atualiza uma ArucoTag
+        // 🧩 PUT - Atualiza uma ArucoTag existente
         [HttpPut("{id}", Name = "UpdateArucoTag")]
-        [SwaggerOperation(Summary = "Atualiza uma ArucoTag existente")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [SwaggerOperation(Summary = "Atualiza uma ArucoTag existente pelo ID")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateArucoTag(int id, [FromBody] ArucoTagInputDTO input)
@@ -125,12 +131,22 @@ namespace MottuFlowApi.Controllers
             _context.Entry(tag).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var updated = new ArucoTagResource
+            {
+                Id = tag.IdTag,
+                Codigo = tag.Codigo,
+                Status = tag.Status,
+                IdMoto = tag.IdMoto
+            };
+
+            AddHateoasLinks(updated, tag.IdTag);
+
+            return Ok(new { success = true, message = "ArucoTag atualizada com sucesso.", data = updated });
         }
 
         // 🧩 DELETE - Remove uma ArucoTag
         [HttpDelete("{id}", Name = "DeleteArucoTag")]
-        [SwaggerOperation(Summary = "Remove uma ArucoTag pelo ID")]
+        [SwaggerOperation(Summary = "Remove uma ArucoTag do sistema pelo ID")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteArucoTag(int id)
