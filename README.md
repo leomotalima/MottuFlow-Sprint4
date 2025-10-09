@@ -228,7 +228,7 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 
 ---
 
-## 👥 Integrantes
+## 👥 Autores
 
 | Nome | RM | Responsabilidade |
 |------|----|------------------|
