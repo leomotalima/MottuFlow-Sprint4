@@ -200,7 +200,7 @@ dotnet restore
 dotnet run
 ```
 
-Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
+Acesse: http://localhost:5224
 
 ---
 
