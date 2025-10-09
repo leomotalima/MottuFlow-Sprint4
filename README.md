@@ -25,7 +25,7 @@ O **MottuFlow** é uma **API RESTful** desenvolvida para otimizar o **gerenciame
 A solução oferece controle completo sobre **funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades**,  
 proporcionando **eficiência operacional**, **automação de processos** e **monitoramento centralizado** por meio de boas práticas REST e integração moderna com banco de dados.
 
-O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários com xUnit**.
+O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários e de integração com xUnit**.
 
 > 💡 Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
 
@@ -43,7 +43,7 @@ graph TD
     B --> C[Camada Controller]
     C --> D[Camada Service]
     D --> E[Camada Repository]
-    E --> F[(Banco de Dados Oracle/H2)]
+    E --> F[(Banco de Dados Oracle / InMemory)]
     B --> G[Swagger UI - Documentação]
     B --> H[JWT Security / Health Checks]
 ```
@@ -59,7 +59,7 @@ graph TD
 - 🧩 **Versionamento de API** (v1, v2)
 - 📊 **Swagger/OpenAPI** com descrições detalhadas
 - 🧠 **Integração ML.NET** (classificação de status de motos)
-- 🧪 **Testes com xUnit** e **WebApplicationFactory**
+- 🧪 **Testes com xUnit e WebApplicationFactory**
 
 ---
 
@@ -72,7 +72,7 @@ graph TD
 - **xUnit**
 - **HATEOAS**
 - **JWT Authentication**
-- **Oracle / H2 Database**
+- **Oracle / InMemory Database (EF Core)**
 
 ---
 
@@ -119,15 +119,62 @@ GET /api/health/ping
 
 ## 🧪 Testes Automatizados
 
-### Rodando os testes com **xUnit**
+### 🚦 Status dos Testes
+
+![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
+![Build](https://img.shields.io/badge/Build-Sucesso-blue.svg)
+
+Os testes foram executados com **xUnit** e **WebApplicationFactory**, garantindo:
+- ✅ Banco InMemory criado e inicializado corretamente;
+- ✅ Endpoints retornando status HTTP esperado (200 OK, 201 Created, etc.);
+- ✅ Separação entre ambientes **Oracle (produção)** e **InMemory (testes)**;
+- ✅ Integração contínua sem dependência de infraestrutura externa.
+
+---
+
+### 🔍 Executando os testes manualmente
+
 ```bash
+dotnet clean
+dotnet build
 dotnet test
 ```
 
-Os testes cobrem:
-- Lógica de negócio dos services;
-- Integração básica via `WebApplicationFactory`;
-- Validação de endpoints e códigos HTTP.
+> 💡 Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+```
+MottuFlow-Sprint4/
+├── .idea/
+├── bin/
+├── obj/
+├── Controllers/
+├── Data/
+├── DTOs/
+├── Hateoas/
+├── Migrations/
+├── Models/
+├── MottuFlow.Tests/
+├── Properties/
+├── Repositories/
+├── Services/
+├── static/
+├── Swagger/
+├── AppDbContextFactory.cs
+├── appsettings.json
+├── appsettings.Development.json
+├── global.json
+├── MottuFlow.csproj
+├── MottuFlow.http
+├── MottuFlow.sln
+├── Program.cs
+└── README.md
+
+```
+> Estrutura modular e testável — separando **camadas de domínio, infraestrutura e testes de integração**.
 
 ---
 
@@ -159,12 +206,12 @@ Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
 
 ## ⚙️ Configuração do Banco de Dados
 
-O projeto suporta **dois tipos de banco**: **H2 em memória** (para desenvolvimento/testes) e **Oracle Database** (recomendado para produção).  
+O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Database**.  
 
-### 1️⃣ H2 Database (em memória)  
+### 1️⃣ InMemory Database (para testes e desenvolvimento)
 - Não requer configuração adicional.  
 - Ideal para testes rápidos e desenvolvimento local.  
-- Para usar H2, configure no `appsettings.json`:
+- Para usar InMemory, configure no `appsettings.json`:
 
 ```json
 {
@@ -172,7 +219,7 @@ O projeto suporta **dois tipos de banco**: **H2 em memória** (para desenvolvime
 }
 ```
 
-### 2️⃣ Oracle Database (recomendado)  
+### 2️⃣ Oracle Database (recomendado para produção)
 - Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
 
 ```json
@@ -191,7 +238,7 @@ O projeto suporta **dois tipos de banco**: **H2 em memória** (para desenvolvime
 dotnet ef database update
 ```
 
-### 🔹 Alternando via Variáveis de Ambiente (opcional)
+### 🔹 Alternando via Variáveis de Ambiente
 
 Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
 
@@ -206,9 +253,6 @@ dotnet run
 export UseInMemoryDatabase=false
 dotnet run
 ```
-
-> 💡 Dica: é **recomendado utilizar Oracle** para validar todas as funcionalidades da API, pois ele representa o ambiente de produção.  
-> 🔹 O uso de variáveis de ambiente facilita alternar entre H2 e Oracle em diferentes ambientes (desenvolvimento, testes e produção).
 
 ---
 
