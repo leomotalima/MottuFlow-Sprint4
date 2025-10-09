@@ -8,17 +8,26 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MottuFlowApi.Services;
-using MottuFlowApi.Swagger; 
+using MottuFlowApi.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
 // Configuração do DbContext
 // ----------------------
+var environment = builder.Environment.EnvironmentName;
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
 
-if (useInMemory)
+// 🧪 Se for ambiente de teste, força o uso do InMemory
+if (environment.Equals("Testing", StringComparison.OrdinalIgnoreCase) || 
+    AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase))
+{
+    Console.WriteLine("⚙️ Modo de TESTE detectado — usando banco InMemory.");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("MottuFlowTestDb"));
+}
+else if (useInMemory)
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseInMemoryDatabase("MottuFlowDb"));
@@ -47,7 +56,6 @@ builder.Services.AddApiVersioning(options =>
 // Configuração JWT
 // ----------------------
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
-
 builder.Services.AddSingleton<JwtService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -104,8 +112,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     // 📘 Aplica filtros de documentação da pasta Swagger
-    c.DocumentFilter<Documentacao>();                // ✅ inclui o arquivo documentacao.cs
-    c.DocumentFilter<OrdenarTagsDocumentFilter>();   // ✅ mantém a ordenação das tags
+    c.DocumentFilter<Documentacao>();
+    c.DocumentFilter<OrdenarTagsDocumentFilter>();
 
     // ✍️ Habilita uso das anotações nos Controllers ([SwaggerOperation], [SwaggerResponse], etc.)
     c.EnableAnnotations();
@@ -152,4 +160,5 @@ app.MapHealthChecks("/api/health");
 
 app.Run();
 
+// ⚙️ Necessário para testes de integração com WebApplicationFactory
 public partial class Program { }
