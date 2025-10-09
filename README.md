@@ -19,12 +19,14 @@
 
 ## 🎯 Visão Geral
 
-O MottuFlow é uma API RESTful desenvolvida para otimizar o gerenciamento inteligente de frotas de motocicletas da empresa Mottu.
+O **MottuFlow** é uma **API RESTful** desenvolvida para otimizar o **gerenciamento inteligente de frotas de motocicletas** da empresa **Mottu**.
 
-A solução oferece controle completo sobre funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades,
-proporcionando eficiência operacional, automação de processos e monitoramento centralizado por meio de boas práticas REST e integração moderna com banco de dados.
+A solução oferece controle completo sobre **funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades**,  
+proporcionando **eficiência operacional**, **automação de processos** e **monitoramento centralizado** por meio de boas práticas REST e integração moderna com banco de dados.
 
 O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários com xUnit**.
+
+> 💡 Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
 
 ---
 
@@ -150,7 +152,7 @@ dotnet restore
 dotnet run
 ```
 
-Acesse: [http://localhost:5224/swagger]
+Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
 
 ---
 
@@ -242,4 +244,3 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 - [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
 - [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
 - [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
-
