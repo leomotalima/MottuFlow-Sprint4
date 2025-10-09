@@ -1,7 +1,9 @@
 <div align="center">
-  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow Logo" width="180"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬 - Sprint 4 (FIAP)</h1>
-  <p>API RESTful desenvolvida em .NET 8 para gerenciamento inteligente de frotas de motocicletas.</p>
+  <img src="https://github.com/leomotalima/MottuFlow-Sprint4/blob/main/wwwroot/images/logo.png?raw=true" alt="MottuFlow Logo" width="180"/>
+  
+  <h1><i><b>MottuFlow</b></i> - Sprint 4 (FIAP)</h1>
+  <p><b>Disciplina:</b> Advanced Business Development with .NET</p>
+  <p>API RESTful desenvolvida em .NET 8 para o gerenciamento inteligente de frotas de motocicletas da empresa <b>Mottu</b>.</p>
 </div>
 
 ---
