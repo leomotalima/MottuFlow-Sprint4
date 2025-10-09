@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MottuFlow.Models;
+using MottuFlowApi.Models;
 
 namespace MottuFlowApi.Data
 {

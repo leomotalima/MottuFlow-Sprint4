@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
-using MottuFlow.Services;
-using MottuFlow.Models;
-using MottuFlow.Repositories;
+using MottuFlowApi.Services;
+using MottuFlowApi.Models;
+using MottuFlowApi.Repositories;
 
 namespace MottuFlow.Tests.Unit
 {
@@ -25,7 +25,7 @@ namespace MottuFlow.Tests.Unit
         {
             var funcionariosMock = new List<Funcionario>
             {
-                new Funcionario { Nome = "Léo Mota Lima", Cpf = "12345678900" }
+                new Funcionario { Nome = "Léo Mota Lima", CPF = "12345678900" }
             };
 
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(funcionariosMock);

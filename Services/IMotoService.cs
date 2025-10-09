@@ -1,4 +1,4 @@
-using MottuFlow.Models;
+using MottuFlowApi.Models;
 using MottuFlowApi.Helpers;
 
 namespace MottuFlowApi.Services

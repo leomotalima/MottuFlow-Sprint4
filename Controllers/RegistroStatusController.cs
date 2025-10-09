@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlow.DTOs;
-using MottuFlow.Models;
+using MottuFlowApi.Models;
 using MottuFlowApi.Data;
 using Swashbuckle.AspNetCore.Annotations;
 

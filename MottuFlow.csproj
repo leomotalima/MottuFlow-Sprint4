@@ -4,15 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>MottuFlowApi</AssemblyName>
+    <RootNamespace>MottuFlowApi</RootNamespace>
   </PropertyGroup>
 
-  <!-- Impede que os arquivos do projeto de testes sejam compilados junto com a API -->
   <ItemGroup>
     <Compile Remove="MottuFlow.Tests\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Entity Framework Core -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
@@ -28,8 +28,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.ML" Version="2.0.0" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="9.23.90" />
-
-    <!-- Swagger / OpenAPI -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
   </ItemGroup>

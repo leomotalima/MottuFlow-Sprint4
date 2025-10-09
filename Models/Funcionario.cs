@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MottuFlow.Models
+namespace MottuFlowApi.Models
 {
     [Table("funcionario")]
     public class Funcionario
