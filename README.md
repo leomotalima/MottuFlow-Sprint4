@@ -19,8 +19,10 @@
 
 ## 🎯 Visão Geral
 
-O **MottuFlow** é uma API RESTful desenvolvida para otimizar o **gerenciamento de frotas de motocicletas** da empresa **Mottu**.  
-A solução permite o controle completo de **funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades**.
+O MottuFlow é uma API RESTful desenvolvida para otimizar o gerenciamento inteligente de frotas de motocicletas da empresa Mottu.
+
+A solução oferece controle completo sobre funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades,
+proporcionando eficiência operacional, automação de processos e monitoramento centralizado por meio de boas práticas REST e integração moderna com banco de dados.
 
 O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários com xUnit**.
 
