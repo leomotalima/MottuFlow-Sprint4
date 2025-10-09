@@ -1,14 +1,15 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MottuFlowApi.Models;
-using MottuFlowApi.Helpers;
 
 namespace MottuFlowApi.Services
 {
     public interface IMotoService
     {
-        Task<PagedResult<Moto>> GetPagedAsync(int page, int size);
-        Task<Moto> GetByIdAsync(int id);
-        Task<Moto> CreateAsync(Moto moto);
-        Task<Moto> UpdateAsync(Moto moto);
-        Task<bool> DeleteAsync(int id);
+        Task<PagedResult<Moto>> GetPagedAsync(int pageNumber, int pageSize);
+        // outros métodos do serviço...
     }
 }
+
+
+

@@ -7,7 +7,7 @@ using MottuFlowApi.Data;
 
 namespace MottuFlowApi.Repositories
 {
-    public class FuncionarioRepository
+    public class FuncionarioRepository : IFuncionarioRepository
     {
         private readonly AppDbContext _context;
 

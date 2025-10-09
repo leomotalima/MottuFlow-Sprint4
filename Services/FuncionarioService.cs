@@ -8,20 +8,18 @@ namespace MottuFlowApi.Services
 {
     public class FuncionarioService
     {
-        private readonly FuncionarioRepository _repository;
+        private readonly IFuncionarioRepository _repository;
 
-        public FuncionarioService(FuncionarioRepository repository)
+        public FuncionarioService(IFuncionarioRepository repository)
         {
             _repository = repository;
         }
 
-        // ✅ método esperado pelo teste
         public async Task<List<Funcionario>> ListarTodos()
         {
             return await _repository.GetAllAsync();
         }
 
-        // ✅ método esperado pelo teste
         public async Task Adicionar(Funcionario funcionario)
         {
             if (string.IsNullOrWhiteSpace(funcionario.Nome))

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MottuFlowApi.Data;
 using MottuFlowApi.Models;
 
 namespace MottuFlowApi.Repositories
@@ -18,7 +19,7 @@ namespace MottuFlowApi.Repositories
             return await _context.Motos
                                  .Include(m => m.Patio)
                                  .Include(m => m.ArucoTags)
-                                 .Include(m => m.Statuses)
+                                 .Include(m => m.RegistrosStatus) // ✅ corrigido
                                  .Include(m => m.Localidades)
                                  .ToListAsync();
         }
@@ -29,7 +30,7 @@ namespace MottuFlowApi.Repositories
             return await _context.Motos
                                  .Include(m => m.Patio)
                                  .Include(m => m.ArucoTags)
-                                 .Include(m => m.Statuses)
+                                 .Include(m => m.RegistrosStatus) // ✅ corrigido
                                  .Include(m => m.Localidades)
                                  .FirstOrDefaultAsync(m => m.IdMoto == id);
         }
