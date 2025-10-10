@@ -13,6 +13,7 @@ namespace MottuFlowApi.Controllers
     [Route("api/v{version:apiVersion}/motos")]
     [Tags("Motos")]
     [Produces("application/json")] // ✅ Garante que o Swagger exiba JSON
+    [Consumes("application/json")]
     public class MotoController : ControllerBase
     {
         private readonly AppDbContext _context;

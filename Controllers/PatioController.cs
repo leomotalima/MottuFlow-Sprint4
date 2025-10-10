@@ -13,6 +13,7 @@ namespace MottuFlowApi.Controllers
     [Route("api/v{version:apiVersion}/patios")]
     [Tags("Pátios")]
     [Produces("application/json")] // ✅ Garante que o Swagger exiba JSON
+    [Consumes("application/json")]
     public class PatioController : ControllerBase
     {
         private readonly AppDbContext _context;

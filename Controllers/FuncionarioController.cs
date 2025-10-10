@@ -15,6 +15,7 @@ namespace MottuFlowApi.Controllers
     [Route("api/v{version:apiVersion}/funcionarios")]
     [Tags("Funcionários")]
     [Produces("application/json")] // ✅ Força exibição JSON no Swagger
+    [Consumes("application/json")]
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
