@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MottuFlowApi.Services;
+using MottuFlowApi.DTOs; // 👈 IMPORTANTE: adiciona este using
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MottuFlowApi.Controllers
@@ -26,7 +27,7 @@ namespace MottuFlowApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] AuthLoginInputDTO request) // 👈 usa o DTO criado na pasta DTOs
         {
             if (request == null)
                 return BadRequest(new { success = false, message = "Requisição inválida. Verifique o corpo da requisição." });
@@ -45,12 +46,5 @@ namespace MottuFlowApi.Controllers
 
             return Unauthorized(new { success = false, message = "Credenciais inválidas." });
         }
-    }
-
-    // ✅ DTO para autenticação
-    public class LoginRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
     }
 }
