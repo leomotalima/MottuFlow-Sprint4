@@ -1,13 +1,14 @@
-using MottuFlowApi.DTOs;
+using MottuFlow.Hateoas;
+
 namespace MottuFlowApi.DTOs
 {
-    public class FuncionarioOutputDTO
+    public class FuncionarioOutputDTO : ResourceBase
     {
-        public int IdFuncionario { get; set; }
-        public string Nome { get; set; } = null!;
-        public string Cpf { get; set; } = null!;
-        public string Cargo { get; set; } = null!;
-        public string Telefone { get; set; } = null!;
-        public string Email { get; set; } = null!;
+        public string Nome { get; set; } = string.Empty;
+        public string Cpf { get; set; } = string.Empty;
+        public string Cargo { get; set; } = string.Empty;
+        public string Telefone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public DateTime? DataCadastro { get; set; }
     }
 }

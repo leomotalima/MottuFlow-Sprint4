@@ -4,6 +4,7 @@ using MottuFlowApi.Data;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -20,7 +21,7 @@ var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
 
 // 🧪 Se for ambiente de teste, força o uso do InMemory
-if (environment.Equals("Testing", StringComparison.OrdinalIgnoreCase) || 
+if (environment.Equals("Testing", StringComparison.OrdinalIgnoreCase) ||
     AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase))
 {
     Console.WriteLine("⚙️ Modo de TESTE detectado — usando banco InMemory.");
@@ -43,13 +44,27 @@ else
 // ----------------------
 builder.Services.AddApiVersioning(options =>
 {
+    // Define a versão padrão da API (v1.0)
     options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
+
+    // Permite informar a versão por query string ou header
     options.ApiVersionReader = ApiVersionReader.Combine(
         new QueryStringApiVersionReader("api-version"),
         new HeaderApiVersionReader("x-api-version")
     );
+});
+
+// ----------------------
+// Explorer de Versões (para o Swagger)
+// ----------------------
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    // Define o formato do nome da versão (ex: v1, v1.0)
+    options.GroupNameFormat = "'v'VVV";
+    // Substitui o número da versão diretamente na URL
+    options.SubstituteApiVersionInUrl = true;
 });
 
 // ----------------------
@@ -74,19 +89,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // ----------------------
-// Configuração do Swagger
+// Configuração do Swagger com Versionamento
 // ----------------------
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    // Documentação principal da API
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "MottuFlow API",
         Version = "v1",
-        Description = "API RESTful para gerenciamento de frotas de motocicletas - MottuFlow Sprint 4"
+        Description = "API RESTful para gerenciamento de frotas de motocicletas - MottuFlow Sprint 4",
+        Contact = new OpenApiContact
+        {
+            Name = "Equipe MottuFlow",
+            Email = "contato@mottuflow.com"
+        },
+        License = new OpenApiLicense
+        {
+            Name = "FIAP - Advanced Business Development with .NET"
+        }
     });
 
     // 🔐 Autenticação JWT no Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
@@ -96,7 +121,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Digite 'Bearer {seu token JWT}' para autenticar"
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -111,18 +136,19 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // 📘 Aplica filtros de documentação da pasta Swagger
-    c.DocumentFilter<Documentacao>();
-    c.DocumentFilter<OrdenarTagsDocumentFilter>();
+    // 📘 Filtros personalizados (pasta Swagger)
+    options.DocumentFilter<Documentacao>();
+    options.DocumentFilter<OrdenarTagsDocumentFilter>();
 
     // ✍️ Habilita uso das anotações nos Controllers ([SwaggerOperation], [SwaggerResponse], etc.)
-    c.EnableAnnotations();
+    options.EnableAnnotations();
 });
 
 // ----------------------
 // Health Checks
 // ----------------------
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("BancoOracle");
 
 // ----------------------
 // Controllers / Auth / Authorization
@@ -139,10 +165,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
-        c.RoutePrefix = string.Empty; // abre o Swagger na raiz
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
+        options.RoutePrefix = string.Empty; // abre o Swagger na raiz
     });
 }
 
@@ -154,9 +180,10 @@ app.UseAuthorization();
 
 // ✅ Endpoint de Health Check
 app.MapGet("/api/health/ping", () => Results.Ok(new { status = "API rodando 🚀" }));
-
-app.MapControllers();
 app.MapHealthChecks("/api/health");
+
+// ✅ Controllers
+app.MapControllers();
 
 app.Run();
 
