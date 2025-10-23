@@ -1,24 +1,28 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlowApi.Models;
 using MottuFlowApi.DTOs;
 using MottuFlow.Hateoas;
+using MottuFlowApi.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace MottuFlowApi.Controllers
+namespace MottuFlowApi.Controllers.V1
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/arucotags")]
     [Tags("ArucoTags")]
-    [Produces("application/json")] // ✅ Garante saída JSON no Swagger
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [Authorize] // 🔒 exige JWT para escrita
     public class ArucoTagController : ControllerBase
     {
         private readonly AppDbContext _context;
         public ArucoTagController(AppDbContext context) => _context = context;
 
-        // 🔗 Adiciona links HATEOAS
+        // 🔗 HATEOAS Links
         private void AddHateoasLinks(ArucoTagResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetArucoTag), new { id })!, Rel = "self", Method = "GET" });
@@ -26,10 +30,12 @@ namespace MottuFlowApi.Controllers
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteArucoTag), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Lista todas as ArucoTags
+        // 🧩 GET - Lista todas as ArucoTags (público)
+        [AllowAnonymous]
         [HttpGet(Name = "GetArucoTags")]
-        [SwaggerOperation(Summary = "Lista todas as ArucoTags registradas no sistema")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Lista todas as ArucoTags", Description = "Retorna uma lista de ArucoTags cadastradas no sistema.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista retornada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro interno no servidor")]
         public async Task<IActionResult> GetArucoTags()
         {
             var tags = await _context.ArucoTags
@@ -43,18 +49,19 @@ namespace MottuFlowApi.Controllers
                 .ToListAsync();
 
             if (!tags.Any())
-                return Ok(new { success = true, message = "Nenhuma ArucoTag cadastrada.", data = new List<ArucoTagResource>() });
+                return Ok(ApiResponse<object>.Ok(new { totalItems = 0, data = new List<ArucoTagResource>() }, "Nenhuma ArucoTag cadastrada."));
 
             tags.ForEach(t => AddHateoasLinks(t, t.Id));
 
-            return Ok(new { success = true, data = tags });
+            return Ok(ApiResponse<IEnumerable<ArucoTagResource>>.Ok(tags, "ArucoTags listadas com sucesso."));
         }
 
-        // 🧩 GET - Retorna uma ArucoTag por ID
+        // 🧩 GET - Retorna uma ArucoTag por ID (público)
+        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetArucoTag")]
-        [SwaggerOperation(Summary = "Retorna uma ArucoTag específica pelo ID")]
-        [ProducesResponseType(typeof(ArucoTagResource), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Obtém uma ArucoTag específica", Description = "Retorna os dados de uma ArucoTag pelo ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "ArucoTag encontrada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "ArucoTag não encontrada")]
         public async Task<IActionResult> GetArucoTag(int id)
         {
             var tag = await _context.ArucoTags
@@ -69,21 +76,21 @@ namespace MottuFlowApi.Controllers
                 .FirstOrDefaultAsync();
 
             if (tag == null)
-                return NotFound(new { success = false, message = "ArucoTag não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("ArucoTag não encontrada."));
 
             AddHateoasLinks(tag, tag.Id);
-            return Ok(new { success = true, data = tag });
+            return Ok(ApiResponse<ArucoTagResource>.Ok(tag, "ArucoTag encontrada com sucesso."));
         }
 
         // 🧩 POST - Cria uma nova ArucoTag
         [HttpPost(Name = "CreateArucoTag")]
-        [SwaggerOperation(Summary = "Cria uma nova ArucoTag no sistema")]
-        [ProducesResponseType(typeof(ArucoTagResource), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Cria uma nova ArucoTag", Description = "Registra uma nova ArucoTag associada a uma moto.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "ArucoTag criada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro de validação nos dados")]
         public async Task<IActionResult> CreateArucoTag([FromBody] ArucoTagInputDTO input)
         {
-            if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<string>.Fail("Dados inválidos."));
 
             var tag = new ArucoTag
             {
@@ -106,23 +113,23 @@ namespace MottuFlowApi.Controllers
             AddHateoasLinks(resource, tag.IdTag);
 
             return CreatedAtAction(nameof(GetArucoTag), new { id = tag.IdTag },
-                new { success = true, message = "ArucoTag criada com sucesso.", data = resource });
+                ApiResponse<ArucoTagResource>.Ok(resource, "ArucoTag criada com sucesso."));
         }
 
         // 🧩 PUT - Atualiza uma ArucoTag existente
         [HttpPut("{id}", Name = "UpdateArucoTag")]
-        [SwaggerOperation(Summary = "Atualiza uma ArucoTag existente pelo ID")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Atualiza uma ArucoTag existente", Description = "Permite atualizar os dados de uma ArucoTag cadastrada.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "ArucoTag atualizada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "ArucoTag não encontrada")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro de validação nos dados")]
         public async Task<IActionResult> UpdateArucoTag(int id, [FromBody] ArucoTagInputDTO input)
         {
-            if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<string>.Fail("Dados inválidos."));
 
             var tag = await _context.ArucoTags.FindAsync(id);
             if (tag == null)
-                return NotFound(new { success = false, message = "ArucoTag não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("ArucoTag não encontrada."));
 
             tag.Codigo = input.Codigo;
             tag.Status = input.Status;
@@ -141,19 +148,19 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(updated, tag.IdTag);
 
-            return Ok(new { success = true, message = "ArucoTag atualizada com sucesso.", data = updated });
+            return Ok(ApiResponse<ArucoTagResource>.Ok(updated, "ArucoTag atualizada com sucesso."));
         }
 
         // 🧩 DELETE - Remove uma ArucoTag
         [HttpDelete("{id}", Name = "DeleteArucoTag")]
-        [SwaggerOperation(Summary = "Remove uma ArucoTag do sistema pelo ID")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Remove uma ArucoTag", Description = "Exclui uma ArucoTag existente pelo ID.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "ArucoTag removida com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "ArucoTag não encontrada")]
         public async Task<IActionResult> DeleteArucoTag(int id)
         {
             var tag = await _context.ArucoTags.FindAsync(id);
             if (tag == null)
-                return NotFound(new { success = false, message = "ArucoTag não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("ArucoTag não encontrada."));
 
             _context.ArucoTags.Remove(tag);
             await _context.SaveChangesAsync();

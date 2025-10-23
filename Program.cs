@@ -153,11 +153,10 @@ builder.Services.AddHealthChecks()
 // ----------------------
 // Controllers / Auth / Authorization
 // ----------------------
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(MottuFlowApi.Controllers.RegistroStatusController).Assembly)
-    .AddControllersAsServices();
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 

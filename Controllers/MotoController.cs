@@ -1,25 +1,28 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlowApi.Models;
 using MottuFlowApi.DTOs;
 using MottuFlow.Hateoas;
+using MottuFlowApi.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace MottuFlowApi.Controllers
+namespace MottuFlowApi.Controllers.V1
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/motos")]
     [Tags("Motos")]
-    [Produces("application/json")] // ✅ Garante que o Swagger exiba JSON
+    [Produces("application/json")]
     [Consumes("application/json")]
+    [Authorize] // 🔒 exige token para operações sensíveis
     public class MotoController : ControllerBase
     {
         private readonly AppDbContext _context;
         public MotoController(AppDbContext context) => _context = context;
 
-        // 🔗 Adiciona links HATEOAS
+        // 🔗 HATEOAS links
         private void AddHateoasLinks(MotoResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetMoto), new { id })!, Rel = "self", Method = "GET" });
@@ -27,10 +30,12 @@ namespace MottuFlowApi.Controllers
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteMoto), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Listar todas as motos
+        // 🧩 GET - Listar todas as motos (público)
+        [AllowAnonymous]
         [HttpGet(Name = "GetMotos")]
-        [SwaggerOperation(Summary = "Lista todas as motos com paginação e links HATEOAS")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Lista todas as motos", Description = "Retorna uma lista paginada de motos cadastradas.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de motos retornada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro interno no servidor")]
         public async Task<IActionResult> GetMotos(int page = 1, int pageSize = 10)
         {
             page = Math.Max(page, 1);
@@ -54,7 +59,7 @@ namespace MottuFlowApi.Controllers
                 .ToListAsync();
 
             if (!motos.Any())
-                return Ok(new { success = true, message = "Nenhuma moto cadastrada.", data = new List<MotoResource>() });
+                return Ok(ApiResponse<object>.Ok(new { totalItems = 0, data = new List<MotoResource>() }, "Nenhuma moto cadastrada."));
 
             motos.ForEach(m => AddHateoasLinks(m, m.Id));
 
@@ -66,14 +71,15 @@ namespace MottuFlowApi.Controllers
                 totalPages = Math.Ceiling((double)totalItems / pageSize)
             };
 
-            return Ok(new { success = true, meta, data = motos });
+            return Ok(ApiResponse<object>.Ok(new { meta, data = motos }, "Motos listadas com sucesso."));
         }
 
         // 🧩 GET - Buscar moto por ID
+        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetMoto")]
-        [SwaggerOperation(Summary = "Retorna os dados de uma moto específica pelo ID")]
-        [ProducesResponseType(typeof(MotoResource), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Obtém uma moto específica", Description = "Retorna os detalhes de uma moto pelo seu ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Moto encontrada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Moto não encontrada")]
         public async Task<IActionResult> GetMoto(int id)
         {
             var moto = await _context.Motos
@@ -91,21 +97,21 @@ namespace MottuFlowApi.Controllers
                 .FirstOrDefaultAsync();
 
             if (moto == null)
-                return NotFound(new { success = false, message = "Moto não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Moto não encontrada."));
 
             AddHateoasLinks(moto, moto.Id);
-            return Ok(new { success = true, data = moto });
+            return Ok(ApiResponse<MotoResource>.Ok(moto, "Moto encontrada com sucesso."));
         }
 
         // 🧩 POST - Criar nova moto
         [HttpPost(Name = "CreateMoto")]
-        [SwaggerOperation(Summary = "Cria uma nova moto no sistema")]
-        [ProducesResponseType(typeof(MotoResource), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Cria uma nova moto", Description = "Adiciona uma nova moto no sistema.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Moto criada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro na requisição ou dados inválidos")]
         public async Task<IActionResult> CreateMoto([FromBody] MotoInputDTO input)
         {
             if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+                return BadRequest(ApiResponse<string>.Fail("Input não pode ser nulo."));
 
             var moto = new Moto
             {
@@ -134,23 +140,23 @@ namespace MottuFlowApi.Controllers
             AddHateoasLinks(resource, moto.IdMoto);
 
             return CreatedAtAction(nameof(GetMoto), new { id = moto.IdMoto },
-                new { success = true, message = "Moto criada com sucesso.", data = resource });
+                ApiResponse<MotoResource>.Ok(resource, "Moto criada com sucesso."));
         }
 
         // 🧩 PUT - Atualizar moto existente
         [HttpPut("{id}", Name = "UpdateMoto")]
-        [SwaggerOperation(Summary = "Atualiza os dados de uma moto existente")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Atualiza os dados de uma moto", Description = "Modifica informações de uma moto existente.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Moto atualizada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro de validação ou dados inválidos")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Moto não encontrada")]
         public async Task<IActionResult> UpdateMoto(int id, [FromBody] MotoInputDTO input)
         {
             if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+                return BadRequest(ApiResponse<string>.Fail("Input não pode ser nulo."));
 
             var moto = await _context.Motos.FindAsync(id);
             if (moto == null)
-                return NotFound(new { success = false, message = "Moto não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Moto não encontrada."));
 
             moto.Placa = input.Placa;
             moto.Modelo = input.Modelo;
@@ -175,19 +181,19 @@ namespace MottuFlowApi.Controllers
 
             AddHateoasLinks(updated, moto.IdMoto);
 
-            return Ok(new { success = true, message = "Moto atualizada com sucesso.", data = updated });
+            return Ok(ApiResponse<MotoResource>.Ok(updated, "Moto atualizada com sucesso."));
         }
 
         // 🧩 DELETE - Remover moto
         [HttpDelete("{id}", Name = "DeleteMoto")]
-        [SwaggerOperation(Summary = "Remove uma moto existente do sistema pelo ID")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Remove uma moto", Description = "Exclui uma moto cadastrada do sistema.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Moto removida com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Moto não encontrada")]
         public async Task<IActionResult> DeleteMoto(int id)
         {
             var moto = await _context.Motos.FindAsync(id);
             if (moto == null)
-                return NotFound(new { success = false, message = "Moto não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Moto não encontrada."));
 
             _context.Motos.Remove(moto);
             await _context.SaveChangesAsync();

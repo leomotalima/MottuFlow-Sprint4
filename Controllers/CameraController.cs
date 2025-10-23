@@ -1,26 +1,32 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
 using MottuFlowApi.Models;
 using MottuFlowApi.DTOs;
+using MottuFlowApi.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace MottuFlowApi.Controllers
+namespace MottuFlowApi.Controllers.V1
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/cameras")]
     [Tags("Câmeras")]
-    [Produces("application/json")] // ✅ Força exibição JSON no Swagger
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [Authorize] // 🔒 exige JWT para escrita (GET é liberado)
     public class CameraController : ControllerBase
     {
         private readonly AppDbContext _context;
         public CameraController(AppDbContext context) => _context = context;
 
-        // 🧩 GET - Todas as câmeras (com paginação)
+        // 🧩 GET - Todas as câmeras (público)
+        [AllowAnonymous]
         [HttpGet(Name = "GetCameras")]
-        [SwaggerOperation(Summary = "Lista todas as câmeras com paginação")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Lista todas as câmeras", Description = "Retorna uma lista paginada de câmeras cadastradas no sistema.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista retornada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Erro interno no servidor")]
         public async Task<IActionResult> GetCameras(int page = 1, int pageSize = 10)
         {
             page = Math.Max(page, 1);
@@ -41,7 +47,7 @@ namespace MottuFlowApi.Controllers
                 .ToListAsync();
 
             if (!cameras.Any())
-                return Ok(new { success = true, message = "Nenhuma câmera cadastrada.", data = new List<CameraOutputDTO>() });
+                return Ok(ApiResponse<object>.Ok(new { totalItems = 0, data = new List<CameraOutputDTO>() }, "Nenhuma câmera cadastrada."));
 
             var meta = new
             {
@@ -51,19 +57,20 @@ namespace MottuFlowApi.Controllers
                 totalPages = Math.Ceiling((double)totalItems / pageSize)
             };
 
-            return Ok(new { success = true, meta, data = cameras });
+            return Ok(ApiResponse<object>.Ok(new { meta, data = cameras }, "Câmeras listadas com sucesso."));
         }
 
-        // 🧩 GET - Câmera por ID
+        // 🧩 GET - Câmera por ID (público)
+        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetCamera")]
-        [SwaggerOperation(Summary = "Retorna os dados de uma câmera específica pelo ID")]
-        [ProducesResponseType(typeof(CameraOutputDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Obtém uma câmera específica", Description = "Retorna os detalhes de uma câmera pelo ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Câmera encontrada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Câmera não encontrada")]
         public async Task<IActionResult> GetCamera(int id)
         {
             var c = await _context.Cameras.FindAsync(id);
             if (c == null)
-                return NotFound(new { success = false, message = "Câmera não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Câmera não encontrada."));
 
             var result = new CameraOutputDTO
             {
@@ -73,18 +80,18 @@ namespace MottuFlowApi.Controllers
                 IdPatio = c.IdPatio
             };
 
-            return Ok(new { success = true, data = result });
+            return Ok(ApiResponse<CameraOutputDTO>.Ok(result, "Câmera encontrada com sucesso."));
         }
 
         // 🧩 POST - Criar nova câmera
         [HttpPost(Name = "CreateCamera")]
-        [SwaggerOperation(Summary = "Cria uma nova câmera no sistema")]
-        [ProducesResponseType(typeof(CameraOutputDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Cria uma nova câmera", Description = "Registra uma nova câmera no sistema.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Câmera criada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro de validação nos dados")]
         public async Task<IActionResult> CreateCamera([FromBody] CameraInputDTO input)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { success = false, message = "Dados inválidos.", errors = ModelState });
+                return BadRequest(ApiResponse<string>.Fail("Dados inválidos."));
 
             var camera = new Camera
             {
@@ -105,23 +112,23 @@ namespace MottuFlowApi.Controllers
             };
 
             return CreatedAtAction(nameof(GetCamera), new { id = camera.IdCamera },
-                new { success = true, message = "Câmera criada com sucesso.", data = result });
+                ApiResponse<CameraOutputDTO>.Ok(result, "Câmera criada com sucesso."));
         }
 
         // 🧩 PUT - Atualizar câmera existente
         [HttpPut("{id}", Name = "UpdateCamera")]
-        [SwaggerOperation(Summary = "Atualiza uma câmera existente pelo ID")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerOperation(Summary = "Atualiza uma câmera existente", Description = "Permite atualizar os dados de uma câmera cadastrada.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Câmera atualizada com sucesso")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro de validação nos dados")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Câmera não encontrada")]
         public async Task<IActionResult> UpdateCamera(int id, [FromBody] CameraInputDTO input)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { success = false, message = "Dados inválidos.", errors = ModelState });
+                return BadRequest(ApiResponse<string>.Fail("Dados inválidos."));
 
             var camera = await _context.Cameras.FindAsync(id);
             if (camera == null)
-                return NotFound(new { success = false, message = "Câmera não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Câmera não encontrada."));
 
             camera.StatusOperacional = input.StatusOperacional;
             camera.LocalizacaoFisica = input.LocalizacaoFisica;
@@ -138,19 +145,19 @@ namespace MottuFlowApi.Controllers
                 IdPatio = camera.IdPatio
             };
 
-            return Ok(new { success = true, message = "Câmera atualizada com sucesso.", data = updated });
+            return Ok(ApiResponse<CameraOutputDTO>.Ok(updated, "Câmera atualizada com sucesso."));
         }
 
         // 🧩 DELETE - Remover câmera
         [HttpDelete("{id}", Name = "DeleteCamera")]
-        [SwaggerOperation(Summary = "Remove uma câmera existente pelo ID")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Remove uma câmera", Description = "Exclui uma câmera do sistema pelo ID.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Câmera removida com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Câmera não encontrada")]
         public async Task<IActionResult> DeleteCamera(int id)
         {
             var c = await _context.Cameras.FindAsync(id);
             if (c == null)
-                return NotFound(new { success = false, message = "Câmera não encontrada." });
+                return NotFound(ApiResponse<string>.Fail("Câmera não encontrada."));
 
             _context.Cameras.Remove(c);
             await _context.SaveChangesAsync();
