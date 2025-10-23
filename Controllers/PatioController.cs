@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlowApi.Data;
@@ -5,6 +6,7 @@ using MottuFlowApi.Models;
 using MottuFlowApi.DTOs;
 using MottuFlow.Hateoas;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MottuFlowApi.Controllers
 {
@@ -12,12 +14,17 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/patios")]
     [Tags("Pátios")]
-    [Produces("application/json")] // ✅ Garante que o Swagger exiba JSON
+    [Produces("application/json")]
     [Consumes("application/json")]
+    [Authorize] // 🔒 Protege todos os endpoints com JWT
     public class PatioController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public PatioController(AppDbContext context) => _context = context;
+
+        public PatioController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         // 🔗 Adiciona links HATEOAS
         private void AddHateoasLinks(PatioResource resource, int id)
@@ -27,10 +34,11 @@ namespace MottuFlowApi.Controllers
             resource.AddLink(new Link { Href = Url.Link(nameof(DeletePatio), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Todos os pátios
+        // 🧩 GET - Todos os pátios (público)
+        [AllowAnonymous] // 👈 GET liberado sem token
         [HttpGet(Name = "GetPatios")]
-        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e links HATEOAS")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Lista todos os pátios com paginação e links HATEOAS (v1)")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Lista de pátios retornada com sucesso", typeof(IEnumerable<PatioResource>))]
         public async Task<IActionResult> GetPatios(int page = 1, int pageSize = 10)
         {
             page = Math.Max(page, 1);
@@ -67,10 +75,11 @@ namespace MottuFlowApi.Controllers
         }
 
         // 🧩 GET - Por ID
+        [AllowAnonymous] // 👈 também público
         [HttpGet("{id}", Name = "GetPatio")]
-        [SwaggerOperation(Summary = "Retorna os dados de um pátio específico pelo ID")]
-        [ProducesResponseType(typeof(PatioResource), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Retorna os dados de um pátio específico pelo ID (v1)")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Pátio encontrado com sucesso", typeof(PatioResource))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Pátio não encontrado")]
         public async Task<IActionResult> GetPatio(int id)
         {
             var patio = await _context.Patios
@@ -93,13 +102,13 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST - Criar novo pátio
         [HttpPost(Name = "CreatePatio")]
-        [SwaggerOperation(Summary = "Cria um novo pátio no sistema")]
-        [ProducesResponseType(typeof(PatioResource), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreatePatio([FromBody] PatioInputDTO input)
+        [SwaggerOperation(Summary = "Cria um novo pátio no sistema (autenticado)")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Pátio criado com sucesso", typeof(PatioResource))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Erro ao criar pátio")]
+        public async Task<IActionResult> CreatePatio([FromBody][Required] PatioInputDTO input)
         {
-            if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var patio = new Patio
             {
@@ -127,14 +136,13 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 PUT - Atualizar pátio
         [HttpPut("{id}", Name = "UpdatePatio")]
-        [SwaggerOperation(Summary = "Atualiza um pátio existente")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdatePatio(int id, [FromBody] PatioInputDTO input)
+        [SwaggerOperation(Summary = "Atualiza um pátio existente (autenticado)")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Pátio atualizado com sucesso", typeof(PatioResource))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Pátio não encontrado")]
+        public async Task<IActionResult> UpdatePatio(int id, [FromBody][Required] PatioInputDTO input)
         {
-            if (input == null)
-                return BadRequest(new { success = false, message = "Input não pode ser nulo." });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var patio = await _context.Patios.FindAsync(id);
             if (patio == null)
@@ -162,9 +170,9 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 DELETE - Remover pátio
         [HttpDelete("{id}", Name = "DeletePatio")]
-        [SwaggerOperation(Summary = "Remove um pátio do sistema pelo ID")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(Summary = "Remove um pátio do sistema pelo ID (autenticado)")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "Pátio removido com sucesso")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Pátio não encontrado")]
         public async Task<IActionResult> DeletePatio(int id)
         {
             var patio = await _context.Patios.FindAsync(id);

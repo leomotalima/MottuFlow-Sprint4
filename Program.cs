@@ -153,7 +153,9 @@ builder.Services.AddHealthChecks()
 // ----------------------
 // Controllers / Auth / Authorization
 // ----------------------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(MottuFlowApi.Controllers.RegistroStatusController).Assembly)
+    .AddControllersAsServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization();
 
@@ -167,10 +169,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
+        // Mantém a documentação da versão 1
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
-        options.RoutePrefix = string.Empty; // abre o Swagger na raiz
+
+        // ✅ Configuração correta e padrão
+        options.RoutePrefix = "swagger";
     });
 }
+
+// 🔁 (Opcional) redireciona a raiz "/" para o Swagger automaticamente
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger");
+    return Task.CompletedTask;
+});
+
 
 app.UseHttpsRedirection();
 

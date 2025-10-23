@@ -1,28 +1,85 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using MottuFlowApi.Data;
 using MottuFlowApi.Models;
 using MottuFlowApi.DTOs;
 using MottuFlow.Hateoas;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Security.Cryptography;
-using System.Text;
 
-namespace MottuFlowApi.Controllers.V2
+namespace MottuFlowApi.Controllers.V1
 {
     [ApiController]
-    [ApiVersion("2.0")]
-    [ApiExplorerSettings(GroupName = "v2")]
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "v1")]
     [Route("api/v{version:apiVersion}/funcionarios")]
-    [Tags("Funcionários - v2")]
+    [Tags("Funcionários")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public class FuncionarioControllerV2 : ControllerBase
+    [Authorize] // 🔒 Protege toda a controller com JWT
+    public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public FuncionarioControllerV2(AppDbContext context) => _context = context;
+        private readonly IConfiguration _config;
 
-        // 🔒 Hash de senha (mantém a mesma lógica da v1)
+        public FuncionarioController(AppDbContext context, IConfiguration config)
+        {
+            _context = context;
+            _config = config;
+        }
+
+        // 🔐 LOGIN - Gera token JWT
+        [AllowAnonymous]
+        [HttpPost("login")]
+        [SwaggerOperation(Summary = "Realiza login e gera o token JWT (v1)")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login([FromBody] LoginDTO login)
+        {
+            var funcionario = await _context.Funcionarios
+                .FirstOrDefaultAsync(f => f.Email == login.Email);
+
+            if (funcionario == null)
+                return Unauthorized(new { success = false, message = "Usuário não encontrado." });
+
+            var senhaHash = HashSenha(login.Senha);
+            if (funcionario.Senha != senhaHash)
+                return Unauthorized(new { success = false, message = "Senha incorreta." });
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, funcionario.Nome),
+                new Claim(ClaimTypes.Email, funcionario.Email),
+                new Claim(ClaimTypes.Role, funcionario.Cargo)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expiracao = DateTime.UtcNow.AddHours(2);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: expiracao,
+                signingCredentials: creds
+            );
+
+            return Ok(new
+            {
+                success = true,
+                message = "Login realizado com sucesso!",
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                expiracao
+            });
+        }
+
+        // 🔒 Hash de senha
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();
@@ -34,17 +91,17 @@ namespace MottuFlowApi.Controllers.V2
         // 🔗 HATEOAS Links
         private void AddHateoasLinks(FuncionarioOutputDTO resource, int id)
         {
-            resource.AddLink(new Link { Href = Url.Link(nameof(GetFuncionarioV2), new { id })!, Rel = "self", Method = "GET" });
-            resource.AddLink(new Link { Href = Url.Link(nameof(UpdateFuncionarioV2), new { id })!, Rel = "update", Method = "PUT" });
-            resource.AddLink(new Link { Href = Url.Link(nameof(DeleteFuncionarioV2), new { id })!, Rel = "delete", Method = "DELETE" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(GetFuncionario), new { id })!, Rel = "self", Method = "GET" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(UpdateFuncionario), new { id })!, Rel = "update", Method = "PUT" });
+            resource.AddLink(new Link { Href = Url.Link(nameof(DeleteFuncionario), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
         // 🧩 GET (com filtros e ordenação)
-        [HttpGet(Name = "GetFuncionariosV2")]
-        [MapToApiVersion("2.0")]
-        [SwaggerOperation(Summary = "Lista funcionários com filtro opcional por nome/cargo e ordenação (v2)")]
+        [HttpGet(Name = "GetFuncionarios")]
+        [MapToApiVersion("1.0")]
+        [SwaggerOperation(Summary = "Lista funcionários com filtro opcional por nome/cargo e ordenação (v1)")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFuncionariosV2(string? nome = null, string? cargo = null, string? orderBy = "nome", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetFuncionarios(string? nome = null, string? cargo = null, string? orderBy = "nome", int page = 1, int pageSize = 10)
         {
             var query = _context.Funcionarios.AsQueryable();
 
@@ -74,7 +131,7 @@ namespace MottuFlowApi.Controllers.V2
                     Cargo = f.Cargo!,
                     Telefone = f.Telefone!,
                     Email = f.Email!,
-                    DataCadastro = DateTime.Now.AddDays(-f.IdFuncionario) // novo campo simulado
+                    DataCadastro = DateTime.Now.AddDays(-f.IdFuncionario)
                 })
                 .ToListAsync();
 
@@ -91,16 +148,16 @@ namespace MottuFlowApi.Controllers.V2
                 totalPages = Math.Ceiling((double)totalItems / pageSize)
             };
 
-            return Ok(new { success = true, version = "2.0", meta, data = funcionarios });
+            return Ok(new { success = true, version = "1.0", meta, data = funcionarios });
         }
 
         // 🧩 GET (por ID)
-        [HttpGet("{id}", Name = "GetFuncionarioV2")]
-        [MapToApiVersion("2.0")]
-        [SwaggerOperation(Summary = "Retorna um funcionário específico (v2)")]
+        [HttpGet("{id}", Name = "GetFuncionario")]
+        [MapToApiVersion("1.0")]
+        [SwaggerOperation(Summary = "Retorna um funcionário específico (v1)")]
         [ProducesResponseType(typeof(FuncionarioOutputDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetFuncionarioV2(int id)
+        public async Task<IActionResult> GetFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios
                 .Where(f => f.IdFuncionario == id)
@@ -120,16 +177,16 @@ namespace MottuFlowApi.Controllers.V2
                 return NotFound(new { success = false, message = "Funcionário não encontrado." });
 
             AddHateoasLinks(funcionario, funcionario.Id);
-            return Ok(new { success = true, version = "2.0", data = funcionario });
+            return Ok(new { success = true, version = "1.0", data = funcionario });
         }
 
         // 🧩 PUT (Atualiza funcionário)
-        [HttpPut("{id}", Name = "UpdateFuncionarioV2")]
-        [MapToApiVersion("2.0")]
-        [SwaggerOperation(Summary = "Atualiza dados de um funcionário (v2)")]
+        [HttpPut("{id}", Name = "UpdateFuncionario")]
+        [MapToApiVersion("1.0")]
+        [SwaggerOperation(Summary = "Atualiza dados de um funcionário (v1)")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateFuncionarioV2(int id, [FromBody] FuncionarioInputDTO input)
+        public async Task<IActionResult> UpdateFuncionario(int id, [FromBody] FuncionarioInputDTO input)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
             if (funcionario == null)
@@ -158,16 +215,16 @@ namespace MottuFlowApi.Controllers.V2
             };
 
             AddHateoasLinks(updated, funcionario.IdFuncionario);
-            return Ok(new { success = true, message = "Funcionário atualizado com sucesso (v2).", data = updated });
+            return Ok(new { success = true, message = "Funcionário atualizado com sucesso.", data = updated });
         }
 
         // 🧩 DELETE
-        [HttpDelete("{id}", Name = "DeleteFuncionarioV2")]
-        [MapToApiVersion("2.0")]
-        [SwaggerOperation(Summary = "Remove um funcionário (v2)")]
+        [HttpDelete("{id}", Name = "DeleteFuncionario")]
+        [MapToApiVersion("1.0")]
+        [SwaggerOperation(Summary = "Remove um funcionário (v1)")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteFuncionarioV2(int id)
+        public async Task<IActionResult> DeleteFuncionario(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
             if (funcionario == null)
@@ -177,5 +234,12 @@ namespace MottuFlowApi.Controllers.V2
             await _context.SaveChangesAsync();
             return NoContent();
         }
+    }
+
+    // DTO auxiliar para login
+    public class LoginDTO
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Senha { get; set; } = string.Empty;
     }
 }

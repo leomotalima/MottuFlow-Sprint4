@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MottuFlow.DTOs;
@@ -11,15 +12,22 @@ namespace MottuFlowApi.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/registro-status")]
     [Tags("Registros de Status")]
-    [Produces("application/json")] // ✅ Força resposta JSON no Swagger
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [Authorize] // 🔒 Protege por padrão (autenticação JWT)
     public class RegistroStatusController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public RegistroStatusController(AppDbContext context) => _context = context;
+
+        public RegistroStatusController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         // 🧩 GET - Lista com paginação
+        [AllowAnonymous] // 👈 pode ser pública
         [HttpGet(Name = "GetRegistroStatus")]
-        [SwaggerOperation(Summary = "Lista todos os registros de status com paginação")]
+        [SwaggerOperation(Summary = "Lista todos os registros de status com paginação (v1)")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetRegistroStatus(int page = 1, int pageSize = 10)
         {
@@ -58,8 +66,9 @@ namespace MottuFlowApi.Controllers
         }
 
         // 🧩 GET - Por ID
+        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetRegistroStatusById")]
-        [SwaggerOperation(Summary = "Retorna os dados de um registro de status específico pelo ID")]
+        [SwaggerOperation(Summary = "Retorna os dados de um registro de status específico pelo ID (v1)")]
         [ProducesResponseType(typeof(StatusDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetRegistroStatusById(int id)
@@ -82,7 +91,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 POST - Criar novo registro
         [HttpPost(Name = "CreateRegistroStatus")]
-        [SwaggerOperation(Summary = "Cria um novo registro de status no sistema")]
+        [SwaggerOperation(Summary = "Cria um novo registro de status no sistema (autenticado)")]
         [ProducesResponseType(typeof(StatusDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateRegistroStatus([FromBody] StatusDTO dto)
@@ -94,7 +103,7 @@ namespace MottuFlowApi.Controllers
             {
                 TipoStatus = dto.TipoStatus,
                 Descricao = dto.Descricao,
-                DataStatus = dto.DataStatus,
+                DataStatus = dto.DataStatus == default ? DateTime.UtcNow : dto.DataStatus,
                 IdMoto = dto.IdMoto,
                 IdFuncionario = dto.IdFuncionario
             };
@@ -117,7 +126,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 PUT - Atualizar registro existente
         [HttpPut("{id}", Name = "UpdateRegistroStatus")]
-        [SwaggerOperation(Summary = "Atualiza um registro de status existente pelo ID")]
+        [SwaggerOperation(Summary = "Atualiza um registro de status existente pelo ID (autenticado)")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -153,7 +162,7 @@ namespace MottuFlowApi.Controllers
 
         // 🧩 DELETE - Remover registro
         [HttpDelete("{id}", Name = "DeleteRegistroStatus")]
-        [SwaggerOperation(Summary = "Remove um registro de status existente pelo ID")]
+        [SwaggerOperation(Summary = "Remove um registro de status existente pelo ID (autenticado)")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRegistroStatus(int id)

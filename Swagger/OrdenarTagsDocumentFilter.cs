@@ -1,41 +1,53 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
 
-public class OrdenarTagsDocumentFilter : IDocumentFilter
+namespace MottuFlowApi.Swagger
 {
-    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    public class OrdenarTagsDocumentFilter : IDocumentFilter
     {
-        // Ordem desejada das tags
-        string[] ordemTags = { "Funcionario", "Patio", "Moto", "Camera", "Arucotag", "Localidade", "Registro_status" };
-
-        // Reordena as tags
-        swaggerDoc.Tags = swaggerDoc.Tags?
-            .OrderBy(t =>
-            {
-                int index = Array.IndexOf(ordemTags, t.Name);
-                return index >= 0 ? index : int.MaxValue;
-            })
-            .ToList();
-
-        // Reordena os paths/endpoints dentro das tags
-        var orderedPaths = new OpenApiPaths();
-        foreach (var tag in ordemTags)
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            foreach (var path in swaggerDoc.Paths
-                        .Where(p => p.Value.Operations.Any(o => o.Value.Tags.Any(tg => tg.Name == tag))))
+            // ✅ Ordem exata das tags conforme definidas em Documentacao.cs
+            string[] ordemTags = 
+            { 
+                "Funcionários", 
+                "Pátios", 
+                "Motos", 
+                "Câmeras", 
+                "ArucoTags", 
+                "Localidades", 
+                "Registros de Status" 
+            };
+
+            // Reordena as tags
+            swaggerDoc.Tags = swaggerDoc.Tags?
+                .OrderBy(t =>
+                {
+                    int index = Array.IndexOf(ordemTags, t.Name);
+                    return index >= 0 ? index : int.MaxValue;
+                })
+                .ToList();
+
+            // Reordena os paths/endpoints de acordo com as tags
+            var orderedPaths = new OpenApiPaths();
+            foreach (var tag in ordemTags)
+            {
+                foreach (var path in swaggerDoc.Paths
+                            .Where(p => p.Value.Operations.Any(o => o.Value.Tags.Any(tg => tg.Name == tag))))
+                {
+                    if (!orderedPaths.ContainsKey(path.Key))
+                        orderedPaths.Add(path.Key, path.Value);
+                }
+            }
+
+            // Adiciona quaisquer paths restantes que não estão na lista
+            foreach (var path in swaggerDoc.Paths)
             {
                 if (!orderedPaths.ContainsKey(path.Key))
                     orderedPaths.Add(path.Key, path.Value);
             }
-        }
 
-        // Adiciona quaisquer paths restantes que não estão na lista
-        foreach (var path in swaggerDoc.Paths)
-        {
-            if (!orderedPaths.ContainsKey(path.Key))
-                orderedPaths.Add(path.Key, path.Value);
+            swaggerDoc.Paths = orderedPaths;
         }
-
-        swaggerDoc.Paths = orderedPaths;
     }
 }

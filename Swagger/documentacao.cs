@@ -37,8 +37,8 @@ namespace MottuFlowApi.Swagger
                 new OpenApiTag { Name = "Câmeras", Description = "Gerencia as câmeras de monitoramento instaladas nos pátios." },
                 new OpenApiTag { Name = "ArucoTags", Description = "Gerencia as ArUco Tags associadas às motos para identificação visual." },
                 new OpenApiTag { Name = "Localidades", Description = "Gerencia os registros de localização e deslocamento das motos." },
-                new OpenApiTag { Name = "Status", Description = "Histórico e gerenciamento dos status operacionais das motos." },
-                new OpenApiTag { Name = "Registro_Status", Description = "Gerencia registros automáticos de status capturados pelas câmeras." }
+                new OpenApiTag { Name = "Registros de Status", Description = "Gerencia registros automáticos de status capturados pelas câmeras." },
+
             };
         }
     }
