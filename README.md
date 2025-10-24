@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow Logo" width="180"/>
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
+  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
+</div>
   
   <h1><i><b>MottuFlow</b></i> - Sprint 4 (FIAP)</h1>
   <p><b>Disciplina:</b> Advanced Business Development with .NET</p>
