@@ -37,6 +37,7 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ### 🧩 Diagrama C4 (Alto Nível)
 
+```mermaid
 C4Context
     title Diagrama de Contexto - MottuFlow API
 
@@ -56,6 +57,7 @@ C4Context
     Rel(rest, db, "CRUD completo via Entity Framework")
     Rel(rest, jwt, "Valida tokens de autenticação JWT")
     Rel(rest, ml, "Predição de manutenção preventiva")
+
 
 
 ## ⚙️ Funcionalidades Principais
