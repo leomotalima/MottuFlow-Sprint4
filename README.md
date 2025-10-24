@@ -1,11 +1,8 @@
 <div align="center">
   <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
-</div>
-  
   <h1><i><b>MottuFlow</b></i> - Sprint 4 (FIAP)</h1>
   <p><b>Disciplina:</b> Advanced Business Development with .NET</p>
-  <p><b>Professor Orientador:</b> Leonardo Gasparini Romão </p>
+  <p><b>Professor Orientador:</b> Leonardo Gasparini Romão</p>
   <p>API RESTful desenvolvida em .NET 8 para o gerenciamento inteligente de frotas de motocicletas da empresa <b>Mottu</b>.</p>
 </div>
 
@@ -88,73 +85,179 @@ C4Component
 
 ---
 
-### 📦 Resumo da Arquitetura
+## 🚀 Demonstração de Uso da API
 
-| Camada | Função Principal |
-|---------|------------------|
-| **Controller** | Expõe endpoints REST e retorna respostas HTTP/JSON |
-| **Service** | Contém as regras de negócio e integrações (ML.NET, JWT) |
-| **Repository / Data** | Gerencia persistência via Entity Framework Core |
-| **Model / DTO** | Define entidades e objetos de transferência de dados |
-| **Utils** | Oferece respostas padronizadas, validações e segurança |
-| **Swagger / HealthChecks** | Documentação e monitoramento da API |
+A seguir estão exemplos reais de chamadas aos principais endpoints da **MottuFlow API**, utilizando **Swagger**, **cURL** e **arquivos `.http`** (Visual Studio / VS Code).
 
 ---
 
-### 💡 Destaques Técnicos
-- ✅ **Autenticação JWT** com controle de acesso por `[Authorize]`
-- ✅ **Versionamento de API** via `ApiVersioning`
-- ✅ **Swagger/OpenAPI 3.0** com anotações e segurança configurada
-- ✅ **Health Checks** para observabilidade
-- ✅ **HATEOAS** implementado em todas as respostas
-- ✅ **Machine Learning (ML.NET)** integrado ao endpoint `/api/v1/ml/predicao`
-- ✅ **Testes automatizados com xUnit e WebApplicationFactory`
+### 🔹 1️⃣ Autenticação - Login
 
----
+```http
+POST /api/auth/login
+Content-Type: application/json
 
-## ⚙️ Funcionalidades Principais
-
-- ✅ CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
-- 🔗 **HATEOAS** integrado em todas as respostas
-- 🔒 **Autenticação via JWT Token**
-- ❤️ **Health Check Endpoint**
-- 🧩 **Versionamento de API** (v1, v2)
-- 📊 **Swagger/OpenAPI** com descrições detalhadas
-- 🧠 **Integração ML.NET** (classificação de status de motos)
-- 🧪 **Testes com xUnit e WebApplicationFactory**
-
----
-
-## 🧰 Tecnologias Utilizadas
-
-- **.NET 8 / ASP.NET Core Web API**
-- **Entity Framework Core**
-- **Swagger / Swashbuckle**
-- **ML.NET**
-- **xUnit**
-- **HATEOAS**
-- **JWT Authentication**
-- **Oracle / InMemory Database (EF Core)**
-
----
-
-## 💻 Execução Local
-
-### Clonar o projeto
-```bash
-git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
-cd MottuFlow-Sprint4
-dotnet restore
-dotnet run
+{
+  "email": "admin@mottu.com",
+  "senha": "123456"
+}
 ```
-Acesse: http://localhost:5224/swagger
+
+**Resposta (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tipo": "Bearer",
+  "expiraEm": "2025-12-31T23:59:59Z"
+}
+```
+
+> 💡 O token JWT retornado deve ser utilizado no cabeçalho das requisições autenticadas:  
+> `Authorization: Bearer <seu_token_jwt>`
 
 ---
 
-## 📜 Licença
+### 🔹 2️⃣ Cadastro de Moto
 
-Distribuído sob a licença **MIT**.  
-Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
+```http
+POST /api/motos
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "placa": "ABC-1234",
+  "modelo": "Honda CG 160",
+  "fabricante": "Honda",
+  "ano": 2023,
+  "idPatio": 1,
+  "localizacaoAtual": "Zona Leste - SP"
+}
+```
+
+**Resposta (201 Created):**
+```json
+{
+  "id": 7,
+  "placa": "ABC-1234",
+  "modelo": "Honda CG 160",
+  "fabricante": "Honda",
+  "ano": 2023,
+  "status": "Disponível",
+  "links": [
+    { "rel": "self", "href": "/api/motos/7", "method": "GET" },
+    { "rel": "update", "href": "/api/motos/7", "method": "PUT" },
+    { "rel": "delete", "href": "/api/motos/7", "method": "DELETE" }
+  ]
+}
+```
+
+---
+
+### 🔹 3️⃣ Listagem de Funcionários
+
+```http
+GET /api/funcionarios
+Authorization: Bearer <token>
+```
+
+**Resposta (200 OK):**
+```json
+[
+  {
+    "idFuncionario": 1,
+    "nome": "João Silva",
+    "cpf": "123.456.789-00",
+    "cargo": "Supervisor de Pátio",
+    "telefone": "(11) 99999-0000",
+    "email": "joao.silva@mottu.com"
+  },
+  {
+    "idFuncionario": 2,
+    "nome": "Maria Santos",
+    "cpf": "987.654.321-00",
+    "cargo": "Operadora de Campo",
+    "telefone": "(11) 98888-1111",
+    "email": "maria.santos@mottu.com"
+  }
+]
+```
+
+---
+
+### 🔹 4️⃣ Predição de Manutenção (ML.NET)
+
+```http
+POST /api/ml/predicao
+Content-Type: application/json
+
+{
+  "quilometragem": 7500,
+  "tempoUsoMeses": 8
+}
+```
+
+**Resposta (200 OK):**
+```json
+{
+  "precisaManutencao": true,
+  "probabilidade": 0.89,
+  "modelo": "ML.NET Binary Classification"
+}
+```
+
+---
+
+### 🔹 5️⃣ Health Check
+
+```http
+GET /api/health/ping
+```
+
+**Resposta:**
+```json
+{
+  "status": "API rodando 🚀"
+}
+```
+
+---
+
+### 💡 Dica para Testes Locais
+
+Você pode testar todos os endpoints diretamente pelo **Swagger UI** acessando:
+```
+http://localhost:5224/swagger
+```
+
+Ou criar um arquivo `.http` para testar via **VS Code**:
+
+```http
+### Teste de Health Check
+GET http://localhost:5224/api/health/ping
+
+### Teste de Login
+POST http://localhost:5224/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mottu.com",
+  "senha": "123456"
+}
+
+### Teste de Cadastro de Moto
+POST http://localhost:5224/api/motos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "placa": "DEF-5678",
+  "modelo": "Yamaha Factor",
+  "fabricante": "Yamaha",
+  "ano": 2022,
+  "idPatio": 2,
+  "localizacaoAtual": "Zona Norte - SP"
+}
+```
 
 ---
 
