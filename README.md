@@ -33,13 +33,16 @@ O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, *
 
 ## 🧠 Arquitetura do Sistema
 
-O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
+O **MottuFlow** segue uma **arquitetura em camadas (Controller → Service → Repository → Data → Model)**, baseada em boas práticas de **Domain-Driven Design (DDD)** e princípios **SOLID**.  
+Essa estrutura garante modularidade, facilidade de manutenção e escalabilidade.
+
+---
 
 ### 🧩 Diagrama C4 (Alto Nível)
 
+```mermaid
 C4Context
     title Diagrama de Contexto - MottuFlow API
-    ...
 
     Person(gerente, "Gerente Mottu", "Acessa via interface web para gerenciar motos e pátios.")
     Person(funcionario, "Funcionário Mottu", "Usa aplicativo mobile para atualizar status e localização.")
@@ -57,7 +60,53 @@ C4Context
     Rel(rest, db, "CRUD completo via Entity Framework")
     Rel(rest, jwt, "Valida tokens de autenticação JWT")
     Rel(rest, ml, "Predição de manutenção preventiva")
+```
 
+---
+
+### 🧱 Arquitetura Interna (Component Diagram)
+
+```mermaid
+C4Component
+    title Arquitetura Interna - MottuFlow API
+
+    Container_Boundary(api, "MottuFlow API (.NET 8)") {
+        Component(controller, "Controllers", "ASP.NET Core", "Camada responsável pelas requisições HTTP e respostas JSON.")
+        Component(service, "Services", "C# Classes", "Contém regras de negócio e integração com ML.NET e JWT.")
+        Component(repository, "Repository / DbContext", "Entity Framework Core", "Realiza consultas e persistência de dados no Oracle.")
+        Component(model, "Models / DTOs", "C# Classes", "Representação das entidades e transferência de dados.")
+        Component(utils, "Utils / Responses", "C# Helpers", "Padroniza respostas e validações (ApiResponse, HATEOAS, etc.).")
+    }
+
+    Rel(controller, service, "Chama métodos de negócio e validações")
+    Rel(service, repository, "Realiza operações no banco")
+    Rel(repository, model, "Mapeamento ORM (EF Core)")
+    Rel(service, utils, "Usa para formatação e segurança (JWT, Responses)")
+```
+
+---
+
+### 📦 Resumo da Arquitetura
+
+| Camada | Função Principal |
+|---------|------------------|
+| **Controller** | Expõe endpoints REST e retorna respostas HTTP/JSON |
+| **Service** | Contém as regras de negócio e integrações (ML.NET, JWT) |
+| **Repository / Data** | Gerencia persistência via Entity Framework Core |
+| **Model / DTO** | Define entidades e objetos de transferência de dados |
+| **Utils** | Oferece respostas padronizadas, validações e segurança |
+| **Swagger / HealthChecks** | Documentação e monitoramento da API |
+
+---
+
+### 💡 Destaques Técnicos
+- ✅ **Autenticação JWT** com controle de acesso por `[Authorize]`
+- ✅ **Versionamento de API** via `ApiVersioning`
+- ✅ **Swagger/OpenAPI 3.0** com anotações e segurança configurada
+- ✅ **Health Checks** para observabilidade
+- ✅ **HATEOAS** implementado em todas as respostas
+- ✅ **Machine Learning (ML.NET)** integrado ao endpoint `/api/v1/ml/predicao`
+- ✅ **Testes automatizados com xUnit e WebApplicationFactory`
 
 ---
 
@@ -87,193 +136,16 @@ C4Context
 
 ---
 
-## 🧩 Documentação da API
-
-### 🔹 Health Check
-```http
-GET /api/health/ping
-```
-**Resposta:**
-```json
-{
-  "status": "API rodando 🚀"
-}
-```
-
----
-
-### 🔹 Funcionários
-
-| Método | Endpoint | Descrição |
-|--------|-----------|-----------|
-| `GET` | `/api/funcionarios` | Lista todos os funcionários |
-| `GET` | `/api/funcionarios/{id}` | Retorna um funcionário específico |
-| `POST` | `/api/funcionarios` | Cria um novo funcionário |
-| `PUT` | `/api/funcionarios/{id}` | Atualiza dados de um funcionário |
-| `DELETE` | `/api/funcionarios/{id}` | Remove um funcionário |
-
-**Exemplo de resposta com HATEOAS:**
-```json
-{
-  "id": 1,
-  "nome": "João Silva",
-  "cpf": "123.456.789-00",
-  "links": [
-    { "rel": "self", "href": "/api/funcionarios/1", "method": "GET" },
-    { "rel": "update", "href": "/api/funcionarios/1", "method": "PUT" },
-    { "rel": "delete", "href": "/api/funcionarios/1", "method": "DELETE" }
-  ]
-}
-```
-
----
-
-## 🧪 Testes Automatizados
-
-### 🚦 Status dos Testes
-
-![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
-![Build](https://img.shields.io/badge/Build-Sucesso-blue.svg)
-
-Os testes foram executados com **xUnit** e **WebApplicationFactory**, garantindo:
-- ✅ Banco InMemory criado e inicializado corretamente;
-- ✅ Endpoints retornando status HTTP esperado (200 OK, 201 Created, etc.);
-- ✅ Separação entre ambientes **Oracle (produção)** e **InMemory (testes)**;
-- ✅ Integração contínua sem dependência de infraestrutura externa.
-
----
-
-### 🔍 Executando os testes manualmente
-
-```bash
-dotnet clean
-dotnet build
-dotnet test
-```
-
-> 💡 Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
-
----
-
-## 🏗️ Estrutura do Projeto
-
-```
-MottuFlow-Sprint4/
-├── .idea/
-├── bin/
-├── obj/
-├── Controllers/
-├── Data/
-├── DTOs/
-├── Hateoas/
-├── Migrations/
-├── Models/
-├── MottuFlow.Tests/
-├── Properties/
-├── Repositories/
-├── Services/
-├── static/
-├── Swagger/
-├── AppDbContextFactory.cs
-├── appsettings.json
-├── appsettings.Development.json
-├── global.json
-├── MottuFlow.csproj
-├── MottuFlow.http
-├── MottuFlow.sln
-├── Program.cs
-└── README.md
-
-```
-> Estrutura modular e testável — separando **camadas de domínio, infraestrutura e testes de integração**.
-
----
-
 ## 💻 Execução Local
 
 ### Clonar o projeto
 ```bash
 git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
-```
-
-### Entrar no diretório
-```bash
 cd MottuFlow-Sprint4
-```
-
-### Restaurar dependências
-```bash
 dotnet restore
-```
-
-### Rodar a aplicação
-```bash
 dotnet run
 ```
-
-Acesse: http://localhost:5224
-
----
-
-## ⚙️ Configuração do Banco de Dados
-
-O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Database**.  
-
-### 1️⃣ InMemory Database (para testes e desenvolvimento)
-- Não requer configuração adicional.  
-- Ideal para testes rápidos e desenvolvimento local.  
-- Para usar InMemory, configure no `appsettings.json`:
-
-```json
-{
-  "UseInMemoryDatabase": true
-}
-```
-
-### 2️⃣ Oracle Database (recomendado para produção)
-- Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
-
-```json
-{
-  "UseInMemoryDatabase": false,
-  "ConnectionStrings": {
-    "OracleDb": "User Id=SEU_USUARIO;Password=SUA_SENHA;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SEU_HOST)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=SEU_SERVICO)))"
-  }
-}
-```
-
-- Certifique-se de que o **banco Oracle esteja rodando**.  
-- Caso existam **migrations**, execute:
-
-```bash
-dotnet ef database update
-```
-
-### 🔹 Alternando via Variáveis de Ambiente
-
-Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
-
-- **Windows (PowerShell):**
-```powershell
-$env:UseInMemoryDatabase="false"
-dotnet run
-```
-
-- **Linux / MacOS (bash/zsh):**
-```bash
-export UseInMemoryDatabase=false
-dotnet run
-```
-
----
-
-## 🧠 Aprendizados
-
-Durante o desenvolvimento, foram aplicadas práticas avançadas de:
-- Arquitetura em camadas e injeção de dependência;
-- Versionamento e documentação de APIs;
-- Segurança com JWT e boas práticas REST;
-- Testes automatizados e integração contínua.
+Acesse: http://localhost:5224/swagger
 
 ---
 
@@ -291,12 +163,3 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 | **Léo Mota Lima** | 557851 | API REST, Controllers, DTOs, Swagger, HATEOAS, Testes |
 | **João Gabriel Boaventura** | 557854 | Lógica de negócio e integração ML.NET |
 | **Lucas Leal das Chagas** | 551124 | Documentação, banco de dados e versionamento |
-
----
-
-## 🔗 Referências
-
-- [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
-- [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
-- [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
-- [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
