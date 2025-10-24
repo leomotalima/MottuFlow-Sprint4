@@ -38,17 +38,48 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 ### 🧩 Diagrama C4 (Alto Nível)
 
 ```mermaid
-graph TD
-    A[Cliente/Front-End] -->|HTTP Requests| B[API .NET - MottuFlow]
-    B --> C[Camada Controller]
-    C --> D[Camada Service]
-    D --> E[Camada Repository]
-    E --> F[(Banco de Dados Oracle / InMemory)]
-    B --> G[Swagger UI - Documentação]
-    B --> H[JWT Security / Health Checks]
+C4Context
+    title Diagrama de Contexto - MottuFlow API
+
+    Person(gerente, "Gerente Mottu", "Acessa via interface web para gerenciar motos e pátios.")
+    Person(funcionario, "Funcionário Mottu", "Usa aplicativo mobile para atualizar status e localização.")
+
+    System_Boundary(mottuflow, "MottuFlow API (.NET 8)") {
+        Container(web, "Interface Web / Swagger UI", "ASP.NET Core", "Interface para visualizar e testar os endpoints.")
+        Container(rest, "API RESTful", "ASP.NET Core Web API", "Gerencia entidades como Moto, Pátio, Funcionário e Localidade.")
+        ContainerDb(db, "Banco de Dados Oracle", "Oracle 19c / EF Core", "Armazena as informações das operações e cadastros.")
+        Container(ml, "Módulo de Machine Learning", "ML.NET", "Prediz necessidade de manutenção de motos.")
+        Container(jwt, "Serviço de Autenticação", "JWT Service", "Gera e valida tokens de autenticação.")
+    }
+
+    Rel(gerente, web, "Gerencia frotas e funcionários")
+    Rel(funcionario, rest, "Atualiza status e localização das motos")
+    Rel(rest, db, "CRUD completo via Entity Framework")
+    Rel(rest, jwt, "Valida tokens de autenticação JWT")
+    Rel(rest, ml, "Predição de manutenção preventiva")
 ```
 
 ---
+
+### 🧱 Arquitetura Interna (Component Diagram)
+
+```mermaid
+C4Component
+    title Arquitetura Interna - MottuFlow API
+
+    Container_Boundary(api, "MottuFlow API (.NET 8)") {
+        Component(controller, "Controllers", "ASP.NET Core", "Camada responsável pelas requisições HTTP e respostas JSON.")
+        Component(service, "Services", "C# Classes", "Contém regras de negócio e integração com ML.NET e JWT.")
+        Component(repository, "Repository / DbContext", "Entity Framework Core", "Realiza consultas e persistência de dados no Oracle.")
+        Component(model, "Models / DTOs", "C# Classes", "Representação das entidades e transferência de dados.")
+        Component(utils, "Utils / Responses", "C# Helpers", "Padroniza respostas e validações (ApiResponse, HATEOAS, etc.).")
+    }
+
+    Rel(controller, service, "Chama métodos de negócio e validações")
+    Rel(service, repository, "Realiza operações no banco")
+    Rel(repository, model, "Mapeamento ORM (EF Core)")
+    Rel(service, utils, "Usa para formatação e segurança (JWT, Responses)")
+```
 
 ## ⚙️ Funcionalidades Principais
 
