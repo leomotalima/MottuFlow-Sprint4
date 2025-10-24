@@ -39,6 +39,7 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 C4Context
     title Diagrama de Contexto - MottuFlow API
+    ...
 
     Person(gerente, "Gerente Mottu", "Acessa via interface web para gerenciar motos e pátios.")
     Person(funcionario, "Funcionário Mottu", "Usa aplicativo mobile para atualizar status e localização.")
