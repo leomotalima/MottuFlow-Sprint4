@@ -1,7 +1,5 @@
 <div align="center">
-  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow" width="200"/>
-  <h1>𝙈𝙤𝙩𝙩𝙪𝙁𝙡𝙤𝙬</h1>
-</div>
+  <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow Logo" width="180"/>
   
   <h1><i><b>MottuFlow</b></i> - Sprint 4 (FIAP)</h1>
   <p><b>Disciplina:</b> Advanced Business Development with .NET</p>
@@ -39,7 +37,6 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ### 🧩 Diagrama C4 (Alto Nível)
 
-```mermaid
 C4Context
     title Diagrama de Contexto - MottuFlow API
 
@@ -59,29 +56,7 @@ C4Context
     Rel(rest, db, "CRUD completo via Entity Framework")
     Rel(rest, jwt, "Valida tokens de autenticação JWT")
     Rel(rest, ml, "Predição de manutenção preventiva")
-```
 
----
-
-### 🧱 Arquitetura Interna (Component Diagram)
-
-```mermaid
-C4Component
-    title Arquitetura Interna - MottuFlow API
-
-    Container_Boundary(api, "MottuFlow API (.NET 8)") {
-        Component(controller, "Controllers", "ASP.NET Core", "Camada responsável pelas requisições HTTP e respostas JSON.")
-        Component(service, "Services", "C# Classes", "Contém regras de negócio e integração com ML.NET e JWT.")
-        Component(repository, "Repository / DbContext", "Entity Framework Core", "Realiza consultas e persistência de dados no Oracle.")
-        Component(model, "Models / DTOs", "C# Classes", "Representação das entidades e transferência de dados.")
-        Component(utils, "Utils / Responses", "C# Helpers", "Padroniza respostas e validações (ApiResponse, HATEOAS, etc.).")
-    }
-
-    Rel(controller, service, "Chama métodos de negócio e validações")
-    Rel(service, repository, "Realiza operações no banco")
-    Rel(repository, model, "Mapeamento ORM (EF Core)")
-    Rel(service, utils, "Usa para formatação e segurança (JWT, Responses)")
-```
 
 ## ⚙️ Funcionalidades Principais
 
