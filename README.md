@@ -35,11 +35,8 @@ O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, *
 
 O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
-
-
 ### 🧩 Diagrama C4 (Alto Nível)
 
-```mermaid
 C4Context
     title Diagrama de Contexto - MottuFlow API
 
@@ -61,6 +58,7 @@ C4Context
     Rel(rest, ml, "Predição de manutenção preventiva")
 
 
+---
 
 ## ⚙️ Funcionalidades Principais
 
