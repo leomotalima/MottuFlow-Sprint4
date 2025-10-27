@@ -94,18 +94,18 @@ graph TB
 
 ```mermaid
 graph LR
-    ctrl[("Component: MotoController (Endpoints REST)") ]
-    svc[("Component: MotoService (Regras de Negócio)") ]
-    repo[("Component: MotoRepository (Acesso a Dados)") ]
-    mapper[("Component: MotoMapper (Conversão DTO ⇄ Entidade)") ]
-    validator[("Component: MotoValidator (Validação de Dados)") ]
-    db[(("Container: Banco de Dados (Oracle/InMemory)"))]
+    ctrl["Component: MotoController - Endpoints REST"]
+    svc["Component: MotoService - Regras de Negócio"]
+    repo["Component: MotoRepository - Acesso a Dados"]
+    mapper["Component: MotoMapper - Conversão DTO ⇄ Entidade"]
+    validator["Component: MotoValidator - Validação de Dados"]
+    db[(Container: Banco de Dados Oracle / InMemory)]
 
     ctrl -->|Chama| svc
     svc -->|Usa| repo
     svc -->|Usa| mapper
     svc -->|Usa| validator
-    repo -->|CRUD/Queries| db
+    repo -->|CRUD / Queries| db
 ```
 
 > Mostra os principais componentes internos do container da API para o domínio de **Moto**.
