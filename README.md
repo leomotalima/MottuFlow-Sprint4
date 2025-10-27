@@ -64,17 +64,17 @@ graph TB
 ```mermaid
 graph TB
     subgraph MottuFlow ["Software System: MottuFlow"]
-      api[("Container: API .NET 8 (ASP.NET Core)") ]
-      service[("Container: Services (Lógica de Negócio)") ]
-      repo[("Container: Repositories (Acesso a Dados)") ]
-      db[(("Container: Database (Oracle / InMemory)"))]
-      swagger[("Container: Swagger UI (OpenAPI)") ]
-      health[("Container: Health Checks") ]
-      ml[("Container: ML.NET Engine (Previsão de Manutenção)") ]
+        api["Container: API .NET 8 (ASP.NET Core)"]
+        service["Container: Services (Lógica de Negócio)"]
+        repo["Container: Repositories (Acesso a Dados)"]
+        db[("Container: Database (Oracle / InMemory)")]
+        swagger["Container: Swagger UI (OpenAPI)"]
+        health["Container: Health Checks"]
+        ml["Container: ML.NET Engine (Previsão de Manutenção)"]
     end
 
-    user[("Container (Externo): Front-End Web/Mobile")]
-    idp[("Container (Externo): Provedor de Identidade JWT")]
+    user["Container Externo: Front-End Web/Mobile"]
+    idp["Container Externo: Provedor de Identidade JWT"]
 
     user -->|HTTP/JSON| api
     api --> service
