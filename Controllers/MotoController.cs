@@ -22,7 +22,7 @@ namespace MottuFlowApi.Controllers.V1
         private readonly AppDbContext _context;
         public MotoController(AppDbContext context) => _context = context;
 
-        // 🔗 HATEOAS links
+        // HATEOAS links
         private void AddHateoasLinks(MotoResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetMoto), new { id })!, Rel = "self", Method = "GET" });
@@ -30,7 +30,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteMoto), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Listar todas as motos (público)
+        // GET - Listar todas as motos (público)
         [AllowAnonymous]
         [HttpGet(Name = "GetMotos")]
         [SwaggerOperation(Summary = "Lista todas as motos", Description = "Retorna uma lista paginada de motos cadastradas.")]
@@ -74,7 +74,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(new { meta, data = motos }, "Motos listadas com sucesso."));
         }
 
-        // 🧩 GET - Buscar moto por ID
+        // GET - Buscar moto por ID
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetMoto")]
         [SwaggerOperation(Summary = "Obtém uma moto específica", Description = "Retorna os detalhes de uma moto pelo seu ID.")]
@@ -103,7 +103,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<MotoResource>.Ok(moto, "Moto encontrada com sucesso."));
         }
 
-        // 🧩 POST - Criar nova moto
+        // POST - Criar nova moto
         [HttpPost(Name = "CreateMoto")]
         [SwaggerOperation(Summary = "Cria uma nova moto", Description = "Adiciona uma nova moto no sistema.")]
         [SwaggerResponse(StatusCodes.Status201Created, "Moto criada com sucesso")]
@@ -143,7 +143,7 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<MotoResource>.Ok(resource, "Moto criada com sucesso."));
         }
 
-        // 🧩 PUT - Atualizar moto existente
+        // PUT - Atualizar moto existente
         [HttpPut("{id}", Name = "UpdateMoto")]
         [SwaggerOperation(Summary = "Atualiza os dados de uma moto", Description = "Modifica informações de uma moto existente.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Moto atualizada com sucesso")]
@@ -184,7 +184,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<MotoResource>.Ok(updated, "Moto atualizada com sucesso."));
         }
 
-        // 🧩 DELETE - Remover moto
+        // DELETE - Remover moto
         [HttpDelete("{id}", Name = "DeleteMoto")]
         [SwaggerOperation(Summary = "Remove uma moto", Description = "Exclui uma moto cadastrada do sistema.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Moto removida com sucesso")]

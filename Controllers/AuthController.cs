@@ -21,7 +21,7 @@ namespace MottuFlowApi.Controllers.V1
             _jwtService = jwtService;
         }
 
-        // 🧩 POST - Login
+        // POST - Login
         [HttpPost("login")]
         [SwaggerOperation(
             Summary = "Autentica um usuário e gera um token JWT",
@@ -37,7 +37,7 @@ namespace MottuFlowApi.Controllers.V1
             if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest(ApiResponse<string>.Fail("Usuário e senha são obrigatórios."));
 
-            // ⚠️ Exemplo fixo — substituir por validação real no banco
+            // Exemplo fixo — substituir por validação real no banco
             if (request.Username == "admin" && request.Password == "123")
             {
                 var token = _jwtService.GenerateToken(request.Username, "Admin");

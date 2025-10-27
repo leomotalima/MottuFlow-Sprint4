@@ -16,7 +16,7 @@ namespace MottuFlowApi.Repositories
             _context = context;
         }
 
-        // ✅ Listar todos os funcionários
+        // Listar todos os funcionários
         public async Task<List<Funcionario>> GetAllAsync()
         {
             return await _context.Funcionarios
@@ -24,7 +24,7 @@ namespace MottuFlowApi.Repositories
                                  .ToListAsync();
         }
 
-        // ✅ Buscar funcionário por ID
+        // Buscar funcionário por ID
         public async Task<Funcionario?> GetByIdAsync(int id)
         {
             return await _context.Funcionarios
@@ -32,28 +32,28 @@ namespace MottuFlowApi.Repositories
                                  .FirstOrDefaultAsync(f => f.IdFuncionario == id);
         }
 
-        // ✅ Buscar por CPF
+        // Buscar por CPF
         public async Task<Funcionario?> GetByCpfAsync(string cpf)
         {
             return await _context.Funcionarios
                                  .FirstOrDefaultAsync(f => f.CPF == cpf); // nome correto
         }
 
-        // ✅ Adicionar novo funcionário
+        // Adicionar novo funcionário
         public async Task AddAsync(Funcionario funcionario)
         {
             _context.Funcionarios.Add(funcionario);
             await _context.SaveChangesAsync();
         }
 
-        // ✅ Atualizar funcionário
+        // Atualizar funcionário
         public async Task UpdateAsync(Funcionario funcionario)
         {
             _context.Funcionarios.Update(funcionario);
             await _context.SaveChangesAsync();
         }
 
-        // ✅ Remover funcionário
+        // Remover funcionário
         public async Task DeleteAsync(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);

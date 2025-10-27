@@ -22,7 +22,7 @@ namespace MottuFlowApi.Controllers.V1
             _mlService = new MotoMlService();
         }
 
-        // 🧠 POST - Predição de manutenção
+        // POST - Predição de manutenção
         [HttpPost("predicao")]
         [SwaggerOperation(
             Summary = "Prediz necessidade de manutenção da moto",

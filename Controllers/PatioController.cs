@@ -27,7 +27,7 @@ namespace MottuFlowApi.Controllers.V1
             _context = context;
         }
 
-        // 🔗 Adiciona links HATEOAS
+        // Adiciona links HATEOAS
         private void AddHateoasLinks(PatioResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetPatio), new { id })!, Rel = "self", Method = "GET" });
@@ -35,7 +35,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeletePatio), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Todos os pátios (público)
+        // GET - Todos os pátios (público)
         [AllowAnonymous]
         [HttpGet(Name = "GetPatios")]
         [SwaggerOperation(Summary = "Lista todos os pátios", Description = "Retorna uma lista paginada de pátios cadastrados.")]
@@ -76,7 +76,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(new { meta, data = patios }, "Pátios listados com sucesso."));
         }
 
-        // 🧩 GET - Por ID
+        // GET - Por ID
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetPatio")]
         [SwaggerOperation(Summary = "Obtém um pátio específico", Description = "Retorna os detalhes de um pátio pelo seu ID.")]
@@ -102,7 +102,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<PatioResource>.Ok(patio, "Pátio encontrado com sucesso."));
         }
 
-        // 🧩 POST - Criar novo pátio (autenticado)
+        // POST - Criar novo pátio (autenticado)
         [HttpPost(Name = "CreatePatio")]
         [SwaggerOperation(Summary = "Cria um novo pátio", Description = "Adiciona um novo pátio no sistema.")]
         [SwaggerResponse(StatusCodes.Status201Created, "Pátio criado com sucesso")]
@@ -136,7 +136,7 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<PatioResource>.Ok(resource, "Pátio criado com sucesso."));
         }
 
-        // 🧩 PUT - Atualizar pátio
+        // PUT - Atualizar pátio
         [HttpPut("{id}", Name = "UpdatePatio")]
         [SwaggerOperation(Summary = "Atualiza um pátio existente", Description = "Permite alterar dados de um pátio cadastrado.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Pátio atualizado com sucesso")]
@@ -170,7 +170,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<PatioResource>.Ok(updated, "Pátio atualizado com sucesso."));
         }
 
-                // 🧩 DELETE - Remover pátio
+                // DELETE - Remover pátio
         [HttpDelete("{id}", Name = "DeletePatio")]
         [SwaggerOperation(Summary = "Remove um pátio", Description = "Exclui um pátio cadastrado no sistema.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Pátio removido com sucesso")]

@@ -15,13 +15,13 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("Localidades")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    [Authorize] // 🔒 exige JWT para escrita
+    [Authorize] // exige JWT para escrita
     public class LocalidadeController : ControllerBase
     {
         private readonly AppDbContext _context;
         public LocalidadeController(AppDbContext context) => _context = context;
 
-        // 🧩 GET - Lista todas as localidades (público)
+        // GET - Lista todas as localidades (público)
         [AllowAnonymous]
         [HttpGet(Name = "GetLocalidades")]
         [SwaggerOperation(
@@ -50,7 +50,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<IEnumerable<LocalidadeOutputDTO>>.Ok(localidades, "Localidades listadas com sucesso."));
         }
 
-        // 🧩 GET - Localidade por ID (público)
+        // GET - Localidade por ID (público)
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetLocalidade")]
         [SwaggerOperation(
@@ -77,7 +77,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<LocalidadeOutputDTO>.Ok(result, "Localidade encontrada com sucesso."));
         }
 
-        // 🧩 POST - Cria uma nova localidade
+        // POST - Cria uma nova localidade
         [HttpPost(Name = "CreateLocalidade")]
         [SwaggerOperation(
             Summary = "Cria uma nova localidade",
@@ -115,7 +115,7 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<LocalidadeOutputDTO>.Ok(result, "Localidade criada com sucesso."));
         }
 
-        // 🧩 PUT - Atualiza uma localidade existente
+        // PUT - Atualiza uma localidade existente
         [HttpPut("{id}", Name = "UpdateLocalidade")]
         [SwaggerOperation(
             Summary = "Atualiza uma localidade existente",
@@ -154,7 +154,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<LocalidadeOutputDTO>.Ok(updated, "Localidade atualizada com sucesso."));
         }
 
-        // 🧩 DELETE - Remove uma localidade
+        // DELETE - Remove uma localidade
         [HttpDelete("{id}", Name = "DeleteLocalidade")]
         [SwaggerOperation(
             Summary = "Remove uma localidade",

@@ -27,10 +27,10 @@ namespace MottuFlow.Tests.Integration
             bool podeConectar = db.Database.CanConnect();
             int total = db.Funcionarios.Count();
 
-            Assert.True(podeConectar, "❌ O banco InMemory não pôde ser acessado.");
-            Assert.True(total > 0, "❌ Nenhum funcionário foi inicializado no banco InMemory.");
+            Assert.True(podeConectar, " O banco InMemory não pôde ser acessado.");
+            Assert.True(total > 0, " Nenhum funcionário foi inicializado no banco InMemory.");
 
-            Console.WriteLine($"✅ Banco InMemory acessível com {total} funcionário(s).");
+            Console.WriteLine($" Banco InMemory acessível com {total} funcionário(s).");
         }
 
         [Fact(DisplayName = "GET /api/v1/funcionarios deve retornar 200 OK")]
@@ -41,10 +41,10 @@ namespace MottuFlow.Tests.Integration
             var content = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode != HttpStatusCode.OK)
-                Console.WriteLine($"❌ Erro ao requisitar endpoint: {content}");
+                Console.WriteLine($" Erro ao requisitar endpoint: {content}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Console.WriteLine("✅ Endpoint /api/v1/funcionarios retornou 200 OK com sucesso.");
+            Console.WriteLine(" Endpoint /api/v1/funcionarios retornou 200 OK com sucesso.");
         }
     }
 }

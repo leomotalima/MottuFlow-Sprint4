@@ -33,7 +33,7 @@ namespace MottuFlowApi.Controllers.V1
             _config = config;
         }
 
-        // ✅ LOGIN (gera token JWT)
+        // LOGIN (gera token JWT)
         [AllowAnonymous]
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Realiza login e gera token JWT", Description = "Autentica o funcionário e retorna um token JWT válido por 2h.")]
@@ -77,7 +77,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(tokenGerado, "Login realizado com sucesso!"));
         }
 
-        // 🔒 Hash seguro
+        // Hash seguro
         private string HashSenha(string senha)
         {
             using var sha256 = SHA256.Create();
@@ -86,7 +86,7 @@ namespace MottuFlowApi.Controllers.V1
             return Convert.ToBase64String(hash);
         }
 
-        // 🧩 GET - Lista funcionários
+        // GET - Lista funcionários
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos os funcionários", Description = "Retorna uma lista paginada de funcionários com filtros opcionais.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Funcionários listados com sucesso.")]
@@ -135,7 +135,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(new { meta, funcionarios }, "Funcionários listados com sucesso."));
         }
 
-        // 🧩 GET - Por ID
+        // GET - Por ID
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Obtém um funcionário específico", Description = "Retorna os dados detalhados de um funcionário.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Funcionário encontrado.")]
@@ -162,7 +162,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<FuncionarioOutputDTO>.Ok(funcionario, "Funcionário encontrado com sucesso."));
         }
 
-        // 🧩 PUT - Atualiza
+        // PUT - Atualiza
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Atualiza um funcionário existente", Description = "Permite atualizar dados de um funcionário pelo ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Funcionário atualizado com sucesso.")]
@@ -191,7 +191,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<string>.Ok("Funcionário atualizado com sucesso."));
         }
 
-        // 🧩 DELETE - Remove
+        // DELETE - Remove
         [HttpDelete("{id}")]
         [SwaggerOperation(Summary = "Remove um funcionário", Description = "Exclui o funcionário do sistema.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Funcionário removido com sucesso.")]

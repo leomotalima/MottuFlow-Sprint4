@@ -15,13 +15,13 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("Câmeras")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    [Authorize] // 🔒 exige JWT para escrita (GET é liberado)
+    [Authorize] // exige JWT para escrita (GET é liberado)
     public class CameraController : ControllerBase
     {
         private readonly AppDbContext _context;
         public CameraController(AppDbContext context) => _context = context;
 
-        // 🧩 GET - Todas as câmeras (público)
+        // GET - Todas as câmeras (público)
         [AllowAnonymous]
         [HttpGet(Name = "GetCameras")]
         [SwaggerOperation(Summary = "Lista todas as câmeras", Description = "Retorna uma lista paginada de câmeras cadastradas no sistema.")]
@@ -60,7 +60,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(new { meta, data = cameras }, "Câmeras listadas com sucesso."));
         }
 
-        // 🧩 GET - Câmera por ID (público)
+        // GET - Câmera por ID (público)
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetCamera")]
         [SwaggerOperation(Summary = "Obtém uma câmera específica", Description = "Retorna os detalhes de uma câmera pelo ID.")]
@@ -83,7 +83,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<CameraOutputDTO>.Ok(result, "Câmera encontrada com sucesso."));
         }
 
-        // 🧩 POST - Criar nova câmera
+        // POST - Criar nova câmera
         [HttpPost(Name = "CreateCamera")]
         [SwaggerOperation(Summary = "Cria uma nova câmera", Description = "Registra uma nova câmera no sistema.")]
         [SwaggerResponse(StatusCodes.Status201Created, "Câmera criada com sucesso")]
@@ -115,7 +115,7 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<CameraOutputDTO>.Ok(result, "Câmera criada com sucesso."));
         }
 
-        // 🧩 PUT - Atualizar câmera existente
+        // PUT - Atualizar câmera existente
         [HttpPut("{id}", Name = "UpdateCamera")]
         [SwaggerOperation(Summary = "Atualiza uma câmera existente", Description = "Permite atualizar os dados de uma câmera cadastrada.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Câmera atualizada com sucesso")]
@@ -148,7 +148,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<CameraOutputDTO>.Ok(updated, "Câmera atualizada com sucesso."));
         }
 
-        // 🧩 DELETE - Remover câmera
+        // DELETE - Remover câmera
         [HttpDelete("{id}", Name = "DeleteCamera")]
         [SwaggerOperation(Summary = "Remove uma câmera", Description = "Exclui uma câmera do sistema pelo ID.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Câmera removida com sucesso")]

@@ -19,7 +19,7 @@ namespace MottuFlowApi.Repositories
             return await _context.Motos
                                  .Include(m => m.Patio)
                                  .Include(m => m.ArucoTags)
-                                 .Include(m => m.RegistrosStatus) // ✅ corrigido
+                                 .Include(m => m.RegistrosStatus) 
                                  .Include(m => m.Localidades)
                                  .ToListAsync();
         }
@@ -30,7 +30,7 @@ namespace MottuFlowApi.Repositories
             return await _context.Motos
                                  .Include(m => m.Patio)
                                  .Include(m => m.ArucoTags)
-                                 .Include(m => m.RegistrosStatus) // ✅ corrigido
+                                 .Include(m => m.RegistrosStatus) 
                                  .Include(m => m.Localidades)
                                  .FirstOrDefaultAsync(m => m.IdMoto == id);
         }

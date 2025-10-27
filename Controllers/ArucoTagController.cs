@@ -16,13 +16,13 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("ArucoTags")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    [Authorize] // 🔒 exige JWT para escrita
+    [Authorize] // exige JWT para escrita
     public class ArucoTagController : ControllerBase
     {
         private readonly AppDbContext _context;
         public ArucoTagController(AppDbContext context) => _context = context;
 
-        // 🔗 HATEOAS Links
+        // HATEOAS Links
         private void AddHateoasLinks(ArucoTagResource resource, int id)
         {
             resource.AddLink(new Link { Href = Url.Link(nameof(GetArucoTag), new { id })!, Rel = "self", Method = "GET" });
@@ -30,7 +30,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteArucoTag), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // 🧩 GET - Lista todas as ArucoTags (público)
+        // GET - Lista todas as ArucoTags (público)
         [AllowAnonymous]
         [HttpGet(Name = "GetArucoTags")]
         [SwaggerOperation(Summary = "Lista todas as ArucoTags", Description = "Retorna uma lista de ArucoTags cadastradas no sistema.")]
@@ -56,7 +56,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<IEnumerable<ArucoTagResource>>.Ok(tags, "ArucoTags listadas com sucesso."));
         }
 
-        // 🧩 GET - Retorna uma ArucoTag por ID (público)
+        // GET - Retorna uma ArucoTag por ID (público)
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetArucoTag")]
         [SwaggerOperation(Summary = "Obtém uma ArucoTag específica", Description = "Retorna os dados de uma ArucoTag pelo ID.")]
@@ -82,7 +82,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<ArucoTagResource>.Ok(tag, "ArucoTag encontrada com sucesso."));
         }
 
-        // 🧩 POST - Cria uma nova ArucoTag
+        // POST - Cria uma nova ArucoTag
         [HttpPost(Name = "CreateArucoTag")]
         [SwaggerOperation(Summary = "Cria uma nova ArucoTag", Description = "Registra uma nova ArucoTag associada a uma moto.")]
         [SwaggerResponse(StatusCodes.Status201Created, "ArucoTag criada com sucesso")]
@@ -116,7 +116,7 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<ArucoTagResource>.Ok(resource, "ArucoTag criada com sucesso."));
         }
 
-        // 🧩 PUT - Atualiza uma ArucoTag existente
+        // PUT - Atualiza uma ArucoTag existente
         [HttpPut("{id}", Name = "UpdateArucoTag")]
         [SwaggerOperation(Summary = "Atualiza uma ArucoTag existente", Description = "Permite atualizar os dados de uma ArucoTag cadastrada.")]
         [SwaggerResponse(StatusCodes.Status200OK, "ArucoTag atualizada com sucesso")]
@@ -151,7 +151,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<ArucoTagResource>.Ok(updated, "ArucoTag atualizada com sucesso."));
         }
 
-        // 🧩 DELETE - Remove uma ArucoTag
+        // DELETE - Remove uma ArucoTag
         [HttpDelete("{id}", Name = "DeleteArucoTag")]
         [SwaggerOperation(Summary = "Remove uma ArucoTag", Description = "Exclui uma ArucoTag existente pelo ID.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "ArucoTag removida com sucesso")]
