@@ -16,7 +16,7 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("Motos")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    [Authorize] // 🔒 exige token para operações sensíveis
+    [Authorize] // exige token para operações sensíveis
     public class MotoController : ControllerBase
     {
         private readonly AppDbContext _context;
