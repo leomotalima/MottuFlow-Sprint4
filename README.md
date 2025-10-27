@@ -41,18 +41,19 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ```mermaid
 graph TB
-    user[("Person: Usuário (Funcionário/Gerente)")]
+    user["Person: Usuário (Funcionário/Gerente)"]
 
-    extPay[("Software System (Externo): Sistema de Pagamentos")]
-    extIdP[("Software System (Externo): Provedor de Identidade (JWT)")]
+    extPay["External System: Sistema de Pagamentos"]
+    extIdP["External System: Provedor de Identidade (JWT)"]
 
     subgraph s1["Software System: MottuFlow"]
-    api[("API REST .NET 8")]
+        api["API REST .NET 8"]
     end
 
-    user -->|Usa via HTTP/JSON| api
-    api -->|Autenticação JWT| extIdP
-    api -->|Integração financeira| extPay
+    user -->|HTTP/JSON| api
+    api -->|JWT Authentication| extIdP
+    api -->|Financial Integration| extPay
+
 ```
 
 > Mostra o relacionamento entre o usuário e os sistemas externos que interagem com o MottuFlow.
