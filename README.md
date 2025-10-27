@@ -42,18 +42,21 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 ```mermaid
 
 graph TB
+    %% Nós externos
     user["Person: Usuário (Funcionário/Gerente)"]
-
-    extPay["External System: Sistema de Pagamentos"]
     extIdP["External System: Provedor de Identidade (JWT)"]
+    extPay["External System: Sistema de Pagamentos"]
 
-    subgraph s1["Software System: MottuFlow"]
-        api["API REST .NET 8"]
+    %% Sistema principal (subgraph)
+    subgraph mottu["Software System: MottuFlow"]
+        api["Container: API REST .NET 8 (ASP.NET Core)"]
     end
 
+    %% Relacionamentos
     user -->|HTTP/JSON| api
     api -->|JWT Authentication| extIdP
     api -->|Financial Integration| extPay
+
 
 ```
 
