@@ -37,7 +37,7 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ---
 
-### 1.System Context diagram
+### 1.System Context (Visão de Contexto)
 
 ```mermaid
 graph TB
@@ -59,7 +59,7 @@ graph TB
 
 ---
 
-### 2.Container diagram
+### 2.Container (Visão de Contêineres)
 
 ```mermaid
 graph TB
@@ -90,22 +90,22 @@ graph TB
 
 ---
 
-### C4-3: Component (Visão de Componentes da API - Exemplo Domínio “Moto”)
+### 3.Component (Visão de Componentes da API - Exemplo Domínio “Moto”)
 
 ```mermaid
 graph LR
-    ctrl["Component: MotoController - Endpoints REST"]
-    svc["Component: MotoService - Regras de Negócio"]
-    repo["Component: MotoRepository - Acesso a Dados"]
-    mapper["Component: MotoMapper - Conversão DTO ⇄ Entidade"]
-    validator["Component: MotoValidator - Validação de Dados"]
-    db[(Container: Banco de Dados Oracle / InMemory)]
+    ctrl[("Component: MotoController (Endpoints REST)") ]
+    svc[("Component: MotoService (Regras de Negócio)") ]
+    repo[("Component: MotoRepository (Acesso a Dados)") ]
+    mapper[("Component: MotoMapper (Conversão DTO ⇄ Entidade)") ]
+    validator[("Component: MotoValidator (Validação de Dados)") ]
+    db[(("Container: Banco de Dados (Oracle/InMemory)"))]
 
     ctrl -->|Chama| svc
     svc -->|Usa| repo
     svc -->|Usa| mapper
     svc -->|Usa| validator
-    repo -->|CRUD / Queries| db
+    repo -->|CRUD/Queries| db
 ```
 
 > Mostra os principais componentes internos do container da API para o domínio de **Moto**.
