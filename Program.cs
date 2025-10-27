@@ -20,11 +20,11 @@ var environment = builder.Environment.EnvironmentName;
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
 
-// 🧪 Se for ambiente de teste, força o uso do InMemory
+// Se for ambiente de teste, força o uso do InMemory
 if (environment.Equals("Testing", StringComparison.OrdinalIgnoreCase) ||
     AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase))
 {
-    Console.WriteLine("⚙️ Modo de TESTE detectado — usando banco InMemory.");
+    Console.WriteLine(" Modo de TESTE detectado — usando banco InMemory.");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseInMemoryDatabase("MottuFlowTestDb"));
 }
@@ -110,7 +110,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // 🔐 Autenticação JWT no Swagger
+    // Autenticação JWT no Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -136,11 +136,11 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // 📘 Filtros personalizados (pasta Swagger)
+    // Filtros personalizados (pasta Swagger)
     options.DocumentFilter<Documentacao>();
     options.DocumentFilter<OrdenarTagsDocumentFilter>();
 
-    // ✍️ Habilita uso das anotações nos Controllers ([SwaggerOperation], [SwaggerResponse], etc.)
+    // Habilita uso das anotações nos Controllers ([SwaggerOperation], [SwaggerResponse], etc.)
     options.EnableAnnotations();
 });
 
@@ -171,12 +171,12 @@ if (app.Environment.IsDevelopment())
         // Mantém a documentação da versão 1
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
 
-        // ✅ Configuração correta e padrão
+        // Configuração correta e padrão
         options.RoutePrefix = "swagger";
     });
 }
 
-// 🔁 (Opcional) redireciona a raiz "/" para o Swagger automaticamente
+// (Opcional) redireciona a raiz "/" para o Swagger automaticamente
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/swagger");
@@ -186,18 +186,18 @@ app.MapGet("/", context =>
 
 app.UseHttpsRedirection();
 
-// ✅ Autenticação e Autorização
+// Autenticação e Autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ Endpoint de Health Check
+// Endpoint de Health Check
 app.MapGet("/api/health/ping", () => Results.Ok(new { status = "API rodando 🚀" }));
 app.MapHealthChecks("/api/health");
 
-// ✅ Controllers
+// Controllers
 app.MapControllers();
 
 app.Run();
 
-// ⚙️ Necessário para testes de integração com WebApplicationFactory
+// Necessário para testes de integração com WebApplicationFactory
 public partial class Program { }
