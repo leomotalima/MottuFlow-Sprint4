@@ -12,7 +12,7 @@ namespace MottuFlowApi.Services
         {
             _mlContext = new MLContext();
 
-            // 🔧 Dados de exemplo para o treinamento do modelo
+            // Dados de exemplo para o treinamento do modelo
             var dadosTreinamento = new List<MotoData>
             {
                 new MotoData { Quilometragem = 1000, TempoUsoMeses = 2, PrecisaManutencao = false },
