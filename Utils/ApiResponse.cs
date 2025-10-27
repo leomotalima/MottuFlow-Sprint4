@@ -30,7 +30,7 @@ namespace MottuFlowApi.Utils
         /// </summary>
         public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
 
-        // ✅ Retorno padrão de sucesso
+        // Retorno padrão de sucesso
         public static ApiResponse<T> Ok(T data, string message = "Operação realizada com sucesso.", int? statusCode = 200) =>
             new ApiResponse<T>
             {
@@ -40,7 +40,7 @@ namespace MottuFlowApi.Utils
                 StatusCode = statusCode
             };
 
-        // ⚠️ Retorno padrão de falha
+        // Retorno padrão de falha
         public static ApiResponse<T> Fail(string message, T? data = default, int? statusCode = 400) =>
             new ApiResponse<T>
             {
