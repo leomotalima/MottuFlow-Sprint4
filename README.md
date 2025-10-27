@@ -37,26 +37,16 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ### Diagrama C4 - Alto Nível (Modelo Oficial)
 
-```plantuml
-@startuml C4Context
-title Diagrama C4 - Alto Nível (MottuFlow)
-Person(cliente, "Cliente / Front-End", "Usuário que consome a aplicação através de requisições HTTP")
-System_Boundary(api, "API .NET - MottuFlow") {
-    Container(controller, "Camada Controller", "C#", "Recebe requisições HTTP e direciona para a camada de serviço")
-    Container(service, "Camada Service", "C#", "Contém a lógica de negócio da aplicação")
-    Container(repository, "Camada Repository", "C#", "Acessa os dados persistidos no banco de dados")
-    Container(swagger, "Swagger UI - Documentação", "OpenAPI", "Interface de documentação e testes da API")
-    Container(jwt, "JWT Security / Health Checks", "Middleware", "Gerencia autenticação e monitora o estado da aplicação")
-    ContainerDb(db, "Banco de Dados Oracle / InMemory", "Oracle / InMemory", "Armazena dados da aplicação")
-}
-Rel(cliente, controller, "Envia requisições HTTP", "JSON / REST")
-Rel(controller, service, "Chama métodos de serviço", "C#")
-Rel(service, repository, "Consulta e persiste dados", "SQL / ORM")
-Rel(repository, db, "Executa comandos de banco de dados", "SQL")
-Rel(api, swagger, "Disponibiliza documentação e testes")
-Rel(api, jwt, "Gerencia autenticação e monitoramento")
-UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
-@enduml
+```
+graph TD
+    A[Cliente / Front-End] -->|Envia requisições HTTP| B[API .NET - MottuFlow]
+    B -->|Recebe requisições| C[Camada Controller]
+    C -->|Chama métodos| D[Camada Service]
+    D -->|Acessa dados| E[Camada Repository]
+    E -->|Persiste dados| F[(Banco de Dados Oracle / InMemory)]
+    B --> G[Swagger UI - Documentação]
+    B --> H[JWT Security / Health Checks]
+
 ```
 
 > O diagrama acima segue o modelo **C4** no nível **Context + Container**, conforme recomendado por Simon Brown, mostrando o relacionamento entre o usuário, a API MottuFlow e seus componentes internos.
