@@ -27,7 +27,7 @@ proporcionando **eficiência operacional**, **automação de processos** e **mon
 
 O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários e de integração com xUnit**.
 
->  Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
+> Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
 
 ---
 
@@ -35,31 +35,93 @@ O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, *
 
 O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
-### Diagrama C4 (Alto Nível)
+---
+
+### C4-1: System Context (Visão de Contexto)
 
 ```mermaid
-graph TD
-    A[Cliente/Front-End] -->|HTTP Requests| B[API .NET - MottuFlow]
-    B --> C[Camada Controller]
-    C --> D[Camada Service]
-    D --> E[Camada Repository]
-    E --> F[(Banco de Dados Oracle / InMemory)]
-    B --> G[Swagger UI - Documentação]
-    B --> H[JWT Security / Health Checks]
+graph TB
+    user[("Person: Usuário (Funcionário/Gerente)")]
+
+    extPay[("Software System (Externo): Sistema de Pagamentos")]
+    extIdP[("Software System (Externo): Provedor de Identidade (JWT)")]
+
+    subgraph s1["Software System: MottuFlow"]
+    api[("API REST .NET 8")]
+    end
+
+    user -->|Usa via HTTP/JSON| api
+    api -->|Autenticação JWT| extIdP
+    api -->|Integração financeira| extPay
 ```
+
+> Mostra o relacionamento entre o usuário e os sistemas externos que interagem com o MottuFlow.
 
 ---
 
-##  Funcionalidades Principais
+### C4-2: Container (Visão de Contêineres)
+
+```mermaid
+graph TB
+    subgraph MottuFlow ["Software System: MottuFlow"]
+      api[("Container: API .NET 8 (ASP.NET Core)") ]
+      service[("Container: Services (Lógica de Negócio)") ]
+      repo[("Container: Repositories (Acesso a Dados)") ]
+      db[(("Container: Database (Oracle / InMemory)"))]
+      swagger[("Container: Swagger UI (OpenAPI)") ]
+      health[("Container: Health Checks") ]
+      ml[("Container: ML.NET Engine (Previsão de Manutenção)") ]
+    end
+
+    user[("Container (Externo): Front-End Web/Mobile")]
+    idp[("Container (Externo): Provedor de Identidade JWT")]
+
+    user -->|HTTP/JSON| api
+    api --> service
+    service --> repo
+    repo -->|EF Core| db
+    api --> swagger
+    api --> health
+    service --> ml
+    api -->|Autenticação| idp
+```
+
+> Representa os principais contêineres internos e suas relações de comunicação dentro do sistema MottuFlow.
+
+---
+
+### C4-3: Component (Visão de Componentes da API - Exemplo Domínio “Moto”)
+
+```mermaid
+graph LR
+    ctrl[("Component: MotoController (Endpoints REST)") ]
+    svc[("Component: MotoService (Regras de Negócio)") ]
+    repo[("Component: MotoRepository (Acesso a Dados)") ]
+    mapper[("Component: MotoMapper (Conversão DTO ⇄ Entidade)") ]
+    validator[("Component: MotoValidator (Validação de Dados)") ]
+    db[(("Container: Banco de Dados (Oracle/InMemory)"))]
+
+    ctrl -->|Chama| svc
+    svc -->|Usa| repo
+    svc -->|Usa| mapper
+    svc -->|Usa| validator
+    repo -->|CRUD/Queries| db
+```
+
+> Mostra os principais componentes internos do container da API para o domínio de **Moto**.
+
+---
+
+## Funcionalidades Principais
 
 - CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
--  **HATEOAS** integrado em todas as respostas
--  **Autenticação via JWT Token**
--  **Health Check Endpoint**
--  **Versionamento de API** (v1, v2)
--  **Swagger/OpenAPI** com descrições detalhadas
--  **Integração ML.NET** (classificação de status de motos)
--  **Testes com xUnit e WebApplicationFactory**
+- **HATEOAS** integrado em todas as respostas
+- **Autenticação via JWT Token**
+- **Health Check Endpoint**
+- **Versionamento de API** (v1, v2)
+- **Swagger/OpenAPI** com descrições detalhadas
+- **Integração ML.NET** (classificação de status de motos)
+- **Testes com xUnit e WebApplicationFactory**
 
 ---
 
@@ -78,7 +140,7 @@ graph TD
 
 ## Documentação da API
 
-### 🔹 Health Check
+### Health Check
 ```http
 GET /api/health/ping
 ```
@@ -91,7 +153,7 @@ GET /api/health/ping
 
 ---
 
-### 🔹 Funcionários
+### Funcionários
 
 | Método | Endpoint | Descrição |
 |--------|-----------|-----------|
@@ -119,8 +181,6 @@ GET /api/health/ping
 
 ## Testes Automatizados
 
-### 🚦 Status dos Testes
-
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
 ![Build](https://img.shields.io/badge/Build-Sucesso-blue.svg)
 
@@ -132,25 +192,10 @@ Os testes foram executados com **xUnit** e **WebApplicationFactory**, garantindo
 
 ---
 
-### Executando os testes manualmente
-
-```bash
-dotnet clean
-dotnet build
-dotnet test
-```
-
-> Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
-
----
-
 ## Estrutura do Projeto
 
 ```
 MottuFlow-Sprint4/
-├── .idea/
-├── bin/
-├── obj/
 ├── Controllers/
 ├── Data/
 ├── DTOs/
@@ -158,22 +203,13 @@ MottuFlow-Sprint4/
 ├── Migrations/
 ├── Models/
 ├── MottuFlow.Tests/
-├── Properties/
 ├── Repositories/
 ├── Services/
-├── static/
 ├── Swagger/
-├── AppDbContextFactory.cs
-├── appsettings.json
-├── appsettings.Development.json
-├── global.json
-├── MottuFlow.csproj
-├── MottuFlow.http
-├── MottuFlow.sln
 ├── Program.cs
 └── README.md
-
 ```
+
 > Estrutura modular e testável — separando **camadas de domínio, infraestrutura e testes de integração**.
 
 ---
@@ -201,58 +237,6 @@ dotnet run
 ```
 
 Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
-
----
-
-## Configuração do Banco de Dados
-
-O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Database**.  
-
-### 1️⃣ InMemory Database (para testes e desenvolvimento)
-- Não requer configuração adicional.  
-- Ideal para testes rápidos e desenvolvimento local.  
-- Para usar InMemory, configure no `appsettings.json`:
-
-```json
-{
-  "UseInMemoryDatabase": true
-}
-```
-
-### 2️⃣ Oracle Database (recomendado para produção)
-- Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
-
-```json
-{
-  "UseInMemoryDatabase": false,
-  "ConnectionStrings": {
-    "OracleDb": "User Id=SEU_USUARIO;Password=SUA_SENHA;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=SEU_HOST)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=SEU_SERVICO)))"
-  }
-}
-```
-
-- Certifique-se de que o **banco Oracle esteja rodando**.  
-- Caso existam **migrations**, execute:
-
-```bash
-dotnet ef database update
-```
-
-### 🔹 Alternando via Variáveis de Ambiente
-
-Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
-
-- **Windows (PowerShell):**
-```powershell
-$env:UseInMemoryDatabase="false"
-dotnet run
-```
-
-- **Linux / MacOS (bash/zsh):**
-```bash
-export UseInMemoryDatabase=false
-dotnet run
-```
 
 ---
 
@@ -286,6 +270,6 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 ## Referências
 
 - [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
-- [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
+- [C4 Model Official Website](https://c4model.com/diagrams)
 - [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
 - [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
