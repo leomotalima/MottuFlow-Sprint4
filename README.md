@@ -27,7 +27,7 @@ proporcionando **eficiência operacional**, **automação de processos** e **mon
 
 O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários e de integração com xUnit**.
 
-> Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
+>  Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
 
 ---
 
@@ -35,29 +35,31 @@ O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, *
 
 O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
-### Diagrama C4 - Alto Nível (Modelo Oficial)
+### Diagrama C4 (Alto Nível)
 
 ```mermaid
 graph TD
-    A[Cliente / Front-End] -->|Envia requisições HTTP| B[API .NET - MottuFlow]
-    B -->|Recebe requisições| C[Camada Controller]
-    C -->|Chama métodos| D[Camada Service]
-    D -->|Acessa dados| E[Camada Repository]
-    E -->|Persiste dados| F[(Banco de Dados Oracle / InMemory)]
+    A[Cliente/Front-End] -->|HTTP Requests| B[API .NET - MottuFlow]
+    B --> C[Camada Controller]
+    C --> D[Camada Service]
+    D --> E[Camada Repository]
+    E --> F[(Banco de Dados Oracle / InMemory)]
     B --> G[Swagger UI - Documentação]
     B --> H[JWT Security / Health Checks]
+```
+
 ---
 
-## Funcionalidades Principais
+##  Funcionalidades Principais
 
 - CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
-- HATEOAS integrado em todas as respostas
-- Autenticação via JWT Token
-- Health Check Endpoint
-- Versionamento de API (v1, v2)
-- Swagger/OpenAPI com descrições detalhadas
-- Integração ML.NET (classificação de status de motos)
-- Testes com xUnit e WebApplicationFactory
+-  **HATEOAS** integrado em todas as respostas
+-  **Autenticação via JWT Token**
+-  **Health Check Endpoint**
+-  **Versionamento de API** (v1, v2)
+-  **Swagger/OpenAPI** com descrições detalhadas
+-  **Integração ML.NET** (classificação de status de motos)
+-  **Testes com xUnit e WebApplicationFactory**
 
 ---
 
@@ -76,7 +78,7 @@ graph TD
 
 ## Documentação da API
 
-### Health Check
+### 🔹 Health Check
 ```http
 GET /api/health/ping
 ```
@@ -89,7 +91,7 @@ GET /api/health/ping
 
 ---
 
-### Funcionários
+### 🔹 Funcionários
 
 | Método | Endpoint | Descrição |
 |--------|-----------|-----------|
@@ -117,7 +119,7 @@ GET /api/health/ping
 
 ## Testes Automatizados
 
-### Status dos Testes
+### 🚦 Status dos Testes
 
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
 ![Build](https://img.shields.io/badge/Build-Sucesso-blue.svg)
@@ -146,6 +148,9 @@ dotnet test
 
 ```
 MottuFlow-Sprint4/
+├── .idea/
+├── bin/
+├── obj/
 ├── Controllers/
 ├── Data/
 ├── DTOs/
@@ -153,11 +158,21 @@ MottuFlow-Sprint4/
 ├── Migrations/
 ├── Models/
 ├── MottuFlow.Tests/
+├── Properties/
 ├── Repositories/
 ├── Services/
+├── static/
 ├── Swagger/
+├── AppDbContextFactory.cs
+├── appsettings.json
+├── appsettings.Development.json
+├── global.json
+├── MottuFlow.csproj
+├── MottuFlow.http
+├── MottuFlow.sln
 ├── Program.cs
 └── README.md
+
 ```
 > Estrutura modular e testável — separando **camadas de domínio, infraestrutura e testes de integração**.
 
@@ -193,7 +208,7 @@ Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
 
 O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Database**.  
 
-### InMemory Database (para testes e desenvolvimento)
+### 1️⃣ InMemory Database (para testes e desenvolvimento)
 - Não requer configuração adicional.  
 - Ideal para testes rápidos e desenvolvimento local.  
 - Para usar InMemory, configure no `appsettings.json`:
@@ -204,7 +219,7 @@ O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Dat
 }
 ```
 
-### Oracle Database (recomendado para produção)
+### 2️⃣ Oracle Database (recomendado para produção)
 - Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
 
 ```json
@@ -223,7 +238,9 @@ O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Dat
 dotnet ef database update
 ```
 
-### Alternando via Variáveis de Ambiente
+### 🔹 Alternando via Variáveis de Ambiente
+
+Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
 
 - **Windows (PowerShell):**
 ```powershell
@@ -271,5 +288,4 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 - [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
 - [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
 - [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
-- [C4 Model Official Website](https://c4model.com/diagrams)
 - [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
