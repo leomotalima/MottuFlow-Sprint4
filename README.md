@@ -40,6 +40,7 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 ### 1.System Context (Visão de Contexto)
 
 ```mermaid
+
 graph TB
     user["Person: Usuário (Funcionário/Gerente)"]
 
