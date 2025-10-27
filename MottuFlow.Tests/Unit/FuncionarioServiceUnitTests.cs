@@ -16,7 +16,7 @@ namespace MottuFlow.Tests.Unit
 
         public FuncionarioServiceUnitTests()
         {
-            // ✅ Agora estamos mockando a *interface*, não a classe concreta
+            // Agora estamos mockando a *interface*, não a classe concreta
             _mockRepo = new Mock<IFuncionarioRepository>();
             _service = new FuncionarioService(_mockRepo.Object);
         }
