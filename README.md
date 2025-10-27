@@ -9,7 +9,7 @@
 
 ---
 
-## 🏷️ Etiquetas
+## Etiquetas
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-ASP.NET_Core-green.svg)](https://learn.microsoft.com/aspnet/core)
 [![Entity Framework](https://img.shields.io/badge/ORM-Entity%20Framework%20Core-purple.svg)](https://learn.microsoft.com/ef/)
@@ -18,7 +18,7 @@
 
 ---
 
-## 🎯 Visão Geral
+## Visão Geral
 
 O **MottuFlow** é uma **API RESTful** desenvolvida para otimizar o **gerenciamento inteligente de frotas de motocicletas** da empresa **Mottu**.
 
@@ -27,43 +27,56 @@ proporcionando **eficiência operacional**, **automação de processos** e **mon
 
 O projeto aplica **boas práticas REST**, **HATEOAS**, **autenticação JWT**, **Health Checks**, **versionamento de API**, e inclui **testes unitários e de integração com xUnit**.
 
-> 💡 Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
+> Este projeto foi desenvolvido como parte da disciplina **Advanced Business Development with .NET** da **FIAP**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
 
 ---
 
-## 🧠 Arquitetura do Sistema
+## Arquitetura do Sistema
 
 O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
-### 🧩 Diagrama C4 (Alto Nível)
+### Diagrama C4 - Alto Nível (Modelo Oficial)
 
-```mermaid
-graph TD
-    A[Cliente/Front-End] -->|HTTP Requests| B[API .NET - MottuFlow]
-    B --> C[Camada Controller]
-    C --> D[Camada Service]
-    D --> E[Camada Repository]
-    E --> F[(Banco de Dados Oracle / InMemory)]
-    B --> G[Swagger UI - Documentação]
-    B --> H[JWT Security / Health Checks]
+```plantuml
+@startuml C4Context
+title Diagrama C4 - Alto Nível (MottuFlow)
+Person(cliente, "Cliente / Front-End", "Usuário que consome a aplicação através de requisições HTTP")
+System_Boundary(api, "API .NET - MottuFlow") {
+    Container(controller, "Camada Controller", "C#", "Recebe requisições HTTP e direciona para a camada de serviço")
+    Container(service, "Camada Service", "C#", "Contém a lógica de negócio da aplicação")
+    Container(repository, "Camada Repository", "C#", "Acessa os dados persistidos no banco de dados")
+    Container(swagger, "Swagger UI - Documentação", "OpenAPI", "Interface de documentação e testes da API")
+    Container(jwt, "JWT Security / Health Checks", "Middleware", "Gerencia autenticação e monitora o estado da aplicação")
+    ContainerDb(db, "Banco de Dados Oracle / InMemory", "Oracle / InMemory", "Armazena dados da aplicação")
+}
+Rel(cliente, controller, "Envia requisições HTTP", "JSON / REST")
+Rel(controller, service, "Chama métodos de serviço", "C#")
+Rel(service, repository, "Consulta e persiste dados", "SQL / ORM")
+Rel(repository, db, "Executa comandos de banco de dados", "SQL")
+Rel(api, swagger, "Disponibiliza documentação e testes")
+Rel(api, jwt, "Gerencia autenticação e monitoramento")
+UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+@enduml
 ```
 
----
-
-## ⚙️ Funcionalidades Principais
-
-- ✅ CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
-- 🔗 **HATEOAS** integrado em todas as respostas
-- 🔒 **Autenticação via JWT Token**
-- ❤️ **Health Check Endpoint**
-- 🧩 **Versionamento de API** (v1, v2)
-- 📊 **Swagger/OpenAPI** com descrições detalhadas
-- 🧠 **Integração ML.NET** (classificação de status de motos)
-- 🧪 **Testes com xUnit e WebApplicationFactory**
+> O diagrama acima segue o modelo **C4** no nível **Context + Container**, conforme recomendado por Simon Brown, mostrando o relacionamento entre o usuário, a API MottuFlow e seus componentes internos.
 
 ---
 
-## 🧰 Tecnologias Utilizadas
+## Funcionalidades Principais
+
+- CRUD completo para todas as entidades (Funcionário, Pátio, Moto, etc.)
+- HATEOAS integrado em todas as respostas
+- Autenticação via JWT Token
+- Health Check Endpoint
+- Versionamento de API (v1, v2)
+- Swagger/OpenAPI com descrições detalhadas
+- Integração ML.NET (classificação de status de motos)
+- Testes com xUnit e WebApplicationFactory
+
+---
+
+## Tecnologias Utilizadas
 
 - **.NET 8 / ASP.NET Core Web API**
 - **Entity Framework Core**
@@ -76,22 +89,22 @@ graph TD
 
 ---
 
-## 🧩 Documentação da API
+## Documentação da API
 
-### 🔹 Health Check
+### Health Check
 ```http
 GET /api/health/ping
 ```
 **Resposta:**
 ```json
 {
-  "status": "API rodando 🚀"
+  "status": "API rodando"
 }
 ```
 
 ---
 
-### 🔹 Funcionários
+### Funcionários
 
 | Método | Endpoint | Descrição |
 |--------|-----------|-----------|
@@ -117,22 +130,22 @@ GET /api/health/ping
 
 ---
 
-## 🧪 Testes Automatizados
+## Testes Automatizados
 
-### 🚦 Status dos Testes
+### Status dos Testes
 
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
 ![Build](https://img.shields.io/badge/Build-Sucesso-blue.svg)
 
 Os testes foram executados com **xUnit** e **WebApplicationFactory**, garantindo:
-- ✅ Banco InMemory criado e inicializado corretamente;
-- ✅ Endpoints retornando status HTTP esperado (200 OK, 201 Created, etc.);
-- ✅ Separação entre ambientes **Oracle (produção)** e **InMemory (testes)**;
-- ✅ Integração contínua sem dependência de infraestrutura externa.
+- Banco InMemory criado e inicializado corretamente;
+- Endpoints retornando status HTTP esperado (200 OK, 201 Created, etc.);
+- Separação entre ambientes **Oracle (produção)** e **InMemory (testes)**;
+- Integração contínua sem dependência de infraestrutura externa.
 
 ---
 
-### 🔍 Executando os testes manualmente
+### Executando os testes manualmente
 
 ```bash
 dotnet clean
@@ -140,17 +153,14 @@ dotnet build
 dotnet test
 ```
 
-> 💡 Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
+> Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
 
 ---
 
-## 🏗️ Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 MottuFlow-Sprint4/
-├── .idea/
-├── bin/
-├── obj/
 ├── Controllers/
 ├── Data/
 ├── DTOs/
@@ -158,27 +168,17 @@ MottuFlow-Sprint4/
 ├── Migrations/
 ├── Models/
 ├── MottuFlow.Tests/
-├── Properties/
 ├── Repositories/
 ├── Services/
-├── static/
 ├── Swagger/
-├── AppDbContextFactory.cs
-├── appsettings.json
-├── appsettings.Development.json
-├── global.json
-├── MottuFlow.csproj
-├── MottuFlow.http
-├── MottuFlow.sln
 ├── Program.cs
 └── README.md
-
 ```
 > Estrutura modular e testável — separando **camadas de domínio, infraestrutura e testes de integração**.
 
 ---
 
-## 💻 Execução Local
+## Execução Local
 
 ### Clonar o projeto
 ```bash
@@ -204,11 +204,11 @@ Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
 
 ---
 
-## ⚙️ Configuração do Banco de Dados
+## Configuração do Banco de Dados
 
 O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Database**.  
 
-### 1️⃣ InMemory Database (para testes e desenvolvimento)
+### InMemory Database (para testes e desenvolvimento)
 - Não requer configuração adicional.  
 - Ideal para testes rápidos e desenvolvimento local.  
 - Para usar InMemory, configure no `appsettings.json`:
@@ -219,7 +219,7 @@ O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Dat
 }
 ```
 
-### 2️⃣ Oracle Database (recomendado para produção)
+### Oracle Database (recomendado para produção)
 - Configure `UseInMemoryDatabase` como `false` e adicione a string de conexão no `appsettings.json` ou via **variáveis de ambiente**:
 
 ```json
@@ -238,9 +238,7 @@ O projeto suporta **dois tipos de banco**: **InMemory (EF Core)** e **Oracle Dat
 dotnet ef database update
 ```
 
-### 🔹 Alternando via Variáveis de Ambiente
-
-Você pode sobrescrever `UseInMemoryDatabase` sem alterar o `appsettings.json`:
+### Alternando via Variáveis de Ambiente
 
 - **Windows (PowerShell):**
 ```powershell
@@ -256,7 +254,7 @@ dotnet run
 
 ---
 
-## 🧠 Aprendizados
+## Aprendizados
 
 Durante o desenvolvimento, foram aplicadas práticas avançadas de:
 - Arquitetura em camadas e injeção de dependência;
@@ -266,14 +264,14 @@ Durante o desenvolvimento, foram aplicadas práticas avançadas de:
 
 ---
 
-## 📜 Licença
+## Licença
 
 Distribuído sob a licença **MIT**.  
 Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 
 ---
 
-## 👥 Autores
+## Autores
 
 | Nome | RM | Responsabilidade |
 |------|----|------------------|
@@ -283,9 +281,10 @@ Veja [LICENSE](https://choosealicense.com/licenses/mit/) para mais detalhes.
 
 ---
 
-## 🔗 Referências
+## Referências
 
 - [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
 - [Awesome README Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
 - [Swagger Documentation Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
+- [C4 Model Official Website](https://c4model.com/diagrams)
 - [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
