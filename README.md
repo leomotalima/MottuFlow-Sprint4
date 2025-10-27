@@ -46,9 +46,6 @@ graph TD
     E -->|Persiste dados| F[(Banco de Dados Oracle / InMemory)]
     B --> G[Swagger UI - Documentação]
     B --> H[JWT Security / Health Checks]
-
-> O diagrama acima segue o modelo **C4** no nível **Context + Container**, conforme recomendado por Simon Brown, mostrando o relacionamento entre o usuário, a API MottuFlow e seus componentes internos.
-
 ---
 
 ## Funcionalidades Principais
