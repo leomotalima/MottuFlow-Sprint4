@@ -41,13 +41,13 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ```mermaid
 graph TB
-    user[("Person: Usuário (Funcionário/Gerente)")]
+    user["Person: Usuário (Funcionário/Gerente)"]
 
-    extPay[("Software System (Externo): Sistema de Pagamentos")]
-    extIdP[("Software System (Externo): Provedor de Identidade (JWT)")]
+    extPay["Software System (Externo): Sistema de Pagamentos"]
+    extIdP["Software System (Externo): Provedor de Identidade (JWT)"]
 
     subgraph s1["Software System: MottuFlow"]
-    api[("API REST .NET 8")]
+        api["API REST .NET 8"]
     end
 
     user -->|Usa via HTTP/JSON| api
@@ -67,7 +67,7 @@ graph TB
         api["Container: API .NET 8 (ASP.NET Core)"]
         service["Container: Services (Lógica de Negócio)"]
         repo["Container: Repositories (Acesso a Dados)"]
-        db[("Container: Database (Oracle / InMemory)")]
+        db[(Container: Database (Oracle / InMemory))]
         swagger["Container: Swagger UI (OpenAPI)"]
         health["Container: Health Checks"]
         ml["Container: ML.NET Engine (Previsão de Manutenção)"]
