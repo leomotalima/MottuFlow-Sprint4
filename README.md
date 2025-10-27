@@ -190,6 +190,16 @@ Os testes foram executados com **xUnit** e **WebApplicationFactory**, garantindo
 - Separação entre ambientes **Oracle (produção)** e **InMemory (testes)**;
 - Integração contínua sem dependência de infraestrutura externa.
 
+### Executando os testes manualmente
+
+```bash
+dotnet clean
+dotnet build
+dotnet test
+```
+
+> Dica: todos os testes estão configurados para rodar com **banco InMemory**, não exigindo Oracle.
+
 ---
 
 ## Estrutura do Projeto
