@@ -37,19 +37,26 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ---
 
-### C4-1: System Context (Visão de Contexto)
+### 1.System Context diagram
 
 ```mermaid
 graph TB
-    user[("Person: Usuário (Funcionário/Gerente)")]
+    --- Estilo: C4 Model (cores por tipo) ---
+    classDef person fill:#9f6,stroke:#333,stroke-width:1px,color:#000
+    classDef system fill:#bbf,stroke:#333,stroke-width:1px,color:#000
+    classDef external fill:#f9a,stroke:#333,stroke-width:1px,color:#000
 
-    extPay[("Software System (Externo): Sistema de Pagamentos")]
-    extIdP[("Software System (Externo): Provedor de Identidade (JWT)")]
+    --- Pessoas e sistemas ---
+    user["Person: Usuário (Funcionário / Gerente)"]:::person
 
-    subgraph s1["Software System: MottuFlow"]
-    api[("API REST .NET 8")]
+    subgraph MottuFlow["Software System: MottuFlow"]
+        api["API REST .NET 8"]:::system
     end
 
+    extPay["Software System (Externo): Sistema de Pagamentos"]:::external
+    extIdP["Software System (Externo): Provedor de Identidade (JWT)"]:::external
+
+    --- Relações ---
     user -->|Usa via HTTP/JSON| api
     api -->|Autenticação JWT| extIdP
     api -->|Integração financeira| extPay
@@ -59,7 +66,7 @@ graph TB
 
 ---
 
-### C4-2: Container (Visão de Contêineres)
+### 2.Container diagram
 
 ```mermaid
 graph TB
