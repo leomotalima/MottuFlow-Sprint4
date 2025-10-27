@@ -10,7 +10,7 @@ namespace MottuFlowApi.Swagger
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            // 🧩 Informações principais da API
+            // Informações principais da API
             swaggerDoc.Info = new OpenApiInfo
             {
                 Title = "MottuFlow API",
@@ -28,7 +28,7 @@ namespace MottuFlowApi.Swagger
                 }
             };
 
-            // 🗂️ Descrições das tags exibidas no Swagger
+            // Descrições das tags exibidas no Swagger
             swaggerDoc.Tags = new List<OpenApiTag>
             {
                 new OpenApiTag { Name = "Funcionários", Description = "Gerencia os dados dos funcionários (CRUD completo com HATEOAS e autenticação)." },

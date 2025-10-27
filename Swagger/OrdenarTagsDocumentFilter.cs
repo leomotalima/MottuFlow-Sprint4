@@ -7,7 +7,7 @@ namespace MottuFlowApi.Swagger
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            // ✅ Ordem exata das tags conforme definidas em Documentacao.cs
+            // Ordem exata das tags conforme definidas em Documentacao.cs
             string[] ordemTags = 
             { 
                 "Funcionários", 
