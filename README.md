@@ -37,34 +37,33 @@ O projeto segue uma arquitetura em camadas (Controller → Service → Repositor
 
 ---
 
-### 1.System Context (Visão de Contexto)
+### **1. System Context Diagram (Visão de Contexto)**
+
+Mostra o **MottuFlow** como um sistema de software dentro de seu ambiente, identificando **usuários externos e sistemas com os quais interage**.  
+Essa visão fornece uma compreensão **de alto nível** sobre **quem usa o sistema** e **como ele se conecta a outros serviços**.
 
 ```mermaid
-
 graph TB
-    %% Nós externos
     user["Person: Usuário (Funcionário/Gerente)"]
-    extIdP["External System: Provedor de Identidade (JWT)"]
-    extPay["External System: Sistema de Pagamentos"]
 
-    %% Sistema principal (subgraph)
-    subgraph mottu["Software System: MottuFlow"]
-        api["Container: API REST .NET 8 (ASP.NET Core)"]
+    extPay["Software System (Externo): Sistema de Pagamentos"]
+    extIdP["Software System (Externo): Provedor de Identidade (JWT)"]
+
+    subgraph s1["Software System: MottuFlow"]
+        api["API REST .NET 8"]
     end
 
-    %% Relacionamentos
-    user -->|HTTP/JSON| api
-    api -->|JWT Authentication| extIdP
-    api -->|Financial Integration| extPay
-
-
+    user -->|Usa via HTTP/JSON| api
+    api -->|Autenticação JWT| extIdP
+    api -->|Integração financeira| extPay
 ```
-
-> Mostra o relacionamento entre o usuário e os sistemas externos que interagem com o MottuFlow.
 
 ---
 
-### 2.Container (Visão de Contêineres)
+### **2. Container Diagram (Visão de Contêineres)**
+
+Mostra os **principais contêineres** que compõem o **MottuFlow**, incluindo a **API .NET 8**, os **serviços de negócio**, os **repositórios**, e o **banco de dados Oracle/InMemory**.  
+Também ilustra **componentes auxiliares** como **Swagger UI**, **Health Checks** e o **motor de IA ML.NET**, além da comunicação com o **Front-End Web/Mobile** e o **provedor de identidade JWT**.
 
 ```mermaid
 graph TB
@@ -72,7 +71,7 @@ graph TB
         api["Container: API .NET 8 (ASP.NET Core)"]
         service["Container: Services (Lógica de Negócio)"]
         repo["Container: Repositories (Acesso a Dados)"]
-        db[("Container: Database (Oracle / InMemory)")]
+        db[(Container: Database (Oracle / InMemory))]
         swagger["Container: Swagger UI (OpenAPI)"]
         health["Container: Health Checks"]
         ml["Container: ML.NET Engine (Previsão de Manutenção)"]
@@ -91,11 +90,12 @@ graph TB
     api -->|Autenticação| idp
 ```
 
-> Representa os principais contêineres internos e suas relações de comunicação dentro do sistema MottuFlow.
-
 ---
 
-### 3.Component (Visão de Componentes da API - Exemplo Domínio “Moto”)
+### **3. Component Diagram (Visão de Componentes da API – Domínio “Moto”)**
+
+Mostra a **estrutura interna do contêiner da API**, detalhando os principais **componentes de software** que compõem o domínio de **Moto**.  
+Essa visão ajuda a compreender **como cada parte da aplicação coopera** para entregar as funcionalidades principais.
 
 ```mermaid
 graph LR
@@ -112,9 +112,6 @@ graph LR
     svc -->|Usa| validator
     repo -->|CRUD / Queries| db
 ```
-
-> Mostra os principais componentes internos do container da API para o domínio de **Moto**.
-
 ---
 
 ## Funcionalidades Principais
