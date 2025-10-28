@@ -12,7 +12,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace MottuFlowApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251028105150_Iniciando")]
+    [Migration("20251028130740_Iniciando")]
     partial class Iniciando
     {
         /// <inheritdoc />

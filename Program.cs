@@ -10,33 +10,18 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MottuFlowApi.Services;
 using MottuFlowApi.Swagger;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
 // Banco de Dados
 // ----------------------
-var environment = builder.Environment.EnvironmentName;
-var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
-var oracleConnectionString = builder.Configuration.GetConnectionString("OracleDb");
+Env.Load();
 
-if (environment.Equals("Testing", StringComparison.OrdinalIgnoreCase) ||
-    AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase))
-{
-    Console.WriteLine(" Modo de TESTE detectado — usando banco InMemory.");
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseInMemoryDatabase("MottuFlowTestDb"));
-}
-else if (useInMemory)
-{
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseInMemoryDatabase("MottuFlowDb"));
-}
-else
-{
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseOracle(oracleConnectionString));
-}
+// Conexão com o banco de dados
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseOracle(Environment.GetEnvironmentVariable("ConnectionStrings__OracleConnection")));
 
 // ----------------------
 // Versionamento da API

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
-using System.IO;
+using DotNetEnv;
+using System;
 
 namespace MottuFlowApi.Data
 {
@@ -9,13 +9,12 @@ namespace MottuFlowApi.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            // Carrega configuração do arquivo appsettings.json
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
+            Env.Load(); // carrega .env
 
-            var connectionString = configuration.GetConnectionString("OracleDb");
+            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__OracleConnection");
+
+            if (string.IsNullOrEmpty(connectionString))
+                throw new InvalidOperationException("Connection string não encontrada.");
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseOracle(connectionString);
