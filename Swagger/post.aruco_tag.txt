@@ -1,5 +1,0 @@
-{
-  "codigo": "TAG-001",
-  "status": "Ativo",
-  "id_moto": 1
-}

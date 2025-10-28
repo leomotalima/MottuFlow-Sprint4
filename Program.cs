@@ -14,7 +14,7 @@ using MottuFlowApi.Swagger;
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------
-// Configuração do DbContext
+// Banco de Dados
 // ----------------------
 var environment = builder.Environment.EnvironmentName;
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
@@ -39,7 +39,7 @@ else
 }
 
 // ----------------------
-// Versionamento de API
+// Versionamento da API
 // ----------------------
 builder.Services.AddApiVersioning(options =>
 {
@@ -58,7 +58,7 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 
 // ----------------------
-// Configuração JWT
+// Autenticação JWT
 // ----------------------
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 builder.Services.AddSingleton<JwtService>();
@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // ----------------------
-// Configuração do Swagger com Versionamento
+// Swagger
 // ----------------------
 builder.Services.AddSwaggerGen(options =>
 {
@@ -119,7 +119,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Digite 'Bearer {seu token JWT}' para autenticar"
+        Description = "Use: Bearer {token}"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -143,9 +143,7 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 
-// ----------------------
-// Health Checks
-// ----------------------
+// Health Check
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>("BancoOracle");
 
@@ -158,12 +156,12 @@ builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 // ----------------------
-// Middleware
+// Middleware e Swagger
 // ----------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    app.UseSwaggerUI(c =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "MottuFlow API v1");
         options.RoutePrefix = "swagger";
@@ -189,7 +187,6 @@ app.MapHealthChecks("/api/health");
 
 // Controllers
 app.MapControllers();
-
 app.Run();
 
 // Necessário para testes de integração com WebApplicationFactory

@@ -7,7 +7,6 @@ namespace MottuFlowApi.Services
     public interface IMotoService
     {
         Task<PagedResult<Moto>> GetPagedAsync(int pageNumber, int pageSize);
-        // outros métodos do serviço...
     }
 }
 

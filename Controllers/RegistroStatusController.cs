@@ -25,7 +25,11 @@ namespace MottuFlowApi.Controllers.V1
             _context = context;
         }
 
+<<<<<<< HEAD
         // GET - Lista com paginação
+=======
+        //  GET - Lista com paginação
+>>>>>>> b7ee580 (arrumando algumas coisas)
         [AllowAnonymous]
         [HttpGet(Name = "GetRegistroStatus")]
         [SwaggerOperation(Summary = "Lista todos os registros de status", Description = "Retorna uma lista paginada de registros de status das motos.")]
@@ -66,7 +70,11 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<object>.Ok(new { meta, data = registros }, "Registros de status listados com sucesso."));
         }
 
+<<<<<<< HEAD
         // GET - Por ID
+=======
+        //  GET - Por ID
+>>>>>>> b7ee580 (arrumando algumas coisas)
         [AllowAnonymous]
         [HttpGet("{id}", Name = "GetRegistroStatusById")]
         [SwaggerOperation(Summary = "Obtém um registro de status específico", Description = "Retorna os detalhes de um registro de status pelo ID.")]
@@ -90,7 +98,11 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<StatusDTO>.Ok(dto, "Registro de status encontrado com sucesso."));
         }
 
+<<<<<<< HEAD
         // POST - Criar novo registro
+=======
+        //  POST - Criar novo registro
+>>>>>>> b7ee580 (arrumando algumas coisas)
         [HttpPost(Name = "CreateRegistroStatus")]
         [SwaggerOperation(Summary = "Cria um novo registro de status", Description = "Registra um novo status de moto no sistema.")]
         [SwaggerResponse(StatusCodes.Status201Created, "Registro de status criado com sucesso")]
@@ -125,7 +137,11 @@ namespace MottuFlowApi.Controllers.V1
                 ApiResponse<StatusDTO>.Ok(result, "Registro de status criado com sucesso."));
         }
 
+<<<<<<< HEAD
         // PUT - Atualizar registro existente
+=======
+        //  PUT - Atualizar registro existente
+>>>>>>> b7ee580 (arrumando algumas coisas)
         [HttpPut("{id}", Name = "UpdateRegistroStatus")]
         [SwaggerOperation(Summary = "Atualiza um registro de status existente", Description = "Permite alterar os dados de um registro de status.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Registro de status atualizado com sucesso")]
@@ -161,7 +177,11 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<StatusDTO>.Ok(updated, "Registro de status atualizado com sucesso."));
         }
 
+<<<<<<< HEAD
         // DELETE - Remover registro
+=======
+        //  DELETE - Remover registro
+>>>>>>> b7ee580 (arrumando algumas coisas)
         [HttpDelete("{id}", Name = "DeleteRegistroStatus")]
         [SwaggerOperation(Summary = "Remove um registro de status", Description = "Exclui um registro de status existente pelo ID.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "Registro de status removido com sucesso")]

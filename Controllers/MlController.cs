@@ -12,7 +12,11 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("Machine Learning")]
     [Produces("application/json")]
     [Consumes("application/json")]
+<<<<<<< HEAD
     [AllowAnonymous] 
+=======
+    [AllowAnonymous] // ML pode ser público para demonstração
+>>>>>>> b7ee580 (arrumando algumas coisas)
     public class MlController : ControllerBase
     {
         private readonly MotoMlService _mlService;
