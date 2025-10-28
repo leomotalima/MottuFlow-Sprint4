@@ -41,13 +41,6 @@ namespace MottuFlowApi.Models
         [Column("senha")]
         public string Senha { get; set; } = string.Empty;
 
-        [MaxLength(255)]
-        [Column("refresh_token")]
-        public string? RefreshToken { get; set; }
-
-        [Column("expiracao_refresh_token")]
-        public DateTime? ExpiracaoRefreshToken { get; set; }
-
         // Navigation
         public List<RegistroStatus> RegistrosStatus { get; set; } = new List<RegistroStatus>();
     }
