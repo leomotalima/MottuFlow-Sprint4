@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Referência apenas para o projeto da API, nunca para o próprio teste -->
     <ProjectReference Include="..\MottuFlow.csproj" />
   </ItemGroup>
 

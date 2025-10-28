@@ -40,7 +40,7 @@ namespace MottuFlow.Tests.Integration
         [Fact(DisplayName = "GET /api/v1/funcionarios deve retornar 200 OK")]
         public async Task GetFuncionarios_DeveRetornarStatus200()
         {
-            // 🔐 Login com usuário válido criado no banco InMemory
+            // Login com usuário válido criado no banco InMemory
             var loginPayload = new
             {
                 Username = "leo@mottuflow.com",
@@ -72,7 +72,7 @@ namespace MottuFlow.Tests.Integration
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains("Léo Mota Lima", content);
 
-            Console.WriteLine("✅ Endpoint /api/v1/funcionarios retornou 200 OK com sucesso.");
+            Console.WriteLine(" Endpoint /api/v1/funcionarios retornou 200 OK com sucesso.");
         }
 
         // DTO auxiliar para ler o resultado do login
