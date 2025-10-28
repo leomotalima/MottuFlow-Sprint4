@@ -32,76 +32,82 @@ A aplicação implementa **autenticação JWT**, **HATEOAS**, **Health Checks**,
 
 ## Arquitetura do Sistema
 
-O sistema segue arquitetura em camadas (**Controller → Service → Repository → Data → Model**), garantindo modularidade e manutenibilidade.
-
-### 1. System Context
-
-```mermaid
-graph TB
-    user["Usuário (Gerente/Funcionário)"]
-    extIdP["Provedor de Identidade (JWT)"]
-    extPay["Sistema de Pagamentos"]
-
-    subgraph mottu["MottuFlow (.NET 8 API)"]
-        api["API REST"]
-    end
-
-    user -->|HTTP/JSON| api
-    api -->|Autenticação| extIdP
-    api -->|Integração Financeira| extPay
-```
+O projeto segue uma arquitetura em camadas (Controller → Service → Repository → Data → Model), garantindo modularidade e manutenibilidade.
 
 ---
 
-### 2. Container (View)
+### C4-1: System Context (Visão de Contexto)
 
 ```mermaid
 graph TB
-    subgraph MottuFlow["Software System: MottuFlow"]
-        api["API ASP.NET Core Web API"]
-        service["Services (Lógica de Negócio)"]
-        repo["Repositories (Acesso a Dados)"]
-        db[("Database (Oracle / InMemory)")]
+    user[("Person: Usuário (Funcionário/Gerente)")]
 
-        swagger["Swagger UI (OpenAPI)"]
-        health["Health Checks"]
-        ml["ML.NET Engine (Previsão de Manutenção)"]
+    extPay[("Software System (Externo): Sistema de Pagamentos")]
+    extIdP[("Software System (Externo): Provedor de Identidade (JWT)")]
+
+    subgraph s1["Software System: MottuFlow"]
+    api[("API REST .NET 8")]
     end
 
-    user["Front-End Web/Mobile"]
-    idp["Provedor de Identidade JWT"]
+    user -->|Usa via HTTP/JSON| api
+    api -->|Autenticação JWT| extIdP
+    api -->|Integração financeira| extPay
+```
 
-    user --> api
+> Mostra o relacionamento entre o usuário e os sistemas externos que interagem com o MottuFlow.
+
+---
+
+### C4-2: Container (Visão de Contêineres)
+
+```mermaid
+graph TB
+    subgraph MottuFlow ["Software System: MottuFlow"]
+      api[("Container: API .NET 8 (ASP.NET Core)") ]
+      service[("Container: Services (Lógica de Negócio)") ]
+      repo[("Container: Repositories (Acesso a Dados)") ]
+      db[(("Container: Database (Oracle / InMemory)"))]
+      swagger[("Container: Swagger UI (OpenAPI)") ]
+      health[("Container: Health Checks") ]
+      ml[("Container: ML.NET Engine (Previsão de Manutenção)") ]
+    end
+
+    user[("Container (Externo): Front-End Web/Mobile")]
+    idp[("Container (Externo): Provedor de Identidade JWT")]
+
+    user -->|HTTP/JSON| api
     api --> service
     service --> repo
-    repo --> db
+    repo -->|EF Core| db
     api --> swagger
     api --> health
     service --> ml
-    api --> idp
+    api -->|Autenticação| idp
 ```
+
+> Representa os principais contêineres internos e suas relações de comunicação dentro do sistema MottuFlow.
 
 ---
 
-### 3. Component (View)
+### C4-3: Component (Visão de Componentes da API - Exemplo Domínio “Moto”)
 
 ```mermaid
 graph LR
-    ctrl["MotoController – Endpoints REST"]
-    svc["MotoService – Regras de Negócio"]
-    repo["MotoRepository – Acesso a Dados"]
-    mapper["MotoMapper – DTO ⇄ Entidade"]
-    validator["MotoValidator – Validação de Dados"]
-    db[(Banco de Dados Oracle / InMemory)]
+    ctrl[("Component: MotoController (Endpoints REST)") ]
+    svc[("Component: MotoService (Regras de Negócio)") ]
+    repo[("Component: MotoRepository (Acesso a Dados)") ]
+    mapper[("Component: MotoMapper (Conversão DTO ⇄ Entidade)") ]
+    validator[("Component: MotoValidator (Validação de Dados)") ]
+    db[(("Container: Banco de Dados (Oracle/InMemory)"))]
 
-    ctrl --> svc
-    svc --> repo
-    svc --> mapper
-    svc --> validator
-    repo --> db
+    ctrl -->|Chama| svc
+    svc -->|Usa| repo
+    svc -->|Usa| mapper
+    svc -->|Usa| validator
+    repo -->|CRUD/Queries| db
 ```
 
----
+> Mostra os principais componentes internos do container da API para o domínio de **Moto**.
 
 ## Funcionalidades Principais
 
