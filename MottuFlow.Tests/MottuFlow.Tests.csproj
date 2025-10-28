@@ -5,15 +5,12 @@
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-
-  
-  <PropertyGroup>
     <AssemblyName>MottuFlowApi.Tests</AssemblyName>
     <RootNamespace>MottuFlowApi.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
@@ -28,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Referência apenas para o projeto da API, nunca para o próprio teste -->
     <ProjectReference Include="..\MottuFlow.csproj" />
   </ItemGroup>
 
