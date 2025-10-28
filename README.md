@@ -131,6 +131,48 @@ graph LR
 
 ---
 
+---
+
+## Documentação da API
+
+### Health Check
+```http
+GET /api/health/ping
+```
+**Resposta:**
+```json
+{
+  "status": "API rodando"
+}
+```
+
+---
+
+### Funcionários
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/funcionarios` | Lista todos os funcionários |
+| `GET` | `/api/funcionarios/{id}` | Retorna um funcionário específico |
+| `POST` | `/api/funcionarios` | Cria um novo funcionário |
+| `PUT` | `/api/funcionarios/{id}` | Atualiza dados de um funcionário |
+| `DELETE` | `/api/funcionarios/{id}` | Remove um funcionário |
+
+**Exemplo de resposta com HATEOAS:**
+```json
+{
+  "id": 1,
+  "nome": "João Silva",
+  "cpf": "123.456.789-00",
+  "links": [
+    { "rel": "self", "href": "/api/funcionarios/1", "method": "GET" },
+    { "rel": "update", "href": "/api/funcionarios/1", "method": "PUT" },
+    { "rel": "delete", "href": "/api/funcionarios/1", "method": "DELETE" }
+  ]
+}
+```
+
+---
 ## Testes Automatizados
 
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
