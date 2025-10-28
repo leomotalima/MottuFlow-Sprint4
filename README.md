@@ -37,20 +37,18 @@ O sistema segue arquitetura em camadas (**Controller → Service → Repository 
 ### 1. System Context
 
 ```mermaid
-%%{init: {'theme': 'default', 'flowchart': {'nodeSpacing': 50, 'rankSpacing': 70}}}%%
 graph TB
-    user["Usuário\n(Gerente / Funcionário)"]
-    extIdP["Provedor de\nIdentidade (JWT)"]
-    extPay["Sistema de\nPagamentos"]
+    user["Usuário (Gerente/Funcionário)"]
+    extIdP["Provedor de Identidade (JWT)"]
+    extPay["Sistema de Pagamentos"]
 
-    subgraph mottu["MottuFlow\n(.NET 8 API)"]
+    subgraph mottu["MottuFlow (.NET 8 API)"]
         api["API REST"]
     end
 
     user -->|HTTP/JSON| api
     api -->|Autenticação| extIdP
     api -->|Integração Financeira| extPay
-
 ```
 
 ---
