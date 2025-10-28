@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MottuFlowApi.Data;
 using MottuFlowApi.DTOs;
-using MottuFlowApi.Models;
 using MottuFlowApi.Services;
-using BCrypt.Net;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MottuFlowApi.Controllers.V1
 {
@@ -26,11 +23,6 @@ namespace MottuFlowApi.Controllers.V1
             _dbContext = dbContext;
         }
 
-<<<<<<< HEAD
-=======
-        // POST - Login
-        [AllowAnonymous]
->>>>>>> b7ee580 (arrumando algumas coisas)
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Autentica um usuário e gera um token JWT")]
         [SwaggerResponse(StatusCodes.Status200OK, "Autenticação realizada com sucesso")]
@@ -43,17 +35,12 @@ namespace MottuFlowApi.Controllers.V1
 
             var user = _dbContext.Funcionarios.FirstOrDefault(f => f.Email == request.Username);
 
-<<<<<<< HEAD
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Senha))
                 return Unauthorized("Credenciais inválidas.");
 
             var token = _jwtService.GenerateToken(user.Email, user.Cargo);
 
             return Ok(new
-=======
-            // Exemplo fixo — substituir por validação real no banco
-            if (request.Username == "admin" && request.Password == "123")
->>>>>>> b7ee580 (arrumando algumas coisas)
             {
                 token,
                 role = user.Cargo,

@@ -6,7 +6,7 @@ namespace MottuFlow.Hateoas
 {
     public class MotoResource : ResourceBase
     {
-        public new int Id { get; set; }  // Identificador único da moto
+        public new int Id { get; set; }
         public string Placa { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public string Fabricante { get; set; } = string.Empty;

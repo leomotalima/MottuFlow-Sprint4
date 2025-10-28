@@ -7,7 +7,7 @@ namespace MottuFlow.Hateoas
 
         public void AddLink(Link link)
         {
-            Links.Add(link);  // Método para adicionar um link à lista de links
+            Links.Add(link);
         }
     }
 }
