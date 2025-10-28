@@ -180,6 +180,7 @@ git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
 ### Entrar no diretório
 ```bash
 cd MottuFlow-Sprint4
+```
 
 ### Restaurar dependências
 ```bash
