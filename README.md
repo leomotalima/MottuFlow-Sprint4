@@ -34,7 +34,7 @@ A aplicação implementa **autenticação JWT**, **HATEOAS**, **Health Checks**,
 
 O sistema segue arquitetura em camadas (**Controller → Service → Repository → Data → Model**), garantindo modularidade e manutenibilidade.
 
-### 1. System Context
+### 1. System context diagram
 
 ```mermaid
 graph TB
@@ -53,7 +53,7 @@ graph TB
 
 ---
 
-### 2. Container (View)
+### 2. Container diagram
 
 ```mermaid
 graph TB
@@ -83,7 +83,7 @@ graph TB
 
 ---
 
-### 3. Component (View)
+### 3. Component diagram
 
 ```mermaid
 graph LR
