@@ -21,8 +21,7 @@ namespace MottuFlowApi.Controllers.V1
         private readonly AppDbContext _context;
         public LocalidadeController(AppDbContext context) => _context = context;
 
-        // GET - Lista todas as localidades (público)
-        [AllowAnonymous]
+        // GET - Lista todas as localidades 
         [HttpGet(Name = "GetLocalidades")]
         [SwaggerOperation(
             Summary = "Lista todas as localidades registradas",
@@ -50,8 +49,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<IEnumerable<LocalidadeOutputDTO>>.Ok(localidades, "Localidades listadas com sucesso."));
         }
 
-        // GET - Localidade por ID (público)
-        [AllowAnonymous]
+        // GET - Localidade por ID
         [HttpGet("{id}", Name = "GetLocalidade")]
         [SwaggerOperation(
             Summary = "Obtém os dados de uma localidade",

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using DotNetEnv;
-using System;
 
 namespace MottuFlowApi.Data
 {
@@ -9,7 +8,7 @@ namespace MottuFlowApi.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            Env.Load(); // carrega .env
+            Env.Load();
 
             var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__OracleConnection");
 

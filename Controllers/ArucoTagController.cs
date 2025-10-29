@@ -30,8 +30,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteArucoTag), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // GET - Lista todas as ArucoTags (público)
-        [AllowAnonymous]
+        // GET - Lista todas as ArucoTags 
         [HttpGet(Name = "GetArucoTags")]
         [SwaggerOperation(Summary = "Lista todas as ArucoTags", Description = "Retorna uma lista de ArucoTags cadastradas no sistema.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista retornada com sucesso")]
@@ -56,8 +55,7 @@ namespace MottuFlowApi.Controllers.V1
             return Ok(ApiResponse<IEnumerable<ArucoTagResource>>.Ok(tags, "ArucoTags listadas com sucesso."));
         }
 
-        // GET - Retorna uma ArucoTag por ID (público)
-        [AllowAnonymous]
+        // GET - Retorna uma ArucoTag por ID 
         [HttpGet("{id}", Name = "GetArucoTag")]
         [SwaggerOperation(Summary = "Obtém uma ArucoTag específica", Description = "Retorna os dados de uma ArucoTag pelo ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "ArucoTag encontrada com sucesso")]

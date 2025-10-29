@@ -26,7 +26,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         //  GET - Lista com paginação
-        [AllowAnonymous]
         [HttpGet(Name = "GetRegistroStatus")]
         [SwaggerOperation(Summary = "Lista todos os registros de status", Description = "Retorna uma lista paginada de registros de status das motos.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Registros de status retornados com sucesso")]
@@ -67,7 +66,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         //  GET - Por ID
-        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetRegistroStatusById")]
         [SwaggerOperation(Summary = "Obtém um registro de status específico", Description = "Retorna os detalhes de um registro de status pelo ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Registro de status encontrado com sucesso")]

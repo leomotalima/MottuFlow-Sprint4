@@ -3,6 +3,7 @@ using MottuFlowApi.Data;
 using MottuFlowApi.DTOs;
 using MottuFlowApi.Services;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MottuFlowApi.Controllers.V1
 {
@@ -24,6 +25,7 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         [SwaggerOperation(Summary = "Autentica um usuário e gera um token JWT")]
         [SwaggerResponse(StatusCodes.Status200OK, "Autenticação realizada com sucesso")]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Credenciais inválidas")]

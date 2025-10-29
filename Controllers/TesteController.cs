@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MottuFlowApi.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MottuFlowApi.Controllers.V1
 {
@@ -18,6 +19,7 @@ namespace MottuFlowApi.Controllers.V1
         /// Endpoint de verificação da saúde da API.
         /// </summary>
         [HttpGet("ping")]
+        [AllowAnonymous]
         [SwaggerOperation(
             Summary = "Verifica o status de funcionamento da API",
             Description = "Retorna informações sobre o estado atual da aplicação, tempo de execução, ambiente e timestamp UTC.")]

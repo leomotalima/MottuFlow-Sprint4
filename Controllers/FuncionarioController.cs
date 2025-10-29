@@ -34,7 +34,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         // LOGIN (gera token JWT)
-        [AllowAnonymous]
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Realiza login e gera token JWT", Description = "Autentica o funcionário e retorna um token JWT válido por 2h.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Login realizado com sucesso.")]

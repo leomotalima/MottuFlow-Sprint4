@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MottuFlowApi.Data;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -48,32 +46,21 @@ builder.Services.AddVersionedApiExplorer(options =>
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 builder.Services.AddSingleton<JwtService>();
 
-builder.Services.AddAuthentication(options =>
-{
-    // Define esquemas explícitos (melhor compatibilidade em testes e Swagger)
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    // Permite teste local e evita falhas em ambiente sem HTTPS
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ClockSkew = TimeSpan.Zero // evita expiração precoce em testes
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    });
 
-builder.Services.AddAuthorization();
 
 // ----------------------
 // Swagger
@@ -84,16 +71,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "MottuFlow API",
         Version = "v1",
-        Description = "API RESTful para gerenciamento de frotas de motocicletas - MottuFlow Sprint 4",
-        Contact = new OpenApiContact
-        {
-            Name = "Equipe MottuFlow",
-            Email = "contato@mottuflow.com"
-        },
-        License = new OpenApiLicense
-        {
-            Name = "FIAP - Advanced Business Development with .NET"
-        }
+        Description = "API de gerenciamento de motos"
     });
 
     // Autenticação JWT no Swagger
@@ -104,25 +82,12 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Use: Bearer {token}"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        Description = "Coloque o seu token no formato: Bearer {token}"
     });
 
     // Filtros personalizados
+    options.OperationFilter<SwaggerSecurityRequirementsFilter>();
+    options.OperationFilter<SwaggerAllowAnonymousFilter>();
     options.DocumentFilter<Documentacao>();
     options.DocumentFilter<OrdenarTagsDocumentFilter>();
     options.EnableAnnotations();
@@ -137,6 +102,7 @@ builder.Services.AddHealthChecks()
 // ----------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -163,6 +129,7 @@ app.MapGet("/", context =>
 app.UseHttpsRedirection();
 
 // Middleware de autenticação e autorização
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -170,9 +137,7 @@ app.UseAuthorization();
 app.MapGet("/api/health/ping", () => Results.Ok(new { status = "API rodando" }));
 app.MapHealthChecks("/api/health");
 
-// Controllers
 app.MapControllers();
 app.Run();
 
-// Necessário para testes de integração com WebApplicationFactory
 public partial class Program { }

@@ -22,7 +22,6 @@ namespace MottuFlowApi.Controllers.V1
         public CameraController(AppDbContext context) => _context = context;
 
         // GET - Todas as câmeras (público)
-        [AllowAnonymous]
         [HttpGet(Name = "GetCameras")]
         [SwaggerOperation(Summary = "Lista todas as câmeras", Description = "Retorna uma lista paginada de câmeras cadastradas no sistema.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista retornada com sucesso")]
@@ -61,7 +60,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         // GET - Câmera por ID (público)
-        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetCamera")]
         [SwaggerOperation(Summary = "Obtém uma câmera específica", Description = "Retorna os detalhes de uma câmera pelo ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Câmera encontrada com sucesso")]

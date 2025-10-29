@@ -35,8 +35,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeletePatio), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // GET - Todos os pátios (público)
-        [AllowAnonymous]
+        // GET - Todos os pátios
         [HttpGet(Name = "GetPatios")]
         [SwaggerOperation(Summary = "Lista todos os pátios", Description = "Retorna uma lista paginada de pátios cadastrados.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista retornada com sucesso")]
@@ -77,7 +76,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         // GET - Por ID
-        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetPatio")]
         [SwaggerOperation(Summary = "Obtém um pátio específico", Description = "Retorna os detalhes de um pátio pelo seu ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Pátio encontrado com sucesso")]

@@ -30,8 +30,7 @@ namespace MottuFlowApi.Controllers.V1
             resource.AddLink(new Link { Href = Url.Link(nameof(DeleteMoto), new { id })!, Rel = "delete", Method = "DELETE" });
         }
 
-        // GET - Listar todas as motos (público)
-        [AllowAnonymous]
+        // GET - Listar todas as motos
         [HttpGet(Name = "GetMotos")]
         [SwaggerOperation(Summary = "Lista todas as motos", Description = "Retorna uma lista paginada de motos cadastradas.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de motos retornada com sucesso")]
@@ -75,7 +74,6 @@ namespace MottuFlowApi.Controllers.V1
         }
 
         // GET - Buscar moto por ID
-        [AllowAnonymous]
         [HttpGet("{id}", Name = "GetMoto")]
         [SwaggerOperation(Summary = "Obtém uma moto específica", Description = "Retorna os detalhes de uma moto pelo seu ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Moto encontrada com sucesso")]
