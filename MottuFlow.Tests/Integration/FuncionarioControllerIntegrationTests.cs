@@ -75,7 +75,6 @@ namespace MottuFlow.Tests.Integration
             Console.WriteLine(" Endpoint /api/v1/funcionarios retornou 200 OK com sucesso.");
         }
 
-        // DTO auxiliar para ler o resultado do login
         private class LoginResponse
         {
             public string Token { get; set; } = string.Empty;

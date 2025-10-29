@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MottuFlowApi;
 using MottuFlowApi.Data;
 using MottuFlowApi.Models;
@@ -13,32 +14,51 @@ namespace MottuFlow.Tests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            // Define ambiente de teste
+            builder.UseEnvironment("Testing");
+
             builder.ConfigureServices(services =>
             {
-                // Remove o contexto de banco real (ex: Oracle)
+                // Remove o DbContext do Oracle
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-
+                
                 if (descriptor != null)
+                {
                     services.Remove(descriptor);
+                }
 
-                // Adiciona o banco InMemory para os testes
+                // Remove também o AppDbContext se estiver registrado
+                var dbContextDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(AppDbContext));
+                
+                if (dbContextDescriptor != null)
+                {
+                    services.Remove(dbContextDescriptor);
+                }
+
+                // Adiciona o banco InMemory para testes
                 services.AddDbContext<AppDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("TestDb");
                 });
+            });
 
-                // Cria um escopo temporário para configurar o banco
+            // Configura após todos os serviços
+            builder.ConfigureServices(services =>
+            {
+                // Garante que o banco seja populado após a criação
                 var sp = services.BuildServiceProvider();
-
+                
                 using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var scopedServices = scope.ServiceProvider;
+                var db = scopedServices.GetRequiredService<AppDbContext>();
 
-                // Limpa e recria o banco antes de popular
+                // Recria o banco
                 db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
 
-                // Popula dados iniciais se o banco estiver vazio
+                // Popula dados de teste
                 if (!db.Funcionarios.Any())
                 {
                     db.Funcionarios.Add(new Funcionario
@@ -50,7 +70,7 @@ namespace MottuFlow.Tests
                         Email = "leo@mottuflow.com",
                         Senha = BCrypt.Net.BCrypt.HashPassword("123456")
                     });
-
+                    
                     db.SaveChanges();
                 }
             });

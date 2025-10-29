@@ -15,11 +15,22 @@ var builder = WebApplication.CreateBuilder(args);
 // ----------------------
 // Banco de Dados
 // ----------------------
-Env.Load();
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    Env.Load();
+}
 
-// Conexão com o banco de dados
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseOracle(Environment.GetEnvironmentVariable("ConnectionStrings__OracleConnection")));
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__OracleConnection");
+
+if (builder.Environment.EnvironmentName != "Testing" && !string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseOracle(connectionString));
+}
+else if (builder.Environment.EnvironmentName != "Testing")
+{
+    throw new InvalidOperationException("Connection string Oracle não encontrada!");
+}
 
 // ----------------------
 // Versionamento da API
