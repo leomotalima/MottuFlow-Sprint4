@@ -1,15 +1,11 @@
 <div align="center">
   <img src="https://github.com/thejaobiell/MottuFlowJava/blob/main/MottuFlow/src/main/resources/static/images/logo.png?raw=true" alt="MottuFlow Logo" width="200"/>
   
-  <h1><i><b>MottuFlow</b></i> - Sprint 4 (FIAP)</h1>
+  <h1><i><b>MottuFlow</b></i> - Sprint 4</h1>
   <p><b>Disciplina:</b> Advanced Business Development with .NET</p>
   <p><b>Professor Orientador:</b> Leonardo Gasparini Romão</p>
   <p>API RESTful desenvolvida em <b>.NET 8</b> para o gerenciamento inteligente de frotas de motocicletas da empresa <b>Mottu</b>.</p>
 </div>
-
----
-
-## Etiquetas
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-ASP.NET_Core-green.svg)](https://learn.microsoft.com/aspnet/core)
@@ -26,34 +22,13 @@ A solução oferece controle completo sobre **funcionários, pátios, motos, câ
 
 A aplicação implementa **autenticação JWT**, **HATEOAS**, **Health Checks**, **versionamento de API**, e testes automatizados com **xUnit** e **WebApplicationFactory**.
 
-> Projeto desenvolvido para a disciplina **Advanced Business Development with .NET**, aplicando conceitos modernos de arquitetura, segurança e testes em APIs RESTful corporativas.
-
 ---
 
 ## Arquitetura do Sistema
 
 O sistema segue arquitetura em camadas (**Controller → Service → Repository → Data → Model**), garantindo modularidade e manutenibilidade.
 
-### 1. Context Diagram
-
-```mermaid
-graph TB
-    user["Usuário (Gerente/Funcionário)"]
-    extIdP["Provedor de Identidade (JWT)"]
-    extPay["Sistema de Pagamentos"]
-
-    subgraph mottu["MottuFlow (.NET 8 API)"]
-        api["API REST"]
-    end
-
-    user -->|HTTP/JSON| api
-    api -->|Autenticação| extIdP
-    api -->|Integração Financeira| extPay
-```
-
----
-
-### 2. Container Diagram
+### 1. Container Diagram
 
 ```mermaid
 graph TB
@@ -131,6 +106,129 @@ graph LR
 
 ---
 
+## Pré-requisitos
+
+Antes de executar o projeto, certifique-se de ter instalado:
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Oracle Database](https://www.oracle.com/database/technologies/oracle-database-software-downloads.html) (ou Docker com [oracle-free](https://hub.docker.com/r/gvenzl/oracle-free))
+
+---
+
+## Execução Local
+
+### 1️⃣ Clonar o repositório
+
+```bash
+git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
+cd MottuFlow-Sprint4
+```
+
+---
+
+### 2️⃣ Configurar as credenciais do banco de dados
+
+Crie um arquivo `.env` na raiz do projeto e configure as credenciais do Oracle:
+
+```env
+ORACLE_USER_ID=Joao
+ORACLE_PASSWORD=112305
+ORACLE_DATA_SOURCE=localhost:1521/FREEPDB1
+ConnectionStrings__OracleConnection=User Id=${ORACLE_USER_ID};Password=${ORACLE_PASSWORD};Data Source=${ORACLE_DATA_SOURCE}
+```
+
+> **⚠️ IMPORTANTE:** Altere os valores de `ORACLE_USER_ID`, `ORACLE_PASSWORD` e `ORACLE_DATA_SOURCE` conforme seu ambiente Oracle local.
+
+---
+
+### 3️⃣ Instalar ferramentas e dependências
+
+Execute os seguintes comandos no terminal:
+
+```bash
+# Instalar Entity Framework CLI globalmente
+dotnet tool install --global dotnet-ef
+
+# Restaurar pacotes NuGet
+dotnet restore
+
+# Compilar o projeto
+dotnet build
+
+# Aplicar migrations no banco de dados
+dotnet ef database update
+```
+
+---
+
+### 4️⃣ Executar a aplicação
+
+```bash
+dotnet run
+```
+
+A API estará disponível em: **[http://localhost:5224/swagger/index.html](http://localhost:5224/swagger/index.html)**
+
+---
+
+### 5️⃣ Configurar a versão da API no Swagger
+
+No Swagger UI, selecione a versão da API:
+
+- **Campo "API Version":** Digite `1` (versão v1)
+
+> **⚠️ IMPORTANTE:** Todos os endpoints devem usar a **versão v1**. No Swagger, basta inserir o número **1** no campo de versionamento.
+
+---
+
+### 6️⃣ Autenticar na API
+
+Antes de utilizar os endpoints protegidos, faça login no endpoint de autenticação:
+
+**Endpoint:**
+```http
+POST /api/auth/login
+```
+
+**Corpo da requisição:**
+```json
+{
+  "username": "admin@mottu.com",
+  "password": "adminmottu"
+}
+```
+
+**Resposta:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkBtb3R0dS5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbmlzdHJhZG9yIiwianRpIjoiNmM3MDE4ZDEtNmU4MC00YTAyLTk4MjgtMTg2Yzg0ZmI4ODUzIiwiZXhwIjoxNzYxODM1NDkwLCJpc3MiOiJNb3R0dUZsb3ciLCJhdWQiOiJNb3R0dUZsb3dBcGlVc2VycyJ9.1kQV4c9rf2TzEaHHnn1PJ5F_0xjtTCEzgdkHjj6SIS0",
+  "role": "Administrador",
+  "expiresIn": "2h"
+}
+```
+
+> **💡 Recomendação:** Utilize o Swagger UI para testar os endpoints. Clique no botão **"Authorize"** e cole o **token JWT** retornado (copie apenas o valor do campo `token`).
+
+---
+
+## Estrutura do Projeto
+
+```
+MottuFlow-Sprint4/
+├── Controllers/           # Endpoints da API
+├── Data/                 # DbContext e configurações EF
+├── DTOs/                 # Data Transfer Objects
+├── Hateoas/              # Implementação HATEOAS
+├── Models/               # Entidades do domínio
+├── Repositories/         # Acesso a dados
+├── Services/             # Lógica de negócio
+├── Swagger/              # Configurações Swagger
+├── MottuFlow.Tests/      # Testes automatizados
+├── Program.cs            # Ponto de entrada da aplicação
+├── .env                  # Variáveis de ambiente (criar manualmente)
+└── README.md
+```
+
 ---
 
 ## Documentação da API
@@ -142,7 +240,18 @@ GET /api/health/ping
 **Resposta:**
 ```json
 {
-  "status": "API rodando"
+  "success": true,
+  "message": "API rodando com sucesso 🚀",
+  "data": {
+    "status": "Healthy",
+    "version": "1.0.0",
+    "uptime": "00:00:00",
+    "environment": "Development",
+    "host": "<nome do host>",
+    "timestampUtc": "2025-10-30T12:50:01.5172445Z"
+  },
+  "statusCode": 200,
+  "timestampUtc": "2025-10-30T12:50:01.5173065Z"
 }
 ```
 
@@ -161,18 +270,35 @@ GET /api/health/ping
 **Exemplo de resposta com HATEOAS:**
 ```json
 {
-  "id": 1,
-  "nome": "João Silva",
-  "cpf": "123.456.789-00",
-  "links": [
-    { "rel": "self", "href": "/api/funcionarios/1", "method": "GET" },
-    { "rel": "update", "href": "/api/funcionarios/1", "method": "PUT" },
-    { "rel": "delete", "href": "/api/funcionarios/1", "method": "DELETE" }
-  ]
+  "success": true,
+  "message": "Funcionários listados com sucesso.",
+  "data": {
+    "meta": {
+      "totalItems": 1,
+      "page": 1,
+      "pageSize": 10,
+      "totalPages": 1
+    },
+    "funcionarios": [
+      {
+        "nome": "Admin",
+        "cpf": "000.000.000-00",
+        "cargo": "Administrador",
+        "telefone": "(00)00000-0000",
+        "email": "admin@mottu.com",
+        "dataCadastro": "2025-10-29T12:48:25",
+        "id": 1,
+        "links": []
+      }
+    ]
+  },
+  "statusCode": 200,
+  "timestampUtc": "2025-10-30T12:48:25.2077607Z"
 }
 ```
 
 ---
+
 ## Testes Automatizados
 
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
@@ -191,70 +317,36 @@ dotnet test
 ```
 > Todos os testes rodam com banco **InMemory**, sem necessidade do Oracle local.
 
----
-
-## Estrutura do Projeto
-
-```
-MottuFlow-Sprint4/
-├── Controllers/
-├── Data/
-├── DTOs/
-├── Hateoas/
-├── Models/
-├── Repositories/
-├── Services/
-├── Swagger/
-├── MottuFlow.Tests/
-├── Program.cs
-└── README.md
-```
 
 ---
 
-## Execução Local
+## Equipe de Desenvolvimento
 
-### Clonar o projeto
-```bash
-git clone https://github.com/leomotalima/MottuFlow-Sprint4.git
-```
-
-### Entrar no diretório
-```bash
-cd MottuFlow-Sprint4
-```
-
-### Restaurar dependências
-```bash
-dotnet restore
-```
-
-### Rodar a aplicação
-```bash
-dotnet run
-```
-
-Acesse: [https://localhost:5224/swagger](https://localhost:5224/swagger)
-
----
-
-## Aprendizados
-
-Durante o desenvolvimento foram aplicadas:
-- Arquitetura em camadas e injeção de dependência  
-- Versionamento e documentação de APIs  
-- Segurança com JWT e boas práticas REST  
-- Testes automatizados e integração contínua  
-
----
-
-## Autores
-
-| Nome | RM | Responsabilidade |
-|------|----|------------------|
-| **Léo Mota Lima** | 557851 | API, Controllers, DTOs, Swagger, HATEOAS, Testes |
-| **João Gabriel Boaventura** | 557854 | Lógica de Negócio e ML.NET |
-| **Lucas Leal das Chagas** | 551124 | Documentação, Banco de Dados, Versionamento |
+<table align="center">
+<tr>
+<td align="center">
+<a href="https://github.com/thejaobiell">
+<img src="https://github.com/thejaobiell.png" width="100px;" alt="João Gabriel"/><br>
+<sub><b>João Gabriel Boaventura</b></sub><br>
+<sub>RM554874 • 2TDSB2025</sub><br>
+</a>
+</td>
+<td align="center">
+<a href="https://github.com/leomotalima">
+<img src="https://github.com/leomotalima.png" width="100px;" alt="Léo Mota"/><br>
+<sub><b>Léo Mota Lima</b></sub><br>
+<sub>RM557851 • 2TDSB2025</sub><br>
+</a>
+</td>
+<td align="center">
+<a href="https://github.com/LucasLDC">
+<img src="https://github.com/LucasLDC.png" width="100px;" alt="Lucas Leal"/><br>
+<sub><b>Lucas Leal das Chagas</b></sub><br>
+<sub>RM551124 • 2TDSB2025</sub><br>
+</a>
+</td>
+</tr>
+</table>
 
 ---
 
@@ -262,12 +354,3 @@ Durante o desenvolvimento foram aplicadas:
 
 Distribuído sob a licença **MIT**.  
 Consulte [LICENSE](https://choosealicense.com/licenses/mit/).
-
----
-
-## Referências
-
-- [Microsoft Docs – ASP.NET Core Web API](https://learn.microsoft.com/aspnet/core/)
-- [C4 Model Website](https://c4model.com/diagrams)
-- [Swagger Best Practices](https://swagger.io/resources/articles/best-practices-in-api-documentation/)
-- [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html)
