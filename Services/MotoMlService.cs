@@ -1,58 +1,49 @@
 using Microsoft.ML;
-using MottuFlowApi.Models;
+using Microsoft.ML.Data;
+using MottuFlowApi.Models; 
+using System;
+using System.IO;
 
-namespace MottuFlowApi.Services
+
+public class MotoMlService
 {
-    public class MotoMlService
+    private readonly MLContext _mlContext;
+    private readonly ITransformer _model; 
+
+    private static readonly string _dataPath = Path.Combine("Scripts", "ml.csv");
+
+    public MotoMlService(MLContext mlContext)
     {
-        private readonly MLContext _mlContext;
-        private readonly ITransformer _modelo;
+        _mlContext = mlContext;
+        _model = TrainModel();
+    }
 
-        public MotoMlService()
-        {
-            _mlContext = new MLContext();
+    public ManutencaoPredicao Predict(MotoData input)
+    {
+        var predictionEngine = _mlContext.Model.CreatePredictionEngine<MotoData, ManutencaoPredicao>(_model);
+        return predictionEngine.Predict(input);
+    }
 
-            // Dados de exemplo para o treinamento do modelo
-            var dadosTreinamento = new List<MotoData>
-            {
-                new MotoData { Quilometragem = 1000, TempoUsoMeses = 2, PrecisaManutencao = false },
-                new MotoData { Quilometragem = 5000, TempoUsoMeses = 6, PrecisaManutencao = true },
-                new MotoData { Quilometragem = 3000, TempoUsoMeses = 3, PrecisaManutencao = false },
-                new MotoData { Quilometragem = 8000, TempoUsoMeses = 10, PrecisaManutencao = true },
-                new MotoData { Quilometragem = 12000, TempoUsoMeses = 12, PrecisaManutencao = true }
-            };
+    private ITransformer TrainModel()
+    {
+        if (!File.Exists(_dataPath))
+            throw new FileNotFoundException($"Arquivo de dados não encontrado em: {_dataPath}");
+        
+        var dataView = _mlContext.Data.LoadFromTextFile<MotoData>(
+            path: _dataPath,
+            hasHeader: true,
+            separatorChar: ',');
 
-            // Carrega os dados em memória
-            var dados = _mlContext.Data.LoadFromEnumerable(dadosTreinamento);
+        var pipeline = _mlContext.Transforms
+            .Concatenate("Features",
+                nameof(MotoData.Vibracao),
+                nameof(MotoData.TemperaturaMotor),
+                nameof(MotoData.KMRodados),
+                nameof(MotoData.IdadeOleoDias))
+            .Append(_mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(
+                labelColumnName: "Label",
+                featureColumnName: "Features"));
 
-            // Cria o pipeline de transformação + modelo
-            var pipeline = _mlContext.Transforms.Concatenate("Features", new[] { "Quilometragem", "TempoUsoMeses" })
-                .Append(_mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(labelColumnName: "PrecisaManutencao"));
-
-            // Treina o modelo
-            _modelo = pipeline.Fit(dados);
-        }
-
-        // Método que faz a predição
-        public MotoPrediction Prever(float quilometragem, float tempoUsoMeses)
-        {
-            var dadosEntrada = new MotoData { Quilometragem = quilometragem, TempoUsoMeses = tempoUsoMeses };
-
-            var engine = _mlContext.Model.CreatePredictionEngine<MotoData, MotoPredictionInternal>(_modelo);
-            var resultado = engine.Predict(dadosEntrada);
-
-            return new MotoPrediction
-            {
-                Predicao = resultado.PrecisaManutencao,
-                Probabilidade = resultado.Probability
-            };
-        }
-
-        // Classe interna usada apenas pelo ML.NET
-        private class MotoPredictionInternal
-        {
-            public bool PrecisaManutencao { get; set; }
-            public float Probability { get; set; }
-        }
+        return pipeline.Fit(dataView);
     }
 }

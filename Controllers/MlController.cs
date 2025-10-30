@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MottuFlowApi.Models;
 using MottuFlowApi.Services;
 using MottuFlowApi.Utils;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,49 +13,60 @@ namespace MottuFlowApi.Controllers.V1
     [Tags("Machine Learning")]
     [Produces("application/json")]
     [Consumes("application/json")]
-    [AllowAnonymous] 
+    [AllowAnonymous]
     public class MlController : ControllerBase
     {
         private readonly MotoMlService _mlService;
 
-        public MlController()
+        public MlController(MotoMlService mlService)
         {
-            _mlService = new MotoMlService();
+            _mlService = mlService;
         }
 
-        // POST - Predição de manutenção
         [HttpPost("predicao")]
         [SwaggerOperation(
             Summary = "Prediz necessidade de manutenção da moto",
-            Description = "Usa um modelo de Machine Learning (ML.NET) para prever se uma moto precisa de manutenção preventiva com base na quilometragem e no tempo de uso.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Predição realizada com sucesso")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "Entrada inválida")]
+            Description = "Usa um modelo de Machine Learning (ML.NET) para prever se uma moto precisa de manutenção com base na vibração, temperatura do motor, km rodados e idade do óleo.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Predição realizada com sucesso", typeof(ApiResponse<object>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Entrada inválida", typeof(ApiResponse<string>))]
         public IActionResult Prever([FromBody] MotoInput input)
         {
             if (input == null)
                 return BadRequest(ApiResponse<string>.Fail("Entrada inválida. O corpo da requisição não pode ser nulo."));
 
-            if (input.Quilometragem <= 0 || input.TempoUsoMeses <= 0)
-                return BadRequest(ApiResponse<string>.Fail("Os valores de quilometragem e tempo de uso devem ser maiores que zero."));
+            if (input.Vibracao < 0 || input.TemperaturaMotor < 0 || input.KMRodados < 0 || input.IdadeOleoDias < 0)
+                return BadRequest(ApiResponse<string>.Fail("Todos os valores numéricos devem ser maiores ou iguais a zero."));
 
-            var resultado = _mlService.Prever(input.Quilometragem, input.TempoUsoMeses);
+            var motoParaPrever = new MotoData
+            {
+                Vibracao = input.Vibracao,
+                TemperaturaMotor = input.TemperaturaMotor,
+                KMRodados = input.KMRodados,
+                IdadeOleoDias = input.IdadeOleoDias
+            };
+
+            var resultado = _mlService.Predict(motoParaPrever);
 
             var data = new
             {
-                input.Quilometragem,
-                input.TempoUsoMeses,
+                input.Vibracao,
+                input.TemperaturaMotor,
+                input.KMRodados,
+                input.IdadeOleoDias,
                 resultado.Predicao,
-                resultado.Probabilidade
+                resultado.Probability,
+                resultado.Score
             };
 
             return Ok(ApiResponse<object>.Ok(data, "Predição de manutenção realizada com sucesso."));
         }
+    }
 
-        // DTO de entrada
-        public class MotoInput
-        {
-            public float Quilometragem { get; set; }
-            public float TempoUsoMeses { get; set; }
-        }
+    public class MotoInput
+    {
+        public float Vibracao { get; set; }
+        public float TemperaturaMotor { get; set; }
+        public float KMRodados { get; set; }
+        public float IdadeOleoDias { get; set; }
     }
 }

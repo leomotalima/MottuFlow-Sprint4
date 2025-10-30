@@ -26,7 +26,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.ML" Version="2.0.0" />
+    <PackageReference Include="Microsoft.ML" Version="4.0.3" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="9.23.90" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
@@ -36,6 +36,13 @@
   <Compile Remove="MottuFlow.Tests\**\*.cs" />
   <None Include="MottuFlow.Tests\**" Exclude="MottuFlow.Tests\bin\**;MottuFlow.Tests\obj\**" />
 </ItemGroup>
+
+<ItemGroup>
+  <None Update="Scripts\ml.csv">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
 
 
 </Project>

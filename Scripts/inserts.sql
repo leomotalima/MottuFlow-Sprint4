@@ -24,12 +24,3 @@ BEGIN
 END;
 /
 
-SELECT * FROM "JOAO"."funcionario";
-SELECT * FROM "JOAO"."patio";
-SELECT * FROM "JOAO"."camera";
-SELECT * FROM "JOAO"."moto";
-SELECT * FROM "JOAO"."aruco_tag";
-SELECT * FROM "JOAO"."localidade";
-SELECT * FROM "JOAO"."registro_status";
-
-

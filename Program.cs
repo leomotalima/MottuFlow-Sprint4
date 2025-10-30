@@ -9,6 +9,7 @@ using System.Text;
 using MottuFlowApi.Services;
 using MottuFlowApi.Swagger;
 using DotNetEnv;
+using Microsoft.ML;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,16 +34,20 @@ else if (builder.Environment.EnvironmentName != "Testing")
 }
 
 // ----------------------
+// Machine Learning
+// ----------------------
+builder.Services.AddSingleton(new MLContext());
+builder.Services.AddSingleton<MotoMlService>();
+
+// ----------------------
 // Versionamento da API
 // ----------------------
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-    options.ApiVersionReader = ApiVersionReader.Combine(
-        new QueryStringApiVersionReader("api-version"),
-        new HeaderApiVersionReader("x-api-version"));
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = false;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
 
 builder.Services.AddVersionedApiExplorer(options =>
@@ -85,7 +90,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API de gerenciamento de motos"
     });
 
-    // Autenticação JWT no Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",

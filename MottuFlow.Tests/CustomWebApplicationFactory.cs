@@ -14,12 +14,10 @@ namespace MottuFlow.Tests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Define ambiente de teste
             builder.UseEnvironment("Testing");
 
             builder.ConfigureServices(services =>
             {
-                // Remove o DbContext do Oracle
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
                 
@@ -28,7 +26,6 @@ namespace MottuFlow.Tests
                     services.Remove(descriptor);
                 }
 
-                // Remove também o AppDbContext se estiver registrado
                 var dbContextDescriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(AppDbContext));
                 
@@ -37,28 +34,23 @@ namespace MottuFlow.Tests
                     services.Remove(dbContextDescriptor);
                 }
 
-                // Adiciona o banco InMemory para testes
                 services.AddDbContext<AppDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("TestDb");
                 });
             });
 
-            // Configura após todos os serviços
             builder.ConfigureServices(services =>
             {
-                // Garante que o banco seja populado após a criação
                 var sp = services.BuildServiceProvider();
                 
                 using var scope = sp.CreateScope();
                 var scopedServices = scope.ServiceProvider;
                 var db = scopedServices.GetRequiredService<AppDbContext>();
 
-                // Recria o banco
                 db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
 
-                // Popula dados de teste
                 if (!db.Funcionarios.Any())
                 {
                     db.Funcionarios.Add(new Funcionario
