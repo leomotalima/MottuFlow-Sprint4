@@ -141,10 +141,7 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
-app.UseHttpsRedirection();
-
 // Middleware de autenticação e autorização
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 

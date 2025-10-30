@@ -27,6 +27,6 @@ namespace MottuFlowApi.Models
 
         public float Score { get; set; }
 
-        public float Probability { get; set; }
+        public float Probabilidade { get; set; }
     }
 }

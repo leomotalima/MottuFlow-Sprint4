@@ -45,7 +45,7 @@ namespace MottuFlowApi.Controllers.V1
                 IdadeOleoDias = input.IdadeOleoDias
             };
 
-            var resultado = _mlService.Predict(motoParaPrever);
+            var resultado = _mlService.Prever(motoParaPrever);
 
             var data = new
             {
@@ -54,7 +54,7 @@ namespace MottuFlowApi.Controllers.V1
                 input.KMRodados,
                 input.IdadeOleoDias,
                 resultado.Predicao,
-                resultado.Probability,
+                resultado.Probabilidade,
                 resultado.Score
             };
 
