@@ -58,7 +58,7 @@ graph TB
 
 ---
 
-### 3. Component Diagram
+### 2. Component Diagram
 
 ```mermaid
 graph LR
