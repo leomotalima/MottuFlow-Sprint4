@@ -10,6 +10,7 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-ASP.NET_Core-green.svg)](https://learn.microsoft.com/aspnet/core)
 [![Entity Framework](https://img.shields.io/badge/ORM-Entity%20Framework%20Core-purple.svg)](https://learn.microsoft.com/ef/)
+[![ML.NET](https://img.shields.io/badge/ML.NET-Previsão%20de%20Manutenção-orange.svg)](https://dotnet.microsoft.com/apps/machinelearning-ai/ml-dotnet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![FIAP](https://img.shields.io/badge/FIAP-2TDSB-red.svg)](https://www.fiap.com.br/)
 
@@ -20,7 +21,7 @@
 O **MottuFlow** é uma **API RESTful** desenvolvida para otimizar o **gerenciamento inteligente de frotas de motocicletas** da empresa **Mottu**.  
 A solução oferece controle completo sobre **funcionários, pátios, motos, câmeras, ArUco Tags, registros de status e localidades**, proporcionando **eficiência operacional**, **automação de processos** e **monitoramento centralizado** com boas práticas REST e integração com **Oracle**.
 
-A aplicação implementa **autenticação JWT**, **HATEOAS**, **Health Checks**, **versionamento de API**, e testes automatizados com **xUnit** e **WebApplicationFactory**.
+A aplicação implementa **autenticação JWT**, **HATEOAS**, **Health Checks**, **versionamento de API**, **Machine Learning com ML.NET** para previsão de manutenção preventiva, e testes automatizados com **xUnit** e **WebApplicationFactory**.
 
 ---
 
@@ -67,12 +68,14 @@ graph LR
     repo["MotoRepository – Acesso a Dados"]
     mapper["MotoMapper – DTO ⇄ Entidade"]
     validator["MotoValidator – Validação de Dados"]
+    mlengine["ML.NET Engine – Previsão de Manutenção"]
     db[(Banco de Dados Oracle / InMemory)]
 
     ctrl --> svc
     svc --> repo
     svc --> mapper
     svc --> validator
+    svc --> mlengine
     repo --> db
 ```
 
@@ -86,8 +89,101 @@ graph LR
 - Versionamento de API (v1, v2)  
 - Health Check (`/api/health/ping`)  
 - Swagger/OpenAPI documentado com anotações  
-- Integração ML.NET (classificação de status de motos)  
+- **Integração ML.NET para previsão de manutenção preventiva**
 - Testes automatizados com xUnit
+
+---
+
+## Machine Learning - Previsão de Manutenção
+
+O **MottuFlow** utiliza **ML.NET** para analisar dados de telemetria das motocicletas e prever a necessidade de manutenção preventiva, ajudando a reduzir custos e aumentar a disponibilidade da frota.
+
+### 📊 Dados de Entrada para o Modelo
+
+O modelo de ML analisa os seguintes parâmetros em tempo real:
+
+| Parâmetro | Descrição | Unidade |
+|-----------|-----------|---------|
+| **Vibração** | Nível de vibração do motor | Valor normalizado (0.0 - 1.0) |
+| **Temperatura do Motor** | Temperatura de operação | Graus Celsius (°C) |
+| **KM Rodados** | Quilometragem total | Quilômetros |
+| **Idade do Óleo** | Dias desde a última troca de óleo | Dias |
+
+### 🔍 Exemplos de Dados
+
+#### Exemplo 1: Moto em Bom Estado
+```json
+{
+  "Vibracao": 0.2,
+  "TemperaturaMotor": 85.5,
+  "KMRodados": 1500,
+  "IdadeOleoDias": 30
+}
+```
+**Resultado esperado:** Manutenção não necessária (baixa vibração, temperatura normal, baixa quilometragem, óleo recente)
+
+---
+
+#### Exemplo 2: Moto Requerendo Manutenção
+```json
+{
+  "Vibracao": 0.6,
+  "TemperaturaMotor": 98.5,
+  "KMRodados": 8000,
+  "IdadeOleoDias": 120
+}
+```
+**Resultado esperado:** Manutenção preventiva recomendada (vibração elevada, temperatura alta, alta quilometragem, óleo vencido)
+
+---
+
+### 🎯 Endpoint de Previsão
+
+**Método:** `POST`  
+**URL:** `/api/v1/ml/predicao`
+
+**Corpo da requisição:**
+```json
+{
+  "vibracao": 0.6,
+  "temperaturaMotor": 98.5,
+  "kmRodados": 8000,
+  "idadeOleoDias": 120
+}
+```
+
+**Resposta de sucesso (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Previsão de manutenção realizada com sucesso",
+  "data": {
+    "requerManutencao": true,
+    "confianca": 0.87,
+    "recomendacoes": [
+      "Troca de óleo urgente (120 dias desde última troca)",
+      "Verificar sistema de arrefecimento (temperatura elevada)",
+      "Inspeção de componentes mecânicos (vibração anormal detectada)"
+    ],
+    "prioridade": "Alta",
+    "dataPrevisao": "2025-10-30T14:30:00Z"
+  },
+  "statusCode": 200,
+  "timestampUtc": "2025-10-30T14:30:00.123Z"
+}
+```
+
+---
+
+### 🧠 Algoritmo de Machine Learning
+
+O modelo utiliza **classificação binária** com os seguintes algoritmos do ML.NET:
+
+- **FastTree** (Gradient Boosting Decision Trees)
+- **LightGBM** (Light Gradient Boosting Machine)
+- **SDCA** (Stochastic Dual Coordinate Ascent)
+
+O modelo é treinado com dados históricos de manutenções e telemetria para identificar padrões que indicam necessidade de intervenção preventiva.
 
 ---
 
@@ -97,9 +193,9 @@ graph LR
 |-------------|------------|
 | **.NET 8 / ASP.NET Core** | Framework principal da API |
 | **Entity Framework Core** | ORM para Oracle e InMemory |
+| **ML.NET** | Machine Learning para previsão de manutenção |
 | **Swagger / Swashbuckle** | Documentação interativa da API |
 | **JWT Bearer** | Autenticação e segurança |
-| **ML.NET** | Previsão de manutenção |
 | **xUnit** | Testes de unidade e integração |
 | **HATEOAS** | Navegação via links semânticos |
 | **Oracle / InMemory** | Suporte a múltiplos bancos de dados |
@@ -218,6 +314,7 @@ Todos os endpoints da API utilizam versionamento na URL. Exemplo:
 ```http
 GET /api/v1/funcionarios
 POST /api/v1/auth/login
+POST /api/v1/ml/predicao
 ```
 
 > **💡 Observação:** A versão padrão é `v1`. Caso nenhuma versão seja especificada na URL, a API assumirá automaticamente a versão 1.0.
@@ -265,6 +362,7 @@ MottuFlow-Sprint4/
 ├── Models/               # Entidades do domínio
 ├── Repositories/         # Acesso a dados
 ├── Services/             # Lógica de negócio
+├── ML/                   # Modelos e serviços de Machine Learning
 ├── Swagger/              # Configurações Swagger
 ├── Scripts/              # Scripts SQL (inserts.sql)
 ├── MottuFlow.Tests/      # Testes automatizados
@@ -305,11 +403,11 @@ GET /api/health/ping
 
 | Método | Endpoint | Descrição |
 |--------|-----------|-----------|
-| `GET` | `/api/funcionarios` | Lista todos os funcionários |
-| `GET` | `/api/funcionarios/{id}` | Retorna um funcionário específico |
-| `POST` | `/api/funcionarios` | Cria um novo funcionário |
-| `PUT` | `/api/funcionarios/{id}` | Atualiza dados de um funcionário |
-| `DELETE` | `/api/funcionarios/{id}` | Remove um funcionário |
+| `GET` | `/api/v1/funcionarios` | Lista todos os funcionários |
+| `GET` | `/api/v1/funcionarios/{id}` | Retorna um funcionário específico |
+| `POST` | `/api/v1/funcionarios` | Cria um novo funcionário |
+| `PUT` | `/api/v1/funcionarios/{id}` | Atualiza dados de um funcionário |
+| `DELETE` | `/api/v1/funcionarios/{id}` | Remove um funcionário |
 
 **Exemplo de resposta com HATEOAS:**
 ```json
@@ -343,6 +441,78 @@ GET /api/health/ping
 
 ---
 
+### Pátios
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/patios` | Lista todos os pátios |
+| `GET` | `/api/v1/patios/{id}` | Retorna um pátio específico |
+| `POST` | `/api/v1/patios` | Cria um novo pátio |
+| `PUT` | `/api/v1/patios/{id}` | Atualiza dados de um pátio |
+| `DELETE` | `/api/v1/patios/{id}` | Remove um pátio |
+
+---
+
+### Motos
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/motos` | Lista todas as motos |
+| `GET` | `/api/v1/motos/{id}` | Retorna uma moto específica |
+| `POST` | `/api/v1/motos` | Cria uma nova moto |
+| `PUT` | `/api/v1/motos/{id}` | Atualiza dados de uma moto |
+| `DELETE` | `/api/v1/motos/{id}` | Remove uma moto |
+
+---
+
+### Câmeras
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/cameras` | Lista todas as câmeras |
+| `GET` | `/api/v1/cameras/{id}` | Retorna uma câmera específica |
+| `POST` | `/api/v1/cameras` | Cria uma nova câmera |
+| `PUT` | `/api/v1/cameras/{id}` | Atualiza dados de uma câmera |
+| `DELETE` | `/api/v1/cameras/{id}` | Remove uma câmera |
+
+---
+
+### ArUco Tags
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/arucotags` | Lista todas as ArUco tags |
+| `GET` | `/api/v1/arucotags/{id}` | Retorna uma ArUco tag específica |
+| `POST` | `/api/v1/arucotags` | Cria uma nova ArUco tag |
+| `PUT` | `/api/v1/arucotags/{id}` | Atualiza dados de uma ArUco tag |
+| `DELETE` | `/api/v1/arucotags/{id}` | Remove uma ArUco tag |
+
+---
+
+### Localidades
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/localidades` | Lista todas as localidades |
+| `GET` | `/api/v1/localidades/{id}` | Retorna uma localidade específica |
+| `POST` | `/api/v1/localidades` | Cria uma nova localidade |
+| `PUT` | `/api/v1/localidades/{id}` | Atualiza dados de uma localidade |
+| `DELETE` | `/api/v1/localidades/{id}` | Remove uma localidade |
+
+---
+
+### Registros de Status
+
+| Método | Endpoint | Descrição |
+|--------|-----------|-----------|
+| `GET` | `/api/v1/registro-status` | Lista todos os registros de status |
+| `GET` | `/api/v1/registro-status/{id}` | Retorna um registro específico |
+| `POST` | `/api/v1/registro-status` | Cria um novo registro de status |
+| `PUT` | `/api/v1/registro-status/{id}` | Atualiza um registro de status |
+| `DELETE` | `/api/v1/registro-status/{id}` | Remove um registro de status |
+
+---
+
 ## Testes Automatizados
 
 ![Tests](https://img.shields.io/badge/Testes%20de%20Integração-100%25%20Aprovados-brightgreen.svg)
@@ -352,6 +522,7 @@ GET /api/health/ping
 - Endpoints retornando status HTTP esperados (200, 201, 404 etc.)  
 - Separação entre ambientes Oracle (produção) e InMemory (testes)  
 - Testes de autenticação JWT validados com sucesso  
+- Testes de previsão ML.NET validados
 
 **Executando os testes manualmente:**
 ```bash
@@ -360,7 +531,6 @@ dotnet build
 dotnet test
 ```
 > Todos os testes rodam com banco **InMemory**, sem necessidade do Oracle local.
-
 
 ---
 
