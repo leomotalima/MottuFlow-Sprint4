@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using MottuFlowApi.Data;
@@ -25,55 +22,55 @@ namespace MottuFlowApi.Controllers.V1
     public class FuncionarioController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
 
-        public FuncionarioController(AppDbContext context, IConfiguration config)
+        public FuncionarioController(AppDbContext context)
         {
             _context = context;
-            _config = config;
         }
 
-        // LOGIN (gera token JWT)
-        [HttpPost("login")]
-        [SwaggerOperation(Summary = "Realiza login e gera token JWT", Description = "Autentica o funcionário e retorna um token JWT válido por 2h.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Login realizado com sucesso.")]
-        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Credenciais inválidas.")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO login)
+        // POST - Cria novo funcionário
+        [HttpPost]
+        [SwaggerOperation(Summary = "Cria um novo funcionário", Description = "Cadastra um novo funcionário no sistema.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "Funcionário criado com sucesso.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Dados inválidos.")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "CPF ou Email já cadastrado.")]
+        public async Task<IActionResult> CreateFuncionario([FromBody] FuncionarioInputDTO input)
         {
-            var funcionario = await _context.Funcionarios.FirstOrDefaultAsync(f => f.Email == login.Email);
-            if (funcionario == null)
-                return Unauthorized(ApiResponse<string>.Fail("Usuário não encontrado."));
+            if (input == null)
+                return BadRequest(ApiResponse<string>.Fail("Dados inválidos."));
 
-            var senhaHash = HashSenha(login.Senha);
-            if (funcionario.Senha != senhaHash)
-                return Unauthorized(ApiResponse<string>.Fail("Senha incorreta."));
+            if (await _context.Funcionarios.AnyAsync(f => f.CPF == input.Cpf))
+                return Conflict(ApiResponse<string>.Fail("CPF já cadastrado."));
 
-            var claims = new[]
+            if (await _context.Funcionarios.AnyAsync(f => f.Email == input.Email))
+                return Conflict(ApiResponse<string>.Fail("Email já cadastrado."));
+
+            var funcionario = new Funcionario
             {
-                new Claim(ClaimTypes.Name, funcionario.Nome),
-                new Claim(ClaimTypes.Email, funcionario.Email),
-                new Claim(ClaimTypes.Role, funcionario.Cargo)
+                Nome = input.Nome,
+                CPF = input.Cpf,
+                Cargo = input.Cargo,
+                Telefone = input.Telefone,
+                Email = input.Email,
+                Senha = HashSenha(input.Senha)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiracao = DateTime.UtcNow.AddHours(2);
+            _context.Funcionarios.Add(funcionario);
+            await _context.SaveChangesAsync();
 
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: expiracao,
-                signingCredentials: creds
-            );
-
-            var tokenGerado = new
+            var output = new FuncionarioOutputDTO
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiraEm = expiracao
+                Id = funcionario.IdFuncionario,
+                Nome = funcionario.Nome,
+                Cpf = funcionario.CPF,
+                Cargo = funcionario.Cargo,
+                Telefone = funcionario.Telefone,
+                Email = funcionario.Email,
+                DataCadastro = DateTime.Now
             };
 
-            return Ok(ApiResponse<object>.Ok(tokenGerado, "Login realizado com sucesso!"));
+            return CreatedAtAction(nameof(GetFuncionario), new { id = funcionario.IdFuncionario }, 
+                ApiResponse<FuncionarioOutputDTO>.Ok(output, "Funcionário criado com sucesso."));
         }
 
         // Hash seguro
@@ -206,12 +203,5 @@ namespace MottuFlowApi.Controllers.V1
 
             return NoContent();
         }
-    }
-
-    // DTO auxiliar para login
-    public class LoginDTO
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Senha { get; set; } = string.Empty;
     }
 }
