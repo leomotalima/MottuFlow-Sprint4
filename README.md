@@ -112,6 +112,7 @@ Antes de executar o projeto, certifique-se de ter instalado:
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Oracle Database](https://www.oracle.com/database/technologies/oracle-database-software-downloads.html) (ou Docker com [oracle-free](https://hub.docker.com/r/gvenzl/oracle-free))
+- [Oracle SQL Developer para VSCode](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer) para executar scripts SQL
 
 ---
 
@@ -131,9 +132,9 @@ cd MottuFlow-Sprint4
 Crie um arquivo `.env` na raiz do projeto e configure as credenciais do Oracle:
 
 ```env
-ORACLE_USER_ID=Joao
-ORACLE_PASSWORD=112305
-ORACLE_DATA_SOURCE=localhost:1521/FREEPDB1
+ORACLE_USER_ID=<Seu Username Oracle>
+ORACLE_PASSWORD=<Sua Senha Oracle>
+ORACLE_DATA_SOURCE=host:porta/nome_do_serviço
 ConnectionStrings__OracleConnection=User Id=${ORACLE_USER_ID};Password=${ORACLE_PASSWORD};Data Source=${ORACLE_DATA_SOURCE}
 ```
 
@@ -161,8 +162,48 @@ dotnet ef database update
 
 ---
 
-### 4️⃣ Executar a aplicação
+### 4️⃣ Popular o banco de dados com dados iniciais
 
+Após aplicar as migrations, execute o script SQL para inserir os dados iniciais:
+
+**Opção 1: Usando Oracle SQL Developer para VSCode**
+
+1. Instale a extensão [Oracle SQL Developer](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer) no VSCode
+
+2. Configure uma conexão com seu banco Oracle:
+   - Abra o painel lateral do Oracle SQL Developer no VSCode
+   - Clique em "Create Connection"
+   - Preencha os dados de conexão (user, password, host, port, service)
+
+3. Abra o arquivo `Scripts/inserts.sql` no VSCode
+
+4. Execute o script:
+   - Clique com botão direito no editor → "Execute SQL"
+   - Ou use o atalho `Ctrl+Enter` (Linux/Windows) / `Cmd+Enter` (Mac)
+
+**Opção 2: Usando Oracle SQL Developer Desktop**
+
+1. Abra o Oracle SQL Developer
+2. Conecte-se ao banco de dados
+3. Abra o arquivo `Scripts/inserts.sql`
+4. Execute o script clicando no botão "Run Script" (F5)
+
+> **💡 O que esse script faz:**
+> - Insere um usuário administrador padrão (`admin@mottu.com`)
+> - Cria um pátio de exemplo
+> - Adiciona uma câmera, moto, ArUco tag e registros de localidade e status
+> - Utiliza `EXECUTE IMMEDIATE` com concatenação dinâmica do schema do usuário atual
+
+---
+
+### 5️⃣ Executar a aplicação
+
+Volte para a raiz do projeto (se estiver na pasta Scripts):
+```bash
+cd ..
+```
+
+Execute a aplicação:
 ```bash
 dotnet run
 ```
@@ -171,17 +212,19 @@ A API estará disponível em: **[http://localhost:5224/swagger/index.html](http:
 
 ---
 
-### 5️⃣ Configurar a versão da API no Swagger
+### 6️⃣ Utilizar os endpoints versionados
 
-No Swagger UI, selecione a versão da API:
+Todos os endpoints da API utilizam versionamento na URL. Exemplo:
+```http
+GET /api/v1/funcionarios
+POST /api/v1/auth/login
+```
 
-- **Campo "API Version":** Digite `1` (versão v1)
-
-> **⚠️ IMPORTANTE:** Todos os endpoints devem usar a **versão v1**. No Swagger, basta inserir o número **1** no campo de versionamento.
+> **💡 Observação:** A versão padrão é `v1`. Caso nenhuma versão seja especificada na URL, a API assumirá automaticamente a versão 1.0.
 
 ---
 
-### 6️⃣ Autenticar na API
+### 7️⃣ Autenticar na API
 
 Antes de utilizar os endpoints protegidos, faça login no endpoint de autenticação:
 
@@ -207,7 +250,7 @@ POST /api/auth/login
 }
 ```
 
-> **💡 Recomendação:** Utilize o Swagger UI para testar os endpoints. Clique no botão **"Authorize"** e cole o **token JWT** retornado (copie apenas o valor do campo `token`).
+> **💡 Recomendação:** Utilize o Swagger UI para testar os endpoints. Clique no botão **"Authorize"** e cole o **token JWT** retornado (copie apenas o valor do campo `token` sem as aspas).
 
 ---
 
@@ -223,6 +266,7 @@ MottuFlow-Sprint4/
 ├── Repositories/         # Acesso a dados
 ├── Services/             # Lógica de negócio
 ├── Swagger/              # Configurações Swagger
+├── Scripts/              # Scripts SQL (inserts.sql)
 ├── MottuFlow.Tests/      # Testes automatizados
 ├── Program.cs            # Ponto de entrada da aplicação
 ├── .env                  # Variáveis de ambiente (criar manualmente)
