@@ -327,7 +327,7 @@ Antes de utilizar os endpoints protegidos, faça login no endpoint de autentica�
 
 **Endpoint:**
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 ```
 
 **Corpo da requisição:**
